@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
@@ -172,12 +173,12 @@ test('card carousel labels its list and starts with previous disabled', () => {
   const id = html.match(/aria-labelledby="([^"]+)"/)[1];
   assert.match(html, new RegExp(`<h2 id="${id}" class="bs-carousel__title">Guides</h2>`));
   assert.match(html, /<button type="button" aria-label="Previous cards" disabled="">/);
-  assert.match(html, /<li class="bs-carousel__card"><a href="\/one">/);
+  assert.match(html, /<li class="bs-carousel__card" style="--i:0"><a href="\/one">/);
 });
 
 test('key figures keep lead, value with unit, then meaning', () => {
   const html = render(h(KeyFigures, { label: 'In numbers', items: [{ lead: 'Up to', value: '1/1000', unit: 's', detail: 'Shutter' }] }));
-  assert.match(html, /<ul class="bs-figures " aria-label="In numbers"><li class="bs-figures__item"><span class="bs-figures__lead">Up to<\/span><strong class="bs-figures__value">1\/1000<small>s<\/small><\/strong><span class="bs-figures__detail">Shutter<\/span>/);
+  assert.match(html, /<ul class="bs-figures " aria-label="In numbers"><li class="bs-figures__item" style="--i:0"><span class="bs-figures__lead">Up to<\/span><strong class="bs-figures__value">1\/1000<small>s<\/small><\/strong><span class="bs-figures__detail">Shutter<\/span>/);
 });
 
 test('model compare reads a missing feature aloud and marks the current model', () => {
@@ -195,4 +196,13 @@ test('footer directory marks the last breadcrumb and labels each column', () => 
   const id = html.match(/<h3 id="([^"]+)">Shop<\/h3>/)[1];
   assert.match(html, new RegExp(`<ul aria-labelledby="${id}">`));
   assert.match(html, /<ol class="bs-directory__notes"><li>Note<\/li><\/ol>/);
+});
+
+test('motion comes from the shared tokens and lists number their items for the stagger', () => {
+  const src = new URL('../packages/ui/src/', import.meta.url);
+  const tokens = readFileSync(new URL('styles.css', src), 'utf8');
+  for (const token of ['--bs-ease-out', '--bs-ease-in-out', '--bs-ease-spring', '--bs-ease', '--bs-duration-fast', '--bs-duration', '--bs-duration-slow', '--bs-stagger']) assert.match(tokens, new RegExp(`${token}:`), token);
+  for (const file of readdirSync(src).filter(name => name.endsWith('.css') && name !== 'styles.css')) assert.doesNotMatch(readFileSync(new URL(file, src), 'utf8'), /cubic-bezier/, `${file} hardcodes an easing curve`);
+  const html = render(h(Sidebar, { sections: [{ items: [{ label: 'Beans', href: '/beans' }, { label: 'Cups', href: '/cups' }] }] }));
+  assert.match(html, /<li style="--i:0"><a href="\/beans">.*<li style="--i:1"><a href="\/cups">/);
 });

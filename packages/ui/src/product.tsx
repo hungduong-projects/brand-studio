@@ -4,6 +4,24 @@ import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
+/** Holds a list's entrance until it scrolls into view. Lists already on screen, and pages without JavaScript, show at once. */
+function useEntrance<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof IntersectionObserver === 'undefined' || element.getBoundingClientRect().top < innerHeight) return;
+    element.dataset.bsWaiting = '';
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      delete element.dataset.bsWaiting;
+      observer.disconnect();
+    }, { threshold: 0.2 });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
+
 export interface Highlight { media: ReactNode; caption: ReactNode }
 
 /**
@@ -95,6 +113,7 @@ export function CardCarousel({ title, cards, action, label, className = '' }: { 
   const id = useId();
   const track = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
+  const entrance = useEntrance<HTMLElement>();
   const measure = useCallback(() => {
     const list = track.current;
     if (!list) return;
@@ -111,7 +130,7 @@ export function CardCarousel({ title, cards, action, label, className = '' }: { 
     if (!list || !card) return;
     list.scrollBy({ left: direction * (card.offsetWidth + 20) * Math.max(1, Math.floor(list.clientWidth / (card.offsetWidth + 20))), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   };
-  return <section className={`bs-carousel ${className}`} aria-labelledby={title ? `${id}-title` : undefined} aria-label={title ? undefined : label}>
+  return <section ref={entrance} className={`bs-carousel ${className}`} aria-labelledby={title ? `${id}-title` : undefined} aria-label={title ? undefined : label}>
     {(title || action) && <div className="bs-carousel__head">
       {title && <h2 id={`${id}-title`} className="bs-carousel__title">{title}</h2>}
       {action && <div className="bs-carousel__action">{action}</div>}
@@ -124,7 +143,7 @@ export function CardCarousel({ title, cards, action, label, className = '' }: { 
           {card.body && <p className="bs-carousel__body">{card.body}</p>}
           {card.media && <div className="bs-carousel__media">{card.media}</div>}
         </>;
-        return <li key={i} className="bs-carousel__card">{card.href ? <a href={card.href}>{body}</a> : body}</li>;
+        return <li key={i} className="bs-carousel__card" style={{ '--i': i } as CSSProperties}>{card.href ? <a href={card.href}>{body}</a> : body}</li>;
       })}
     </ul>
     <div className="bs-carousel__nav">
@@ -138,8 +157,9 @@ export interface KeyFigure { lead?: ReactNode; value: ReactNode; unit?: ReactNod
 
 /** Big numbers side by side, each under a thin rule with a short lead-in and what the number means. */
 export function KeyFigures({ items, label, className = '' }: { items: KeyFigure[]; label?: string; className?: string }) {
-  return <ul className={`bs-figures ${className}`} aria-label={label}>
-    {items.map((item, i) => <li key={i} className="bs-figures__item">
+  const entrance = useEntrance<HTMLUListElement>();
+  return <ul ref={entrance} className={`bs-figures ${className}`} aria-label={label}>
+    {items.map((item, i) => <li key={i} className="bs-figures__item" style={{ '--i': i } as CSSProperties}>
       {item.lead && <span className="bs-figures__lead">{item.lead}</span>}
       <strong className="bs-figures__value">{item.value}{item.unit && <small>{item.unit}</small>}</strong>
       <span className="bs-figures__detail">{item.detail}</span>

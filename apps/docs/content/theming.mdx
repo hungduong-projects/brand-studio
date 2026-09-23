@@ -22,6 +22,22 @@ description: How a brand palette becomes CSS variables every component reads.
 
 Two more are derived: `--bs-accent-soft` and `--bs-line-soft`, light tints for highlights and dividers.
 
+## Motion
+
+Components time their movement with a few shared variables. Override any of them on a `BrandTheme` or a parent element to change the feel of a whole brand.
+
+| CSS variable | Default | Used for |
+| --- | --- | --- |
+| `--bs-ease-out` | `cubic-bezier(.2,.7,.2,1)` | Things arriving: panels, slides, list items |
+| `--bs-ease-in-out` | `cubic-bezier(.41,.19,.13,.95)` | Things moving from one place to another |
+| `--bs-ease-spring` | `cubic-bezier(.34,1.56,.64,1)` | Things that answer a tap: menus, tabs, switches, cards |
+| `--bs-duration-fast` | `150ms` | Fades on small popups |
+| `--bs-duration` | `420ms` | Most movement |
+| `--bs-duration-slow` | `700ms` | List entrances |
+| `--bs-stagger` | `60ms` | Gap between list items entering one after another |
+
+`--bs-ease` still works and points at `--bs-ease-out`. When the reader asks for reduced motion, every component shows at rest.
+
 ## Modes
 
 `mode="light"` and `mode="dark"` pin a mode. `mode="system"` follows the reader's setting through `prefers-color-scheme`.

@@ -2,14 +2,14 @@
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { useEffect, useId, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useThemeRoot } from './core.js';
 
 export interface NavLink { label: string; href: string; current?: boolean; icon?: ReactNode; badge?: ReactNode }
 
 function NavList({ items, onNavigate, className, labelledBy }: { items: NavLink[]; onNavigate?: () => void; className: string; labelledBy?: string }) {
   return <ul className={className} aria-labelledby={labelledBy}>
-    {items.map(item => <li key={item.href}>
+    {items.map((item, i) => <li key={item.href} style={{ '--i': i } as CSSProperties}>
       <a href={item.href} aria-current={item.current ? 'page' : undefined} onClick={onNavigate}>
         {item.icon && <span className="bs-nav__icon" aria-hidden="true">{item.icon}</span>}
         <span className="bs-nav__label">{item.label}</span>
