@@ -1,0 +1,31 @@
+---
+title: Lightbox
+description: "A grid of thumbnails. Each one grows into a full-screen view you can step or swipe through."
+---
+
+<Preview name="lightbox/default" layout="full" />
+
+## Installation
+
+<Install name="Lightbox" />
+
+## Usage
+
+```tsx
+import { Lightbox } from '@brand-studio/ui';
+```
+
+```tsx
+<Lightbox label="Field notes" images={images} />
+```
+
+## Accessibility
+
+- Thumbnails are buttons named by their image's alt text.
+- The full view is a native modal dialog: focus stays inside, Escape closes it and focus returns to the thumbnail.
+- Arrow keys step through images and the counter is announced.
+- With reduced motion the view opens and closes without growing.
+
+## API Reference
+
+<Props name="Lightbox" />

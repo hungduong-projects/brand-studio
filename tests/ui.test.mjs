@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -335,4 +335,31 @@ test('voice pieces say their state in words and keep guesses away from screen re
 test('select draws its own tick, so the library default emoji never shows', () => {
   const source = readFileSync('packages/ui/src/app.tsx', 'utf8');
   assert.match(source, /<BaseSelect\.ItemIndicator className="bs-select__check"><svg /);
+});
+
+const galleryImages = ['a', 'b', 'c', 'd', 'e'].map((name) => ({ src: `/${name}.webp`, alt: `Photo ${name}`, width: 800, height: 800 }));
+
+test('infinite canvas is a focusable labelled region that names each image once before enhancement', () => {
+  const html = render(h(InfiniteCanvas, { images: galleryImages, label: 'Archive' }));
+  assert.match(html, /role="region" aria-label="Archive, drag or use arrow keys to explore" tabindex="0"/);
+  for (const image of galleryImages) assert.equal(html.split(`alt="${image.alt}"`).length - 1, 1, image.alt);
+  assert.equal((html.match(/aria-hidden="true"/g) ?? []).length, 1, 'the filler cell in a 3 by 2 grid is hidden');
+  assert.ok(!html.includes('data-enhanced'), 'not enhanced before scripts run');
+});
+
+test('lightbox renders thumbnail buttons and a closed dialog', () => {
+  const html = render(h(Lightbox, { images: galleryImages, label: 'Field notes' }));
+  assert.match(html, /<ul class="bs-lightbox__grid" aria-label="Field notes">/);
+  assert.equal((html.match(/aria-haspopup="dialog"/g) ?? []).length, 5);
+  assert.match(html, /<dialog class="bs-lightbox__dialog" aria-label="Field notes">/);
+  assert.match(html, /aria-live="polite">1 \/ 5</);
+});
+
+test('ring gallery exposes only the image facing the viewer', () => {
+  const html = render(h(RingGallery, { images: galleryImages, label: 'Every angle' }));
+  assert.match(html, /aria-roledescription="carousel" aria-label="Every angle"/);
+  assert.equal((html.match(/aria-roledescription="slide"/g) ?? []).length, 5);
+  assert.equal((html.match(/aria-hidden="true" data-front|<li[^>]*aria-hidden="true"/g) ?? []).length, 4);
+  assert.match(html, /aria-label="Previous image"/);
+  assert.ok(!render(h(RingGallery, { images: galleryImages.slice(0, 1) })).includes('bs-ring__nav'), 'one image needs no controls');
 });

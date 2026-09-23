@@ -12,3 +12,13 @@ export const chapters: StoryChapter[] = [
 
 /** Renders of the fictional Halden camera, from a CC0 model. See public/images/halden/PROVENANCE.md. */
 export const camera = (name: string, alt: string) => ({ src: `/images/halden/${name}.webp`, alt });
+
+/** Square Halden renders as full image assets, for galleries. */
+export const cameraViews: ImageAsset[] = [
+  ['three', 'The Halden R camera from three quarters, lens forward.'],
+  ['front', 'The Halden R from the front, its lens centred.'],
+  ['side', 'The Halden R in profile, showing the grip.'],
+  ['back', 'The back of the Halden R, with its screen and dials.'],
+  ['top', 'The Halden R from above, showing the shutter dial.'],
+  ['apart', 'The Halden R taken apart into its body, lens and battery.'],
+].map(([name, alt]) => ({ src: `/images/halden/${name}-square.webp`, alt, width: 800, height: 800 }));

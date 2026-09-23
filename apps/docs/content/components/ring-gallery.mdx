@@ -1,0 +1,31 @@
+---
+title: Ring Gallery
+description: "Images on a 3D ring you spin by dragging. It settles with one image facing you."
+---
+
+<Preview name="ring-gallery/default" layout="full" />
+
+## Installation
+
+<Install name="RingGallery" />
+
+## Usage
+
+```tsx
+import { RingGallery } from '@brand-studio/ui';
+```
+
+```tsx
+<RingGallery label="Every angle" images={images} />
+```
+
+## Accessibility
+
+- The ring is a labelled carousel; only the image facing you is exposed to screen readers.
+- Previous and next buttons and arrow keys turn it one image at a time, and the counter is announced.
+- Dragging spins sideways only, so the page still scrolls on touch.
+- With reduced motion it turns without gliding.
+
+## API Reference
+
+<Props name="RingGallery" />
