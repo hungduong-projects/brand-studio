@@ -1,0 +1,88 @@
+/* Hollis: fictional headphones. Black stage for the product, light grey for reading, clay orange (the contract accent) on the driver ring, the clips and the primary action. */
+.ho { overflow-x: clip; }
+.ho .bs-container { width: 100%; }
+.ho :is(h2, h3) { font-weight: 600; }
+.ho h2 { font-size: clamp(2.4rem, 5.4vw, 5rem); line-height: 1.02; max-width: 18ch; margin-bottom: 1rem; }
+.ho-lead { color: var(--bs-muted); font-size: clamp(1.0625rem, 1.4vw, 1.3125rem); max-width: 44ch; }
+
+.ho-header { position: sticky; top: 0; z-index: 10; height: 52px; margin-bottom: -52px; background: color-mix(in srgb, var(--bs-surface) 72%, transparent); backdrop-filter: saturate(1.8) blur(20px); -webkit-backdrop-filter: saturate(1.8) blur(20px); border-bottom: 1px solid var(--bs-line-soft); }
+.ho-header header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: var(--bs-content); margin-inline: auto; height: 100%; padding-inline: var(--bs-space); font-size: .8125rem; }
+.ho-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -.03em; text-decoration: none; }
+.ho-header nav { display: flex; gap: clamp(.9rem, 2.5vw, 2rem); }
+.ho-header nav a { color: var(--bs-muted); text-decoration: none; padding-block: .5rem; }
+.ho-header nav a:hover { color: var(--bs-ink); }
+
+/* Hero: pinned for three screens. --p is scroll progress, --e the explode amount, both set by the stage. */
+.ho-hero { height: 340svh; }
+.ho-hero__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.ho-hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ho-hero__copy { position: relative; text-align: center; padding-top: calc(52px + clamp(2rem, 7svh, 5rem)); opacity: calc(1 - var(--p, 0) * 5); transform: translateY(calc(var(--p, 0) * -120px)); }
+.ho .ho-hero h1 { font-size: clamp(3.4rem, 10vw, 9rem); font-weight: 600; letter-spacing: -.055em; line-height: .95; margin-bottom: .9rem; }
+.ho-hero__copy p { color: var(--bs-muted); font-size: clamp(1.125rem, 1.8vw, 1.5rem); margin-inline: auto; margin-bottom: 1.6rem; }
+.ho-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+.ho-hero__caption { position: absolute; left: 0; right: 0; bottom: 8svh; text-align: center; font-size: clamp(1.25rem, 2.4vw, 2rem); font-weight: 600; letter-spacing: -.02em; opacity: min(calc(var(--p, 0) * 6 - 1.2), calc((.42 - var(--p, 0)) * 10)); }
+/* Local video hero: the video fills the stage behind the copy. */
+.ho-hero--video { height: auto; overflow: hidden; background: var(--bs-elevated); }
+.ho-hero--video video { display: block; width: min(100%, 1440px); margin: -2rem auto 0; aspect-ratio: 16 / 9; object-fit: cover; }
+.ho-parts { list-style: none; margin: 0; padding: 0; }
+.ho-hero[data-ready] .ho-parts li { position: absolute; top: 0; left: 0; will-change: transform; }
+.ho-hero[data-ready] .ho-parts span { display: block; transform: translate(-50%, calc(-100% - 14px)); white-space: nowrap; opacity: calc(var(--e, 0) * 3 - 1.6); font-size: .9375rem; font-weight: 600; padding: .35rem .8rem; border-radius: 999px; background: color-mix(in srgb, var(--bs-elevated) 80%, transparent); border: 1px solid var(--bs-line-soft); }
+.ho-hero:not([data-ready]) .ho-parts { position: absolute; left: 0; right: 0; bottom: 3rem; display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1.5rem; color: var(--bs-muted); }
+
+/* Numbers: set large, unit small beside them. */
+.ho-specs { padding-block: var(--bs-section); }
+.ho-specs dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5rem clamp(1.5rem, 3vw, 3rem); margin: clamp(2.5rem, 6vw, 5rem) 0 0; }
+.ho-specs dl > div { border-top: 1px solid var(--bs-line-soft); padding-top: 1.25rem; }
+.ho-specs dt { font-size: clamp(3.6rem, 8vw, 7.5rem); font-weight: 600; letter-spacing: -.055em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ho-specs dt small { font-size: .32em; letter-spacing: -.02em; color: var(--bs-muted); margin-left: .15em; }
+.ho-specs dd { margin: .75rem 0 0; color: var(--bs-muted); max-width: 22ch; }
+
+/* Features: in flow by default; pinned on wide screens with the active clip on the right. */
+.ho-features { padding-block: var(--bs-section); }
+.ho-features ol { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: 3rem; }
+.ho-features h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); margin-bottom: .5rem; }
+.ho-features li p { color: var(--bs-muted); font-size: 1.0625rem; max-width: 40ch; }
+.ho-features__visual { margin: 1.25rem 0 0; aspect-ratio: 4 / 3; background: var(--bs-elevated); border-radius: 28px; overflow: hidden; }
+.ho-features[data-pinned] { height: calc(var(--count) * 90svh + 100svh); padding-block: 0; }
+.ho-features[data-pinned] .ho-features__pin { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+.ho-features[data-pinned] :is(h2, ol) { width: 46%; }
+.ho-features[data-pinned] h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
+.ho-features[data-pinned] ol { gap: 1.75rem; margin-top: 1.5rem; }
+.ho-features[data-pinned] li { opacity: .32; transition: opacity var(--bs-duration) var(--bs-ease); }
+.ho-features[data-pinned] li[aria-current] { opacity: 1; }
+.ho-features[data-pinned] .ho-features__visual { position: absolute; right: var(--bs-space); top: 50%; width: 46%; margin: 0; translate: 0 -50%; opacity: 0; transition: opacity var(--bs-duration) var(--bs-ease); }
+.ho-features[data-pinned] li[aria-current] .ho-features__visual { opacity: 1; }
+.ho-features[data-pinned] li:not([aria-current]) .ho-clip__toggle { visibility: hidden; }
+
+/* Clips: a bento grid of canvas loops, each with its own pause button. */
+.ho-clips { padding-block: var(--bs-section); }
+.ho-bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: clamp(22rem, 34vw, 30rem); gap: 1rem; margin-top: clamp(2rem, 5vw, 3.5rem); }
+.ho-tile { margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: var(--bs-elevated); border-radius: 28px; overflow: hidden; }
+.ho-tile--wide { grid-column: span 2; }
+.ho-tile figcaption { padding: 0 1.5rem 1.4rem; font-size: clamp(1.125rem, 1.5vw, 1.375rem); font-weight: 600; letter-spacing: -.02em; }
+
+.ho-clip { position: relative; width: 100%; height: 100%; }
+.ho-clip :is(canvas, video, img) { display: block; object-fit: cover; width: 100%; height: 100%; }
+.ho-clip__toggle { position: absolute; right: 14px; bottom: 14px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer; background: color-mix(in srgb, var(--bs-ink) 14%, transparent); color: var(--bs-ink); }
+.ho-clip__toggle:hover { background: color-mix(in srgb, var(--bs-ink) 24%, transparent); }
+.ho-clip__toggle svg { width: 14px; height: 14px; fill: currentColor; }
+
+.ho-footer { padding-block: 2.5rem; border-top: 1px solid var(--bs-line-soft); display: flex; justify-content: space-between; gap: 1rem 2rem; flex-wrap: wrap; font-size: .8125rem; color: var(--bs-muted); }
+.ho-footer p { max-width: 70ch; margin: 0; }
+
+@media (max-width: 899px) {
+  .ho-specs dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ho-bento { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 24rem; }
+  .ho-tile--wide { grid-column: auto; }
+}
+@media (max-width: 520px) { .ho-header nav a:not(:last-child):nth-child(n+2) { display: none; } }
+
+/* Reduced motion: nothing pins; the model shows exploded, the copy stays put. */
+@media (prefers-reduced-motion: reduce) {
+  .ho-hero { height: auto; }
+  .ho-hero__pin { position: relative; height: auto; }
+  .ho-hero__canvas { position: relative; height: 70svh; }
+  .ho-hero__copy { opacity: 1; transform: none; }
+  .ho-hero__caption { display: none; }
+  .ho-hero[data-ready] .ho-parts span { opacity: 1; }
+}

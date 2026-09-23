@@ -1,0 +1,54 @@
+# Private workbench: upstream references, drafts and raw inputs
+/workbench/
+/References/
+/source-art/
+/.claude/
+/apps/showcase/public/local-ref/
+
+# Dependencies
+node_modules/
+
+# Build and compiler output
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Packaged releases
+artifacts/*
+!artifacts/.gitkeep
+
+# Browser-test output
+output/
+.playwright-cli/
+.playwright-mcp/
+test-results/
+playwright-report/
+blob-report/
+
+# Local project notes
+docs/internal/LESSONS.md
+
+# Local planning and supporting documents (public usage docs live with products)
+/AGENTS.md
+/CLAUDE.md
+/ARCHITECTURE.md
+/ROADMAP.md
+/docs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+npm_recovery_codes.txt
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor and operating-system files
+.DS_Store
+.vscode/
+.idea/

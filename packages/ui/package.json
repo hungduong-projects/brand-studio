@@ -1,0 +1,44 @@
+{
+  "name": "@brand-studio/ui",
+  "version": "0.1.0",
+  "description": "Brand-driven React components for apps, AI agents, effects and visual storytelling.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Hung Duong",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hungduong-projects/brand-studio.git",
+    "directory": "packages/ui"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "react": "^18.3.0 || ^19.0.0",
+    "react-dom": "^18.3.0 || ^19.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node build.mjs",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0"
+  }
+}

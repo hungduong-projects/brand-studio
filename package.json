@@ -1,0 +1,28 @@
+{
+  "name": "brand-studio-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run build -w @brand-studio/ui && npm run dev -w @brand-studio/showcase -- --host 127.0.0.1",
+    "build": "npm run build -w @brand-studio/ui && npm run build -w @brand-studio/showcase",
+    "typecheck": "tsc -p packages/ui/tsconfig.json --noEmit && tsc -p apps/showcase/tsconfig.json && npm run typecheck -w @brand-studio/docs",
+    "test": "node --test tests/*.test.mjs",
+    "check:brand": "node plugins/brand-studio/skills/brand-design/scripts/brand-check.mjs plugins/brand-studio/skills/brand-design/assets/still.brand.json",
+    "pack:ui": "npm run build -w @brand-studio/ui && npm pack -w @brand-studio/ui --pack-destination artifacts",
+    "pack:plugin": "node scripts/pack-plugin.mjs",
+    "refs": "node scripts/grab-refs.mjs",
+    "dev:docs": "npm run build -w @brand-studio/ui && npm run dev -w @brand-studio/docs",
+    "build:docs": "npm run build -w @brand-studio/ui && npm run build -w @brand-studio/docs"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "playwright-core": "1.63.0",
+    "typescript": "7.0.2"
+  }
+}

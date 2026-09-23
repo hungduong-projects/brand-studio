@@ -1,0 +1,31 @@
+---
+title: Image Trail
+description: "Moving the mouse leaves a fading trail of images."
+---
+
+<Preview name="image-trail/default" layout="full" />
+
+## Installation
+
+<Install name="ImageTrail" />
+
+## Usage
+
+```tsx
+import { ImageTrail } from '@brand-studio/ui';
+```
+
+```tsx
+<ImageTrail images={images}>
+  <h2>Move your mouse here.</h2>
+</ImageTrail>
+```
+
+## Accessibility
+
+- Decorative only: trail images have empty alt text.
+- Touch and reduced motion show only the content.
+
+## API Reference
+
+<Props name="ImageTrail" />

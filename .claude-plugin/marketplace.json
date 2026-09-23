@@ -1,0 +1,14 @@
+{
+  "name": "brand-studio-local",
+  "description": "Local Brand Studio plugin for brand design workflows",
+  "owner": {
+    "name": "Harry Duong"
+  },
+  "plugins": [
+    {
+      "name": "brand-studio",
+      "source": "./plugins/brand-studio",
+      "description": "Create and apply a durable brand system across digital and creative work"
+    }
+  ]
+}

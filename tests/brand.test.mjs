@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { brandCSS, contrast, validateBrand } from '../plugins/brand-studio/skills/brand-design/scripts/brand-check.mjs';
+const source = JSON.parse(readFileSync(new URL('../plugins/brand-studio/skills/brand-design/assets/still.brand.json', import.meta.url)));
+test('brand example satisfies the contract and both theme contrast requirements',()=>assert.deepEqual(validateBrand(source),[]));
+test('contrast uses WCAG relative luminance',()=>{ assert.equal(contrast('#000000','#ffffff'),21); assert.equal(contrast('#777777','#777777'),1); });
+test('rejects inaccessible secondary text',()=>{ const b=structuredClone(source);b.tokens.light.muted=b.tokens.light.surface;assert.ok(validateBrand(b).some(e=>e.includes('muted/surface'))); });
+test('rejects duplicate narrative IDs and missing mobile fallback',()=>{const b=structuredClone(source);b.chapters[1].id=b.chapters[0].id;delete b.chapters[0].mobileFallback;assert.equal(validateBrand(b).length,2);});
+test('rejects CSS injection and unsafe action URLs',()=>{const b=structuredClone(source);b.tokens.light.font='sans-serif; background: url(https://example.org)';b.primaryAction.href='javascript:alert(1)';assert.equal(validateBrand(b).length,2);assert.throws(()=>brandCSS(b));});
+test('exports scoped theme CSS with a system fallback',()=>{ const css=brandCSS(source);assert.ok(css.includes('[data-brand="still"]'));assert.ok(css.includes('--brand-on-accent: #ffffff'));assert.ok(css.includes('prefers-color-scheme: dark')); });
+test('validates optional voice font and creative direction',()=>{const b=structuredClone(source);b.tokens.light.voiceFont='serif; color: red';b.direction={concept:'x',tier:'y',devices:[],invariants:['a'],variables:['b']};const errors=validateBrand(b);assert.ok(errors.some(e=>e.includes('voiceFont')));assert.ok(errors.some(e=>e.includes('direction.devices')));assert.ok(brandCSS(source).includes('--brand-voice-font'));});
+test('fails cleanly on incomplete input',()=>{assert.ok(validateBrand(null).length);assert.ok(validateBrand({chapters:[null]}).length);});

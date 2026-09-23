@@ -1,0 +1,11 @@
+import { mkdirSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root = fileURLToPath(new URL('..', import.meta.url));
+const output = path.join(root, 'artifacts', 'brand-studio-plugin-0.1.0.zip');
+mkdirSync(path.dirname(output), { recursive: true });
+if (existsSync(output)) throw new Error('Archive already exists. Move it aside before packing a replacement.');
+const result = spawnSync('zip', ['-qr', output, '.codex-plugin', '.claude-plugin', 'skills', 'README.md', 'LICENSE', '-x', '*.DS_Store', '*__pycache__*'], { cwd: path.join(root, 'plugins/brand-studio'), stdio: 'inherit' });
+if (result.error || result.status !== 0) throw new Error('Plugin archive failed; install zip and inspect the output.');
+console.log(output);

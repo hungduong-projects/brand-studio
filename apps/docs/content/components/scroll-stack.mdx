@@ -1,0 +1,29 @@
+---
+title: Scroll Stack
+description: "Cards that pin and pile up as you scroll."
+---
+
+<Preview name="scroll-stack/default" layout="full" />
+
+## Installation
+
+<Install name="ScrollStack" />
+
+## Usage
+
+```tsx
+import { ScrollStack } from '@brand-studio/ui';
+```
+
+```tsx
+<ScrollStack cards={cards} />
+```
+
+## Accessibility
+
+- Cards are an ordered list with sticky positioning, so they read in order without JavaScript.
+- Under reduced motion the covered cards do not shrink.
+
+## API Reference
+
+<Props name="ScrollStack" />

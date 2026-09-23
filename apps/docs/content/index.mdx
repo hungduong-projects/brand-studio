@@ -1,0 +1,23 @@
+---
+title: Introduction
+description: React components that take their colours, type and shape from a brand contract.
+---
+
+Brand Studio UI is a set of React components for three jobs: app screens, AI agent interfaces and story pages. None of them ship a look of their own. Each one reads CSS variables that `BrandTheme` sets from a brand palette, so the same markup turns into a different brand when the palette changes.
+
+Use the brand switch in the header to see it: every example on this site re-skins at once.
+
+## What is inside
+
+- **Foundations**: `BrandTheme`, which turns a palette into CSS variables.
+- **App**: buttons, fields, select, switch, tabs, dialog, tooltip, toast, badge and card. The interactive ones are built on Base UI for keyboard and screen reader support.
+- **AI agents**: an orb for agent state, a reasoning trace, streaming text, tool chips, an approval card and task rows.
+- **Effects**: small moments such as a border beam, a metal button and click sparks.
+- **Storytelling**: heroes, editorial sections and scroll-driven sequences for brand pages.
+
+## Principles
+
+- **Brand decisions live in the contract.** Components never hardcode a colour or font.
+- **Readable first.** Content is in the HTML before JavaScript runs.
+- **Motion is optional.** Every component is complete with reduced motion.
+- **Plain CSS.** The package needs no Tailwind or CSS-in-JS.

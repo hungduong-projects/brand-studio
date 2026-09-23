@@ -1,0 +1,31 @@
+---
+title: Tooltip
+description: "A short label shown on hover or keyboard focus."
+---
+
+<Preview name="tooltip/default" />
+
+## Installation
+
+<Install name="Tooltip" />
+
+## Usage
+
+```tsx
+import { Tooltip } from '@brand-studio/ui';
+```
+
+```tsx
+<Tooltip content="Saved to your library">
+  <Button tone="secondary">Save</Button>
+</Tooltip>
+```
+
+## Accessibility
+
+- Opens on hover after a short delay and on keyboard focus. Escape closes it.
+- The child must be focusable, such as a button. Do not put information only in a tooltip; touch screens cannot hover.
+
+## API Reference
+
+<Props name="Tooltip" />

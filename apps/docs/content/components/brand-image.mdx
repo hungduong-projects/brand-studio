@@ -1,0 +1,29 @@
+---
+title: Brand Image
+description: "A responsive picture with focal point and loading priority."
+---
+
+<Preview name="brand-image/default" />
+
+## Installation
+
+<Install name="BrandImage" />
+
+## Usage
+
+```tsx
+import { BrandImage } from '@brand-studio/ui';
+```
+
+```tsx
+<BrandImage asset={cup} sizes="(min-width: 768px) 50vw, 100vw" />
+```
+
+## Accessibility
+
+- `priority` loads the image eagerly with high fetch priority; use it for the first image on a page.
+- `focalPoint` keeps the subject in frame when the image is cropped.
+
+## API Reference
+
+<Props name="BrandImage" />

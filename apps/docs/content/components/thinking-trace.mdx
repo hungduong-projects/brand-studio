@@ -1,0 +1,42 @@
+---
+title: Thinking Trace
+description: "Collapsible reasoning steps with a live status for each."
+---
+
+<Preview name="thinking-trace/default" />
+
+## Installation
+
+<Install name="ThinkingTrace" />
+
+## Usage
+
+```tsx
+import { ThinkingTrace } from '@brand-studio/ui';
+```
+
+```tsx
+<ThinkingTrace
+  steps={[
+    { id: 'read', title: 'Read the order history', status: 'done' },
+    { id: 'pick', title: 'Pick three coffees', status: 'active' },
+  ]}
+/>
+```
+
+## Examples
+
+### Finished
+
+When no step is active, the summary counts the steps and the trace starts closed.
+
+<Preview name="thinking-trace/finished" />
+
+## Accessibility
+
+- Built on `<details>`, so it opens with Enter or Space and works before JavaScript loads.
+- Each step's status is spelled out for screen readers.
+
+## API Reference
+
+<Props name="ThinkingTrace" />

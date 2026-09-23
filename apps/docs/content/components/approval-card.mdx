@@ -1,0 +1,34 @@
+---
+title: Approval Card
+description: "Asks a person to allow or deny an action before an agent runs it."
+---
+
+<Preview name="approval-card/default" />
+
+## Installation
+
+<Install name="ApprovalCard" />
+
+## Usage
+
+```tsx
+import { ApprovalCard } from '@brand-studio/ui';
+```
+
+```tsx
+<ApprovalCard
+  title="Place a reorder?"
+  status={status}
+  onApprove={() => setStatus('approved')}
+  onReject={() => setStatus('rejected')}
+/>
+```
+
+## Accessibility
+
+- Deny comes first and Allow is the primary action, so the keyboard reaches the safe choice first.
+- After a decision the buttons give way to the outcome, announced through a live region.
+
+## API Reference
+
+<Props name="ApprovalCard" />

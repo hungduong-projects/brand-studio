@@ -1,0 +1,35 @@
+---
+title: Task Rows
+description: "An agent\u2019s task list with progress."
+---
+
+<Preview name="task-rows/default" />
+
+## Installation
+
+<Install name="TaskRows" />
+
+## Usage
+
+```tsx
+import { TaskRows } from '@brand-studio/ui';
+```
+
+```tsx
+<TaskRows title="Launch email" tasks={tasks} />
+```
+
+## Examples
+
+### Failed task
+
+<Preview name="task-rows/failed" />
+
+## Accessibility
+
+- The count reads “2 of 5” and each row spells out its status for screen readers.
+- Spinners stop under reduced motion; the status text stays.
+
+## API Reference
+
+<Props name="TaskRows" />

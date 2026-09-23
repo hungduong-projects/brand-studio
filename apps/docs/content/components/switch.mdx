@@ -1,0 +1,37 @@
+---
+title: Switch
+description: "An on/off control with a visible label."
+---
+
+<Preview name="switch/default" />
+
+## Installation
+
+<Install name="Switch" />
+
+## Usage
+
+```tsx
+import { Switch } from '@brand-studio/ui';
+```
+
+```tsx
+<Switch label="Email me when my order ships" />
+```
+
+## Examples
+
+### Description and disabled
+
+A description is linked with `aria-describedby`.
+
+<Preview name="switch/description" />
+
+## Accessibility
+
+- Renders a native `<button role="switch">`, so Space and Enter toggle it.
+- The visible label is a real `<label>`; clicking it toggles the switch.
+
+## API Reference
+
+<Props name="Switch" />

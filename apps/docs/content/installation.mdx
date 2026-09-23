@@ -1,0 +1,39 @@
+---
+title: Installation
+description: Add the package, import the styles and wrap your app in a theme.
+---
+
+## Install the package
+
+<Install />
+
+## Add a brand palette
+
+A palette holds light and dark tokens. The brand-design workflow in Brand Studio writes one to `brand.json`; you can also write it by hand.
+
+```json
+{
+  "tokens": {
+    "light": { "surface": "#f4f5f7", "elevated": "#ffffff", "ink": "#171c29", "muted": "#505b70", "accent": "#234bc2", "onAccent": "#ffffff", "line": "#8a93a5", "font": "Manrope, sans-serif", "radius": "6px" },
+    "dark": { "surface": "#11151f", "elevated": "#1a2030", "ink": "#eef1f6", "muted": "#a7b0c2", "accent": "#8fa8ff", "onAccent": "#11151f", "line": "#3a4458", "font": "Manrope, sans-serif", "radius": "6px" }
+  }
+}
+```
+
+## Use a component
+
+```tsx
+import { BrandTheme, Button } from '@brand-studio/ui';
+import '@brand-studio/ui/styles.css';
+import brand from './brand.json';
+
+export default function App() {
+  return (
+    <BrandTheme palette={brand.tokens} mode="system">
+      <Button>Save changes</Button>
+    </BrandTheme>
+  );
+}
+```
+
+The package supports React 18 and 19. Components are client components; in the Next.js App Router you can render them from server components.

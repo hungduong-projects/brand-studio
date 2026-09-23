@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "name": "Deskhand",
+  "positioning": "A fictional AI support agent that drafts replies to customer tickets and links every claim to the order or help article it came from.",
+  "audience": "Support leads at online shops with one to ten agents, who need to trust a reply before it goes out.",
+  "voice": [
+    "Plain and specific: order numbers, amounts, dates",
+    "Calm about limits: says what it will not do",
+    "Short sentences, no hype"
+  ],
+  "primaryAction": {
+    "label": "Start a 14-day trial",
+    "href": "#trial"
+  },
+  "direction": {
+    "concept": "Every reply shows its sources.",
+    "tier": "Product-as-hero with one show-piece: a tilted live console that plays one ticket on load, then a pinned 'exploded reply' where source documents slide out and highlighter lines link each claim to its line. Palette measured against Fin, Sierra, Clay, Ramp and Resend (2026-09-23): light paper, black ink, highlighter yellow as big fields.",
+    "devices": [
+      "Highlighter: yellow marks a claim and the source line it came from, and floods the trial band",
+      "Source lines: a connector draws from each citation to its line in the source document"
+    ],
+    "invariants": [
+      "Header with the Start trial action",
+      "Geist for display and text, Geist Mono only for ticket, order and money data",
+      "One sample ticket (#2291, cracked lamp, $84 refund) runs through the whole page",
+      "Accent only on citations, their sources and the primary action"
+    ],
+    "variables": [
+      "Which console state a section shows",
+      "The refund limit in the limits demo"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#f6f6f3",
+      "elevated": "#ffffff",
+      "ink": "#101114",
+      "muted": "#5c5f66",
+      "accent": "#ffe14d",
+      "onAccent": "#101114",
+      "line": "#9a9ea6",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "12px"
+    },
+    "dark": {
+      "surface": "#101114",
+      "elevated": "#1b1c20",
+      "ink": "#f6f6f3",
+      "muted": "#a6a9b0",
+      "accent": "#ffe14d",
+      "onAccent": "#101114",
+      "line": "#4a4d55",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "12px"
+    }
+  },
+  "imagery": {
+    "subject": "The Deskhand console working one ticket: the customer message, the sources it read, the drafted reply and the approval bar",
+    "materials": "White paper documents with soft shadows, hairline rules, monospace data, highlighter marks",
+    "lighting": "No photography; depth from panel elevation and a soft top-edge highlight",
+    "palette": "Off-white paper #f6f6f3, black ink #101114, highlighter yellow #ffe14d as marks and whole fields",
+    "invariants": [
+      "The same ticket, order and customer on every console view",
+      "Real-looking but fictional data, labelled in the footer",
+      "Citations numbered the same way in every view"
+    ],
+    "avoid": [
+      "Purple gradients or glowing orbs",
+      "Invented metrics, customer logos or testimonials",
+      "Robot or chat-bubble mascots"
+    ]
+  },
+  "motion": {
+    "character": "Opening: headline rises, a highlighter stroke sweeps under the supporting line, the tilted console rises and flattens as you scroll while the agent works ticket #2291. Set-piece: pinned for three screens, three source documents slide out from behind the reply, the reply writes itself with scroll and each citation draws a line to its source. Limits: tickets move between lanes as the slider moves.",
+    "reducedMotion": "Every console shows its final state; steps stack in normal flow with no pinning."
+  },
+  "chapters": [
+    {
+      "id": "hero",
+      "question": "What is this?",
+      "message": "Deskhand drafts replies to support tickets and links each one to its sources.",
+      "visual": "Console playing ticket #2291 from arrival to the approval bar.",
+      "transition": "Plays once on load; the visitor can approve the refund.",
+      "mobileFallback": "Console below the copy, ticket list hidden."
+    },
+    {
+      "id": "how",
+      "question": "How does it get to a reply?",
+      "message": "It reads the order, the help article and the thread, writes a cited reply, then asks before a refund over your limit.",
+      "visual": "Pinned exploded view: reply card in the centre, three source documents around it, connector lines.",
+      "transition": "Scroll scrubs documents out, words in, highlights and lines, then the approval bar.",
+      "mobileFallback": "Reply card then the three documents stacked, final state, no lines."
+    },
+    {
+      "id": "limits",
+      "question": "What does it send without me?",
+      "message": "You set a refund limit; tickets above it wait for you, and chargebacks always go to a person.",
+      "visual": "Refund slider over two lanes of sample tickets.",
+      "transition": "Tickets slide between lanes as the limit changes.",
+      "mobileFallback": "Same control, full width."
+    },
+    {
+      "id": "pricing",
+      "question": "What does it cost?",
+      "message": "Free for 14 days, then a price per reply Deskhand sends.",
+      "visual": "Two plans side by side.",
+      "transition": "None.",
+      "mobileFallback": "Plans stacked."
+    }
+  ],
+  "evidence": []
+}

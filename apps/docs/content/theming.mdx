@@ -1,0 +1,48 @@
+---
+title: Theming
+description: How a brand palette becomes CSS variables every component reads.
+---
+
+`BrandTheme` writes each token of the palette to a CSS variable on its own element. Components read only these variables, so you can nest themes, show two brands side by side, or switch at runtime.
+
+## Tokens
+
+| Token | CSS variable | Used for |
+| --- | --- | --- |
+| `surface` | `--bs-surface` | Page background |
+| `elevated` | `--bs-elevated` | Cards, fields, popups |
+| `ink` | `--bs-ink` | Text |
+| `muted` | `--bs-muted` | Secondary text, field borders |
+| `accent` | `--bs-accent` | Primary actions, focus rings, highlights |
+| `onAccent` | `--bs-on-accent` | Text on the accent |
+| `line` | `--bs-line` | Dividers and outlines |
+| `font` | `--bs-font` | Body and UI type |
+| `radius` | `--bs-radius` | Corner radius |
+| `voiceFont` | `--bs-voice-font` | Optional second family for promise lines |
+
+Two more are derived: `--bs-accent-soft` and `--bs-line-soft`, light tints for highlights and dividers.
+
+## Modes
+
+`mode="light"` and `mode="dark"` pin a mode. `mode="system"` follows the reader's setting through `prefers-color-scheme`.
+
+## Contrast
+
+The Brand Studio contract check fails a palette when ink, muted text or text on the accent falls under 4.5:1 against its background. Run it before you ship a palette:
+
+```bash
+npm run check:brand
+```
+
+## Your own components
+
+Read the same variables in your CSS and your components follow the brand too:
+
+```css
+.promo {
+  background: var(--bs-elevated);
+  border: 1px solid var(--bs-line);
+  border-radius: var(--bs-radius);
+  color: var(--bs-ink);
+}
+```

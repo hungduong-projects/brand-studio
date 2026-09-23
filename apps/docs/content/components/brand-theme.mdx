@@ -1,0 +1,33 @@
+---
+title: Brand Theme
+description: "Applies a brand palette to everything inside it, in light, dark or the system mode."
+---
+
+<Preview name="brand-theme/default" />
+
+## Installation
+
+<Install name="BrandTheme" />
+
+## Usage
+
+```tsx
+import { BrandTheme } from '@brand-studio/ui';
+```
+
+```tsx
+<BrandTheme palette={brand.tokens} mode="system">
+  <App />
+</BrandTheme>
+```
+
+## Accessibility
+
+- Sets `--bs-*` CSS variables on its own element, so two themes can sit side by side on one page.
+- `mode="system"` follows the reader's colour-scheme setting; `light` and `dark` pin it.
+- Popups from Dialog, Select, Tooltip and Toast portal into the nearest theme, so they keep its tokens.
+- Under reduced motion, transitions and animations inside the theme are switched off.
+
+## API Reference
+
+<Props name="BrandTheme" />

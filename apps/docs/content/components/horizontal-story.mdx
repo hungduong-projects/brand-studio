@@ -1,0 +1,29 @@
+---
+title: Horizontal Story
+description: "Vertical scrolling moves chapters sideways."
+---
+
+<Preview name="horizontal-story/default" layout="full" />
+
+## Installation
+
+<Install name="HorizontalStory" />
+
+## Usage
+
+```tsx
+import { HorizontalStory } from '@brand-studio/ui';
+```
+
+```tsx
+<HorizontalStory title="From bean to cup." chapters={chapters} />
+```
+
+## Accessibility
+
+- On wide screens with motion allowed, scrolling down moves the chapters sideways.
+- On phones and under reduced motion it is a swipeable row you can also scroll with the arrow keys.
+
+## API Reference
+
+<Props name="HorizontalStory" />

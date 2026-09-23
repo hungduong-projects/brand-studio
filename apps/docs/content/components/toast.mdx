@@ -1,0 +1,37 @@
+---
+title: Toast
+description: "Brief messages that stack in a corner and dismiss themselves."
+---
+
+<Preview name="toast/default" />
+
+## Installation
+
+<Install name="ToastProvider" />
+
+## Usage
+
+```tsx
+import { ToastProvider, useToast } from '@brand-studio/ui';
+```
+
+```tsx
+function SaveButton() {
+  const toast = useToast();
+  return <Button onClick={() => toast.add({ title: 'Saved' })}>Save</Button>;
+}
+
+<ToastProvider>
+  <SaveButton />
+</ToastProvider>
+```
+
+## Accessibility
+
+- Toasts are announced to screen readers and dismiss after five seconds; hovering or focusing pauses the timer.
+- F6 moves focus to the toast region. Swipe or press the close button to dismiss.
+- Call `useToast()` anywhere inside `ToastProvider`.
+
+## API Reference
+
+<Props name="ToastProvider" />

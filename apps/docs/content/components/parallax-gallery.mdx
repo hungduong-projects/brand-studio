@@ -1,0 +1,29 @@
+---
+title: Parallax Gallery
+description: "Three columns of images that drift at different speeds."
+---
+
+<Preview name="parallax-gallery/default" layout="full" />
+
+## Installation
+
+<Install name="ParallaxGallery" />
+
+## Usage
+
+```tsx
+import { ParallaxGallery } from '@brand-studio/ui';
+```
+
+```tsx
+<ParallaxGallery images={images} />
+```
+
+## Accessibility
+
+- Uses CSS scroll-driven animation; without support the columns stay still.
+- Every image keeps its alt text.
+
+## API Reference
+
+<Props name="ParallaxGallery" />

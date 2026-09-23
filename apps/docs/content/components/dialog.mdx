@@ -1,0 +1,48 @@
+---
+title: Dialog
+description: "A window over the page that holds focus until it closes."
+---
+
+<Preview name="dialog/default" />
+
+## Installation
+
+<Install name="Dialog" />
+
+## Usage
+
+```tsx
+import { Dialog, DialogClose } from '@brand-studio/ui';
+```
+
+```tsx
+<Dialog trigger={<Button>Open</Button>} title="Edit profile">
+  <p>…</p>
+  <DialogClose><Button>Done</Button></DialogClose>
+</Dialog>
+```
+
+## Examples
+
+### Confirmation
+
+Keep the safe choice first and name the action on the button.
+
+<Preview name="dialog/confirm" />
+
+## Accessibility
+
+- Focus moves into the dialog and stays there until it closes.
+- Escape, the close button or a click on the backdrop closes it; focus returns to the trigger.
+- Page scroll is locked while it is open.
+- Wrap any button in `DialogClose` to close the dialog when it is pressed.
+
+## API Reference
+
+### Dialog
+
+<Props name="Dialog" />
+
+### DialogClose
+
+<Props name="DialogClose" />

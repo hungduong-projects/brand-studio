@@ -1,0 +1,53 @@
+---
+title: Button
+description: "A native button with primary, secondary and inverse tones."
+---
+
+<Preview name="button/default" />
+
+## Installation
+
+<Install name="Button" />
+
+## Usage
+
+```tsx
+import { Button } from '@brand-studio/ui';
+```
+
+```tsx
+<Button>Save changes</Button>
+```
+
+## Examples
+
+### Secondary
+
+<Preview name="button/secondary" />
+
+### Pill
+
+`shape="pill"` overrides the contract radius.
+
+<Preview name="button/pill" />
+
+### Inverse
+
+Use `tone="inverse"` on an accent field or photography.
+
+<Preview name="button/inverse" />
+
+### Loading and disabled
+
+`loading` disables the button and sets `aria-busy`.
+
+<Preview name="button/loading" />
+
+## Accessibility
+
+- Renders a native `<button>` with `type="button"` unless you pass another type, so it never submits a form by accident.
+- The focus ring uses the brand accent and shows only for keyboard focus.
+
+## API Reference
+
+<Props name="Button" />

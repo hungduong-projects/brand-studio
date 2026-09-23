@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "name": "Brand Studio UI docs",
+  "positioning": "The public reference for @brand-studio/ui: every component live, in any brand, with code you can copy.",
+  "audience": "React developers and coding agents deciding which component fits a job and looking for working usage code.",
+  "voice": [
+    "Exact: name the prop, the element and the behaviour",
+    "Plain: short sentences, no marketing adjectives",
+    "Honest: fictional demo brands are labelled as fictional"
+  ],
+  "primaryAction": {
+    "label": "Get started",
+    "href": "/docs/installation/"
+  },
+  "direction": {
+    "concept": "Neutral frame, branded contents.",
+    "tier": "Reference docs: reading speed first. The chrome stays greyscale so the only colour on screen comes from the demo brand.",
+    "devices": [
+      "Hero: one card rendered in all three demo brands, fanned; the picked brand comes to the front",
+      "One brand switch re-skins every live demo on the site at once",
+      "Top bar: offset-cards mark with version pill, centred search with a shortcut hint, framed icon buttons",
+      "Showcase cards sit on an even grid so every row ends on one line"
+    ],
+    "invariants": [
+      "Greyscale chrome: colour appears only inside demos",
+      "Geist for text, Geist Mono for code",
+      "Every component page: preview, installation, usage, examples, accessibility, API reference"
+    ],
+    "variables": [
+      "Demo brand and mode",
+      "Preview height per component",
+      "Showcase card span"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#ffffff",
+      "elevated": "#fafafa",
+      "ink": "#0a0a0a",
+      "muted": "#737373",
+      "accent": "#0a0a0a",
+      "onAccent": "#ffffff",
+      "line": "#e5e5e5",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "voiceFont": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "8px"
+    },
+    "dark": {
+      "surface": "#0a0a0a",
+      "elevated": "#111111",
+      "ink": "#fafafa",
+      "muted": "#a1a1a1",
+      "accent": "#fafafa",
+      "onAccent": "#0a0a0a",
+      "line": "#262626",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "voiceFont": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "8px"
+    }
+  },
+  "imagery": {
+    "subject": "Live component demos; the only photography is the Still coffee set reused from the showcase",
+    "materials": "Flat white and near-black surfaces with hairline borders",
+    "lighting": "Flat; no shadows on the chrome",
+    "palette": "Greyscale chrome; demo brands supply all colour",
+    "invariants": [
+      "Demos render the real package, never screenshots",
+      "All demo brands share the Still coffee images"
+    ],
+    "avoid": [
+      "Invented adoption numbers, logos or testimonials",
+      "Mock screenshots in place of live components"
+    ]
+  },
+  "motion": {
+    "character": "Quiet: the brand and mode switch crossfade; components carry their own motion.",
+    "reducedMotion": "No transitions; every state and all content stay reachable."
+  },
+  "chapters": [
+    {
+      "id": "home",
+      "question": "What is in the package?",
+      "message": "Components that wear your brand.",
+      "visual": "Hero, then an even grid of live demos.",
+      "transition": "Brand switch crossfades every demo.",
+      "mobileFallback": "Single-column list of demo cards."
+    },
+    {
+      "id": "component",
+      "question": "How do I use this component?",
+      "message": "See it live, then copy the code.",
+      "visual": "Preview with collapsible code, then install, usage, examples and props.",
+      "transition": "Brand switch crossfades the demo.",
+      "mobileFallback": "Preview at full width above the code."
+    }
+  ],
+  "evidence": []
+}

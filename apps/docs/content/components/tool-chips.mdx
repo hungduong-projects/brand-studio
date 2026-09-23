@@ -1,0 +1,29 @@
+---
+title: Tool Chips
+description: "Compact chips for the tools an agent calls, with running, done and failed states."
+---
+
+<Preview name="tool-chips/default" />
+
+## Installation
+
+<Install name="ToolChips" />
+
+## Usage
+
+```tsx
+import { ToolChips } from '@brand-studio/ui';
+```
+
+```tsx
+<ToolChips tools={[{ id: '1', name: 'orders.search', status: 'done' }]} />
+```
+
+## Accessibility
+
+- The list is a polite live region, so status changes are announced.
+- Each chip spells out its status for screen readers.
+
+## API Reference
+
+<Props name="ToolChips" />

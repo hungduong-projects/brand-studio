@@ -1,0 +1,29 @@
+---
+title: Flip Text
+description: "Cycles through words with a letter-by-letter flip."
+---
+
+<Preview name="flip-text/default" />
+
+## Installation
+
+<Install name="FlipText" />
+
+## Usage
+
+```tsx
+import { FlipText } from '@brand-studio/ui';
+```
+
+```tsx
+Coffee for <FlipText words={['slow mornings', 'late shifts']} />
+```
+
+## Accessibility
+
+- Screen readers hear every word once, as a list, instead of each change.
+- Under reduced motion the words swap without the flip.
+
+## API Reference
+
+<Props name="FlipText" />

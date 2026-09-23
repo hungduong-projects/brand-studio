@@ -1,0 +1,40 @@
+---
+title: Magnet Tabs
+description: "Pill tabs whose highlight slides toward the pointer."
+---
+
+<Preview name="magnet-tabs/default" />
+
+## Installation
+
+<Install name="MagnetTabs" />
+
+## Usage
+
+```tsx
+import { MagnetTabs } from '@brand-studio/ui';
+```
+
+```tsx
+<MagnetTabs
+  aria-label="Shop sections"
+  items={[{ value: 'coffee', label: 'Coffee' }, { value: 'gifts', label: 'Gifts' }]}
+/>
+```
+
+## Examples
+
+### With panels
+
+Give items `content` to render tab panels below.
+
+<Preview name="magnet-tabs/panels" />
+
+## Accessibility
+
+- Uses the tabs pattern: arrow keys move between tabs, Home and End jump to the ends.
+- The hover highlight is decorative; the selected tab is marked with `aria-selected`.
+
+## API Reference
+
+<Props name="MagnetTabs" />

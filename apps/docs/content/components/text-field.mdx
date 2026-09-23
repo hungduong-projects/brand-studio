@@ -1,0 +1,37 @@
+---
+title: Text Field
+description: "A labelled input with an optional hint and error message."
+---
+
+<Preview name="text-field/default" />
+
+## Installation
+
+<Install name="TextField" />
+
+## Usage
+
+```tsx
+import { TextField } from '@brand-studio/ui';
+```
+
+```tsx
+<TextField label="Email" type="email" hint="We only use it for your receipt." />
+```
+
+## Examples
+
+### Error
+
+An error sets `aria-invalid` and joins the message to `aria-describedby`.
+
+<Preview name="text-field/error" />
+
+## Accessibility
+
+- The label is always visible and linked to the input.
+- Hint and error ids are added to any `aria-describedby` you pass, not swapped for it.
+
+## API Reference
+
+<Props name="TextField" />

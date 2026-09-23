@@ -1,0 +1,9 @@
+{
+  "name": "brand-studio",
+  "version": "0.1.0",
+  "description": "Create consistent brand identities, visual stories and responsive interfaces.",
+  "author": {
+    "name": "Harry Duong"
+  },
+  "license": "MIT"
+}

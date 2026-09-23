@@ -1,0 +1,64 @@
+export type Category = 'Foundations' | 'App' | 'AI agents' | 'Effects' | 'Storytelling';
+
+export interface Entry {
+  slug: string;
+  /** Exported names documented on the page; the first one is the main component. */
+  exports: string[];
+  title: string;
+  category: Category;
+  description: string;
+  /** HTML attributes the component passes through, so the props table can leave them out. */
+  base?: string;
+}
+
+export const categories: Category[] = ['Foundations', 'App', 'AI agents', 'Effects', 'Storytelling'];
+
+export const catalog: Entry[] = [
+  { slug: 'brand-theme', exports: ['BrandTheme'], title: 'Brand Theme', category: 'Foundations', description: 'Applies a brand palette to everything inside it, in light, dark or the system mode.', base: 'HTMLAttributes<HTMLDivElement>' },
+  { slug: 'button', exports: ['Button'], title: 'Button', category: 'App', description: 'A native button with primary, secondary and inverse tones.', base: 'ButtonHTMLAttributes<HTMLButtonElement>' },
+  { slug: 'action-link', exports: ['ActionLink'], title: 'Action Link', category: 'App', description: 'A link styled as a button, for actions that go somewhere.', base: 'AnchorHTMLAttributes<HTMLAnchorElement>' },
+  { slug: 'text-field', exports: ['TextField'], title: 'Text Field', category: 'App', description: 'A labelled input with an optional hint and error message.', base: 'InputHTMLAttributes<HTMLInputElement>' },
+  { slug: 'select', exports: ['Select'], title: 'Select', category: 'App', description: 'A labelled single-choice list that opens in a popup.' },
+  { slug: 'switch', exports: ['Switch'], title: 'Switch', category: 'App', description: 'An on/off control with a visible label.' },
+  { slug: 'tabs', exports: ['Tabs'], title: 'Tabs', category: 'App', description: 'Panels of content, one visible at a time.' },
+  { slug: 'dialog', exports: ['Dialog', 'DialogClose'], title: 'Dialog', category: 'App', description: 'A window over the page that holds focus until it closes.' },
+  { slug: 'tooltip', exports: ['Tooltip'], title: 'Tooltip', category: 'App', description: 'A short label shown on hover or keyboard focus.' },
+  { slug: 'toast', exports: ['ToastProvider'], title: 'Toast', category: 'App', description: 'Brief messages that stack in a corner and dismiss themselves.' },
+  { slug: 'badge', exports: ['Badge'], title: 'Badge', category: 'App', description: 'A short status or category label.', base: 'HTMLAttributes<HTMLSpanElement>' },
+  { slug: 'card', exports: ['Card'], title: 'Card', category: 'App', description: 'A bordered surface with a title, body and footer.', base: 'HTMLAttributes<HTMLElement>' },
+  { slug: 'agent-thinking', exports: ['AgentThinking'], title: 'Agent Thinking', category: 'AI agents', description: 'A dot-matrix disc that shows whether an agent is idle, listening, thinking or speaking.' },
+  { slug: 'thinking-trace', exports: ['ThinkingTrace'], title: 'Thinking Trace', category: 'AI agents', description: 'Collapsible reasoning steps with a live status for each.' },
+  { slug: 'streaming-text', exports: ['StreamingText'], title: 'Streaming Text', category: 'AI agents', description: 'Text that arrives word by word, as a model writes it.' },
+  { slug: 'tool-chips', exports: ['ToolChips'], title: 'Tool Chips', category: 'AI agents', description: 'Compact chips for the tools an agent calls, with running, done and failed states.' },
+  { slug: 'approval-card', exports: ['ApprovalCard'], title: 'Approval Card', category: 'AI agents', description: 'Asks a person to allow or deny an action before an agent runs it.' },
+  { slug: 'task-rows', exports: ['TaskRows'], title: 'Task Rows', category: 'AI agents', description: 'An agent’s task list with progress.' },
+  { slug: 'border-beam', exports: ['BorderBeam'], title: 'Border Beam', category: 'Effects', description: 'A light that travels around the edge of a card.', base: 'HTMLAttributes<HTMLDivElement>' },
+  { slug: 'metal-button', exports: ['MetalButton'], title: 'Metal Button', category: 'Effects', description: 'A brushed-metal button whose sheen follows the pointer.', base: 'ButtonHTMLAttributes<HTMLButtonElement>' },
+  { slug: 'magnet-tabs', exports: ['MagnetTabs'], title: 'Magnet Tabs', category: 'Effects', description: 'Pill tabs whose highlight slides toward the pointer.' },
+  { slug: 'flip-text', exports: ['FlipText'], title: 'Flip Text', category: 'Effects', description: 'Cycles through words with a letter-by-letter flip.' },
+  { slug: 'scroll-stack', exports: ['ScrollStack'], title: 'Scroll Stack', category: 'Effects', description: 'Cards that pin and pile up as you scroll.' },
+  { slug: 'click-spark', exports: ['ClickSpark'], title: 'Click Spark', category: 'Effects', description: 'Sparks fly from each click.', base: 'HTMLAttributes<HTMLDivElement>' },
+  { slug: 'brand-image', exports: ['BrandImage'], title: 'Brand Image', category: 'Storytelling', description: 'A responsive picture with focal point and loading priority.' },
+  { slug: 'story-hero', exports: ['StoryHero'], title: 'Story Hero', category: 'Storytelling', description: 'The opening frame of a page: headline, promise, action and image.' },
+  { slug: 'editorial-section', exports: ['EditorialSection'], title: 'Editorial Section', category: 'Storytelling', description: 'A heading and prose beside an image.' },
+  { slug: 'story-sequence', exports: ['StorySequence'], title: 'Story Sequence', category: 'Storytelling', description: 'Chapters that swap a pinned image as you scroll.' },
+  { slug: 'scroll-text-reveal', exports: ['ScrollTextReveal'], title: 'Scroll Text Reveal', category: 'Storytelling', description: 'Words brighten one by one as the paragraph scrolls into view.' },
+  { slug: 'parallax-gallery', exports: ['ParallaxGallery'], title: 'Parallax Gallery', category: 'Storytelling', description: 'Three columns of images that drift at different speeds.' },
+  { slug: 'horizontal-story', exports: ['HorizontalStory'], title: 'Horizontal Story', category: 'Storytelling', description: 'Vertical scrolling moves chapters sideways.' },
+  { slug: 'image-trail', exports: ['ImageTrail'], title: 'Image Trail', category: 'Storytelling', description: 'Moving the mouse leaves a fading trail of images.' },
+];
+
+export const guides = [
+  { slug: '', title: 'Introduction', description: 'React components that take their colours, type and shape from a brand contract.' },
+  { slug: 'installation', title: 'Installation', description: 'Add the package, import the styles and wrap your app in a theme.' },
+  { slug: 'theming', title: 'Theming', description: 'How a brand palette becomes CSS variables every component reads.' },
+];
+
+export const componentHref = (slug: string) => `/docs/components/${slug}/`;
+export const guideHref = (slug: string) => (slug ? `/docs/${slug}/` : '/docs/');
+
+/** Sidebar order: guides first, then each category in catalog order. */
+export const pageOrder = [
+  ...guides.map(guide => ({ href: guideHref(guide.slug), title: guide.title })),
+  ...categories.flatMap(category => catalog.filter(entry => entry.category === category).map(entry => ({ href: componentHref(entry.slug), title: entry.title }))),
+];

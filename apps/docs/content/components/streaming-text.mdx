@@ -1,0 +1,30 @@
+---
+title: Streaming Text
+description: "Text that arrives word by word, as a model writes it."
+---
+
+<Preview name="streaming-text/default" />
+
+## Installation
+
+<Install name="StreamingText" />
+
+## Usage
+
+```tsx
+import { StreamingText } from '@brand-studio/ui';
+```
+
+```tsx
+<StreamingText text={answer} />
+```
+
+## Accessibility
+
+- The whole text is in the HTML from the first byte; CSS reveals it word by word.
+- Screen readers hear the text once, not word by word.
+- Change the `key` to replay. Under reduced motion the text appears at once.
+
+## API Reference
+
+<Props name="StreamingText" />

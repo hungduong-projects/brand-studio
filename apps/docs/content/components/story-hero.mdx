@@ -1,0 +1,42 @@
+---
+title: Story Hero
+description: "The opening frame of a page: headline, promise, action and image."
+---
+
+<Preview name="story-hero/default" layout="full" />
+
+## Installation
+
+<Install name="StoryHero" />
+
+## Usage
+
+```tsx
+import { StoryHero } from '@brand-studio/ui';
+```
+
+```tsx
+<StoryHero
+  title="Make room for the first sip."
+  description="…"
+  asset={cup}
+  action={<ActionLink href="/menu">See the menu</ActionLink>}
+/>
+```
+
+## Examples
+
+### Overlay
+
+The copy sits on a scrim that stays readable before the image loads.
+
+<Preview name="story-hero/overlay" layout="full" />
+
+## Accessibility
+
+- Renders the page `<h1>`. Use one StoryHero per page.
+- The image loads with high priority.
+
+## API Reference
+
+<Props name="StoryHero" />

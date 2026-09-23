@@ -1,0 +1,35 @@
+{
+  "name": "@brand-studio/docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/registry.mjs",
+    "dev": "next dev --port 4100",
+    "prebuild": "node scripts/registry.mjs",
+    "build": "next build",
+    "typecheck": "node scripts/registry.mjs && fumadocs-mdx && tsc --noEmit",
+    "postinstall": "node scripts/registry.mjs && fumadocs-mdx"
+  },
+  "dependencies": {
+    "@brand-studio/ui": "0.1.0",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/newsreader": "5.3.0",
+    "@fontsource/geist-mono": "5.3.0",
+    "@fontsource/manrope": "5.3.0",
+    "fumadocs-core": "16.15.13",
+    "fumadocs-mdx": "15.4.3",
+    "fumadocs-typescript": "5.4.1",
+    "hast-util-to-jsx-runtime": "2.3.6",
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "shiki": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/mdx": "2.0.14",
+    "@types/node": "26.6.2",
+    "tailwindcss": "4.3.3"
+  }
+}

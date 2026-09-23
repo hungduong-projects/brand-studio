@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "name": "Still",
+  "positioning": "A fictional neighborhood coffee brand built around an unhurried daily ritual.",
+  "audience": "People who enjoy carefully made coffee and a small pause in their day.",
+  "voice": [
+    "Concrete and sensory",
+    "Warm without sentimentality",
+    "Short and unhurried"
+  ],
+  "primaryAction": {
+    "label": "Explore the ritual",
+    "href": "#ritual"
+  },
+  "direction": {
+    "concept": "A still life, every morning.",
+    "tier": "Editorial: photography, type and CSS motion. A neighborhood coffee brand needs warmth and speed more than spectacle.",
+    "devices": [
+      "Plates: each chapter is catalogued like a still-life painting (Plate I, II, III) with a small caption line",
+      "Cobalt belongs to the cup: the accent colour appears in the interface only where the cup is the subject or the action",
+      "Voice line: one serif sentence under each display heading, never in body copy"
+    ],
+    "invariants": [
+      "Navigation and primary action label",
+      "Manrope for display and text",
+      "One cup, one counter, one light",
+      "Chapter content model: plate label, message, one sentence, one image"
+    ],
+    "variables": [
+      "Crop and camera distance per plate",
+      "Which surface a section sits on",
+      "Voice-line wording"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#f4f5f7",
+      "elevated": "#ffffff",
+      "ink": "#171c29",
+      "muted": "#505b70",
+      "accent": "#234bc2",
+      "onAccent": "#ffffff",
+      "line": "#8a93a5",
+      "font": "\"Manrope\", sans-serif",
+      "voiceFont": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
+      "radius": "6px"
+    },
+    "dark": {
+      "surface": "#151a24",
+      "elevated": "#202838",
+      "ink": "#f2f4fa",
+      "muted": "#b4bfd3",
+      "accent": "#9bb6ff",
+      "onAccent": "#131d39",
+      "line": "#717e96",
+      "font": "\"Manrope\", sans-serif",
+      "voiceFont": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
+      "radius": "6px"
+    }
+  },
+  "imagery": {
+    "subject": "One cobalt ceramic cup with a thick rim and circular right-side handle",
+    "materials": "Brushed stainless steel counter, glazed ceramic, roasted beans",
+    "lighting": "Natural upper-left morning window light, soft rightward shadow",
+    "palette": "Cool silver, cobalt blue, dark coffee; no warm beige backdrop",
+    "invariants": [
+      "Same cup geometry and cobalt glaze",
+      "Same counter and cool gray background",
+      "Same light direction and restrained grain"
+    ],
+    "avoid": [
+      "Invented logos or image text",
+      "Decorative plants",
+      "Imagery presented as a real farm or cafe",
+      "Changing handle shape across shots"
+    ]
+  },
+  "motion": {
+    "character": "A short crossfade between plates of the same still life; the subject stays, the view moves closer. Native scrolling only.",
+    "reducedMotion": "All images and text in normal document flow, no pinning or animated transforms."
+  },
+  "chapters": [
+    {
+      "id": "beans",
+      "question": "Where does the ritual start?",
+      "message": "Start with the bean.",
+      "visual": "Close study of roasted beans on the same steel counter; cobalt cup remains a recognizable background cue.",
+      "transition": "Move closer to the material without changing the photographic world.",
+      "mobileFallback": "Inline photograph below the text."
+    },
+    {
+      "id": "pour",
+      "question": "What changes the bean into the drink?",
+      "message": "Give it a moment.",
+      "visual": "Coffee pours into the same cobalt cup under the same window light.",
+      "transition": "Crossfade to the action, preserving the cup and surface.",
+      "mobileFallback": "Inline still photograph; no automatic playback."
+    },
+    {
+      "id": "cup",
+      "question": "How does it fit into a day?",
+      "message": "Make room for the first sip.",
+      "visual": "Finished cup, full shape visible with space around it.",
+      "transition": "Return to the master image and resolve the visual story.",
+      "mobileFallback": "Inline finished-cup image and reachable action."
+    }
+  ],
+  "evidence": []
+}

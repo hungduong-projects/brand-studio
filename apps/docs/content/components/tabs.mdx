@@ -1,0 +1,35 @@
+---
+title: Tabs
+description: "Panels of content, one visible at a time."
+---
+
+<Preview name="tabs/default" />
+
+## Installation
+
+<Install name="Tabs" />
+
+## Usage
+
+```tsx
+import { Tabs } from '@brand-studio/ui';
+```
+
+```tsx
+<Tabs
+  aria-label="Brew guide"
+  items={[
+    { value: 'pour', label: 'Pour over', content: <p>…</p> },
+    { value: 'press', label: 'French press', content: <p>…</p> },
+  ]}
+/>
+```
+
+## Accessibility
+
+- Arrow keys move between tabs, Home and End jump to the ends.
+- Only the active panel is in the tab order.
+
+## API Reference
+
+<Props name="Tabs" />

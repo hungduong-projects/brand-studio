@@ -1,0 +1,44 @@
+---
+title: Select
+description: "A labelled single-choice list that opens in a popup."
+---
+
+<Preview name="select/default" />
+
+## Installation
+
+<Install name="Select" />
+
+## Usage
+
+```tsx
+import { Select } from '@brand-studio/ui';
+```
+
+```tsx
+<Select
+  label="Roast"
+  options={[
+    { value: 'light', label: 'Light roast' },
+    { value: 'dark', label: 'Dark roast' },
+  ]}
+/>
+```
+
+## Examples
+
+### Controlled
+
+Pass `value` and `onValueChange` to own the state.
+
+<Preview name="select/controlled" />
+
+## Accessibility
+
+- Opens with Enter, Space or the arrow keys. Typing a letter jumps to the matching option.
+- Escape closes the list and returns focus to the trigger.
+- Disabled options stay visible and are skipped by the keyboard.
+
+## API Reference
+
+<Props name="Select" />

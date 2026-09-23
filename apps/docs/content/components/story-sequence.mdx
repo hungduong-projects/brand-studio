@@ -1,0 +1,29 @@
+---
+title: Story Sequence
+description: "Chapters that swap a pinned image as you scroll."
+---
+
+<Preview name="story-sequence/default" layout="full" />
+
+## Installation
+
+<Install name="StorySequence" />
+
+## Usage
+
+```tsx
+import { StorySequence } from '@brand-studio/ui';
+```
+
+```tsx
+<StorySequence title="A morning ritual." chapters={chapters} />
+```
+
+## Accessibility
+
+- On wide screens with motion allowed, one pinned image changes as each chapter scrolls past.
+- On phones, without JavaScript and under reduced motion, every image stays in the flow beside its chapter.
+
+## API Reference
+
+<Props name="StorySequence" />

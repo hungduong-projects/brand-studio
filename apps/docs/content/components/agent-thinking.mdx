@@ -1,0 +1,37 @@
+---
+title: Agent Thinking
+description: "A dot-matrix disc that shows whether an agent is idle, listening, thinking or speaking."
+---
+
+<Preview name="agent-thinking/default" />
+
+## Installation
+
+<Install name="AgentThinking" />
+
+## Usage
+
+```tsx
+import { AgentThinking } from '@brand-studio/ui';
+```
+
+```tsx
+<AgentThinking state="thinking" label="Comparing roast notes" />
+```
+
+## Examples
+
+### Sizes
+
+`size` sets the width in pixels. Below 40 pixels the disc uses fewer, larger dots so it stays legible next to text.
+
+<Preview name="agent-thinking/sizes" />
+
+## Accessibility
+
+- The component has `role="status"`. With `label` it shows and announces that text; without it, screen readers hear the state name.
+- Each state moves differently, so it does not rely on colour alone. Under reduced motion the disc holds still and the label stays.
+
+## API Reference
+
+<Props name="AgentThinking" />
