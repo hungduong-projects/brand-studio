@@ -3,24 +3,7 @@
 import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-
-/** Holds a list's entrance until it scrolls into view. Lists already on screen, and pages without JavaScript, show at once. */
-function useEntrance<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element || typeof IntersectionObserver === 'undefined' || element.getBoundingClientRect().top < innerHeight) return;
-    element.dataset.bsWaiting = '';
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      delete element.dataset.bsWaiting;
-      observer.disconnect();
-    }, { threshold: 0.2 });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  return ref;
-}
+import { useEntrance } from './entrance.js';
 
 export interface Highlight { media: ReactNode; caption: ReactNode }
 
