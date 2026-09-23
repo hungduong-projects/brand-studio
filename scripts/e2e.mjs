@@ -118,7 +118,14 @@ try {
     await page.waitForTimeout(1500);
     await page.screenshot({ path: path.join(shots, 'camera-00-hero.png') });
     await page.evaluate(() => { const s = document.getElementById('parts'); scrollTo(0, s.getBoundingClientRect().top + scrollY + innerHeight * 0.25); });
-    await page.waitForTimeout(1800);
+    // CI draws WebGL in software at a few frames a second, so the pose can take far longer than locally to settle.
+    await page.waitForFunction(() => {
+      const items = [...document.querySelectorAll('.hd-labels li')];
+      return items.length === 4 && items.every(li => {
+        const r = li.getBoundingClientRect();
+        return getComputedStyle(li).opacity === '1' && r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+      });
+    }, null, { timeout: 15000 }).catch(() => {});
     const labels = await page.$$eval('.hd-labels li', items => items.map(li => {
       const r = li.getBoundingClientRect();
       return { part: li.dataset.part, opacity: getComputedStyle(li).opacity, onScreen: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight };
