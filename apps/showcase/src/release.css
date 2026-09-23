@@ -119,7 +119,9 @@
   .rl-prop { position: static; width: auto; max-width: 22rem; opacity: 1; translate: 0; }
   .rl-panel, .rl-notes, .rl-install { padding-inline: 1.25rem; }
   .rl .rl-credit { right: 1.25rem; left: 1.25rem; bottom: .9rem; text-align: left; }
-  .rl-hero .rl-credit { margin: 0 4.5rem 1rem 1.25rem; }
+  /* The credit sits under the card's sticky range, so the two never overlap as the hero scrolls away. */
+  .rl-hero { padding-bottom: 5rem; }
+  .rl .rl-hero .rl-credit { position: absolute; top: auto; bottom: 1.25rem; left: 1.25rem; right: 4.5rem; margin: 0; width: auto; }
   /* A round icon on phones, so the button covers less of the page. */
   .rl-pause { right: .9rem; bottom: .9rem; width: 44px; padding: 0; justify-content: center; }
   .rl-pause__label { display: none; }

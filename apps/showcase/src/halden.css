@@ -4,7 +4,8 @@
 .hd :is(h1, h2) { text-wrap: balance; }
 .hd-stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s; }
 .hd[data-loaded] .hd-stage { opacity: 1; }
-.hd-stage canvas { display: block; width: 100%; height: 100%; }
+.hd-stage canvas { display: block; width: 100%; height: 100%; transition: opacity .35s; }
+.hd-stage canvas[data-covered] { opacity: 0; }
 .hd[data-current="specs"] .hd-stage { opacity: 0; transition-duration: .4s; }
 .hd > section, .hd-paper { position: relative; z-index: 1; }
 
@@ -73,7 +74,13 @@
 .hd-buy p { margin: 1rem 0 1.75rem; color: var(--bs-muted); font-size: 1.15rem; }
 
 @media (max-width: 767px) {
-  .hd-hero { flex-direction: column; align-items: flex-start; justify-content: flex-end; padding-bottom: 7vh; }
+  /* Name on top, camera in the middle, price and buy under it: the stack product pages use on a phone. */
+  .hd-hero { flex-direction: column; align-items: stretch; justify-content: space-between; gap: 0; min-height: calc(100svh - 108px); padding: 2.25rem 1.25rem 2rem; text-align: center; }
+  .hd-hero .hd-engraved { margin-bottom: .75rem; }
+  .hd-hero h1 { font-size: clamp(3.2rem, 17vw, 4.5rem); }
+  .hd-hero__line { margin-top: .6rem; font-size: 1.15rem; }
+  .hd-hero__buy { flex-direction: column; gap: .9rem; }
+  .hd-hero__buy .bs-button { min-width: 11rem; }
   .hd-solid { padding: 4.5rem 1.25rem; }
   .hd-statement { padding-block: 7rem; }
   .hd-chapter { min-height: auto; padding: 60vh 1.25rem 12vh; }
@@ -82,5 +89,5 @@
   .hd-labels { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hd-stage, .hd-labels li { transition: none; }
+  .hd-stage, .hd-stage canvas, .hd-labels li { transition: none; }
 }

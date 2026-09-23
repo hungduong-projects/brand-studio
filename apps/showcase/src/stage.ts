@@ -149,7 +149,13 @@ export function startStage(canvas: HTMLCanvasElement, sections: HTMLElement[], s
    */
   const wave = (t: number, a: { scene: Scene; cam: Camera } | null, b: { scene: Scene; cam: Camera }) => {
     if (w < 1 || h < 1) return;
-    const size = w < 768 ? 28 : 44;
+    // On a phone the tiles are too coarse for the screen and read as glitches, so the paintings crossfade instead.
+    if (w < 768) {
+      if (a) paint(ctx, w, h, a.scene, a.cam, true);
+      paint(ctx, w, h, b.scene, b.cam, true, smooth(clamp(t)));
+      return;
+    }
+    const size = 44;
     const cols = Math.ceil(w / size), rows = Math.ceil(h / size), n = cols * rows;
     if (seeds.length < n) { seeds = new Float32Array(n); for (let i = 0; i < n; i++) seeds[i] = Math.random(); }
     const flip = new Float32Array(n);

@@ -19,6 +19,8 @@ export interface Pose {
   /** Where the model sits across the screen, -1 left to 1 right. Ignored on narrow screens. */
   x: number;
   y: number;
+  /** On narrow screens only: how far below the middle the model sits, as a share of screen height. Negative lifts it. */
+  drop?: number;
 }
 
 export type Part = 'body' | 'barrel' | 'glass' | 'strap';
@@ -28,6 +30,7 @@ const smooth = (v: number) => v * v * (3 - 2 * v);
 const mix = (a: Pose, b: Pose, t: number): Pose => ({
   yaw: a.yaw + (b.yaw - a.yaw) * t, pitch: a.pitch + (b.pitch - a.pitch) * t, explode: a.explode + (b.explode - a.explode) * t,
   distance: a.distance + (b.distance - a.distance) * t, x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t,
+  drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * t,
 });
 
 const PARTS: Record<string, Part> = { Camera_01_body: 'body', Camera_01_lens_body: 'barrel', Camera_01_lens: 'glass', Camera_01_strap: 'strap' };
@@ -41,6 +44,8 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
   onParts?: (parts: Record<Part, { x: number; y: number }>) => void;
   /** Parts to leave out, for close-up stills. */
   hide?: Part[];
+  /** Solid sections. On narrow screens the model fades out while one overlaps the band it sits in, so it never shows cut off at an edge. */
+  covers?: HTMLElement[];
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -120,9 +125,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
-    // On narrow screens the copy scrolls over the lower half, so the model sits above the middle instead.
-    if (w < 768) camera.setViewOffset(w, h, 0, h * 0.04, w, h);
-    else camera.clearViewOffset();
+    camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
   resize();
@@ -144,7 +147,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
 
   let current = { ...poses[0] }, raf = 0, last = performance.now(), time = 0;
   const projected = new THREE.Vector3(), bounds = new THREE.Box3();
-  let spin = 0, shift = 0;
+  let spin = 0;
   const loop = (now: number) => {
     const dt = Math.min(now - last, 64);
     last = now;
@@ -157,14 +160,16 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
     const drift = options.reduced ? 0 : Math.sin(time / 2400) * 0.04;
     spin += (options.spin() - spin) * (options.reduced ? 1 : 1 - Math.exp(-dt / 90));
     turn.rotation.set(current.pitch + drift * 0.3, current.yaw + spin + drift, 0);
-    // Narrow screens centre everything you see, strap included, since the body alone reads as off to one side.
-    if (narrow && ready) shift += (-bounds.setFromObject(turn).getCenter(projected).x + turn.position.x - shift) * k;
-    turn.position.set(narrow ? shift : current.x * 1.1, narrow ? current.y * 0.6 : current.y, 0);
+    turn.position.set(narrow ? 0 : current.x * 1.1, narrow ? 0 : current.y, 0);
+    // Narrow screens stack copy and model, so each pose says where the model sits between them.
+    if (narrow) camera.setViewOffset(w, h, 0, -(current.drop ?? 0) * h, w, h);
+    const spot = h * (0.5 + (current.drop ?? 0));
+    canvas.toggleAttribute('data-covered', narrow && !!options.covers?.some(el => { const r = el.getBoundingClientRect(); return r.top < spot + h * 0.14 && r.bottom > spot - h * 0.14; }));
     for (const piece of pieces) {
       const e = smooth(clamp(current.explode));
       piece.object.position.copy(piece.home).addScaledVector(piece.away, e);
     }
-    camera.position.set(0, 0, current.distance * (narrow ? Math.max(1.4, 0.92 / camera.aspect) : 1));
+    camera.position.set(0, 0, current.distance * (narrow ? Math.max(1.2, 0.8 / camera.aspect) : 1));
     camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
 
