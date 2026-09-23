@@ -1,7 +1,7 @@
 /* App building blocks */
 .bs-dialog__backdrop { position: fixed; inset: 0; z-index: 100; background: color-mix(in srgb, var(--bs-ink) 40%, transparent); backdrop-filter: blur(2px); transition: opacity 200ms var(--bs-ease); }
 .bs-dialog__backdrop:is([data-starting-style], [data-ending-style]) { opacity: 0; }
-.bs-dialog { position: fixed; z-index: 101; top: 50%; left: 50%; width: min(28rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; translate: -50% -50%; padding: 1.5rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 24px 60px -20px rgb(0 0 0 / .4); transition: opacity 200ms var(--bs-ease), scale 200ms var(--bs-ease); }
+.bs-dialog { position: fixed; z-index: 101; top: 50%; left: 50%; width: min(28rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; translate: -50% -50%; padding: 1.5rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 24px 60px -20px rgb(0 0 0 / .4); transition: opacity 200ms var(--bs-ease), scale 260ms var(--bs-ease-spring); }
 .bs-dialog:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: .96; }
 .bs-dialog:focus-visible { outline: none; }
 .bs-dialog__title { margin: 0 2rem .4rem 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -.01em; }
@@ -18,7 +18,7 @@
 .bs-tabs__tab[data-active] { color: var(--bs-ink); }
 .bs-tabs__tab[data-disabled] { opacity: .45; cursor: not-allowed; }
 .bs-tabs__tab:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: -2px; }
-.bs-tabs__indicator { position: absolute; bottom: -1px; left: 0; height: 2px; width: var(--active-tab-width); translate: var(--active-tab-left); background: var(--bs-accent); transition: translate 240ms var(--bs-ease), width 240ms var(--bs-ease); }
+.bs-tabs__indicator { position: absolute; bottom: -1px; left: 0; height: 2px; width: var(--active-tab-width); translate: var(--active-tab-left); background: var(--bs-accent); transition: translate 320ms var(--bs-ease-spring), width 320ms var(--bs-ease-spring); }
 .bs-tabs__panel { padding-top: 1.25rem; }
 .bs-tabs__panel:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 4px; border-radius: 4px; }
 
@@ -30,7 +30,7 @@
 .bs-select__icon { display: grid; flex: none; color: var(--bs-muted); }
 .bs-select__icon svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .bs-select__positioner { z-index: 110; outline: 0; }
-.bs-select__popup { min-width: var(--anchor-width); max-height: var(--available-height); overflow-y: auto; padding: .3rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 2px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 16px 40px -16px rgb(0 0 0 / .35); transform-origin: var(--transform-origin); transition: opacity 150ms, scale 150ms var(--bs-ease); }
+.bs-select__popup { min-width: var(--anchor-width); max-height: var(--available-height); overflow-y: auto; padding: .3rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 2px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 16px 40px -16px rgb(0 0 0 / .35); transform-origin: var(--transform-origin); transition: opacity var(--bs-duration-fast), scale 220ms var(--bs-ease-spring); }
 .bs-select__popup:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: .97; }
 .bs-select__list { outline: 0; }
 .bs-select__item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 36px; padding: .45rem .6rem; border-radius: calc(var(--bs-radius) / 2 + 2px); cursor: default; outline: 0; user-select: none; font-size: .925rem; }
@@ -39,7 +39,7 @@
 .bs-select__check { width: .75rem; height: .4rem; border-left: 2px solid var(--bs-accent); border-bottom: 2px solid var(--bs-accent); rotate: -45deg; translate: 0 -2px; }
 
 .bs-tooltip__positioner { z-index: 120; }
-.bs-tooltip { position: relative; max-width: 16rem; padding: .4rem .6rem; border-radius: calc(var(--bs-radius) / 2 + 2px); background: var(--bs-ink); color: var(--bs-surface); font: 500 .8rem/1.35 var(--bs-font); transform-origin: var(--transform-origin); transition: opacity 140ms, scale 140ms var(--bs-ease); }
+.bs-tooltip { position: relative; max-width: 16rem; padding: .4rem .6rem; border-radius: calc(var(--bs-radius) / 2 + 2px); background: var(--bs-ink); color: var(--bs-surface); font: 500 .8rem/1.35 var(--bs-font); transform-origin: var(--transform-origin); transition: opacity var(--bs-duration-fast), scale 200ms var(--bs-ease-spring); }
 .bs-tooltip:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: .95; }
 .bs-tooltip__arrow { width: 10px; height: 5px; background: var(--bs-ink); clip-path: polygon(0 0, 100% 0, 50% 100%); }
 .bs-tooltip__arrow[data-side="top"] { bottom: -5px; }
@@ -53,7 +53,7 @@
   position: absolute; right: 0; bottom: 0; width: 100%; height: var(--height); z-index: calc(1000 - var(--toast-index)); transform-origin: bottom center;
   transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - var(--toast-index) * var(--peek) - var(--shrink) * var(--height))) scale(var(--scale));
   border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 12px 32px -14px rgb(0 0 0 / .35); user-select: none;
-  transition: transform 450ms cubic-bezier(.22,1,.36,1), opacity 450ms, height 150ms; }
+  transition: transform 450ms var(--bs-ease-out), opacity 450ms, height 150ms; }
 .bs-toast::after { content: ""; position: absolute; top: 100%; left: 0; width: 100%; height: calc(var(--gap) + 1px); }
 .bs-toast[data-expanded] { height: var(--toast-height); transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y)); }
 .bs-toast[data-starting-style], .bs-toast[data-ending-style]:not([data-swipe-direction]) { transform: translateY(150%); }
@@ -74,7 +74,7 @@
 .bs-switch__track[data-checked] { background: var(--bs-accent); }
 .bs-switch__track[data-disabled] { opacity: .5; cursor: not-allowed; }
 .bs-switch__track:focus-visible { outline: 3px solid var(--bs-accent); outline-offset: 3px; }
-.bs-switch__thumb { position: absolute; top: .2rem; left: .2rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: translate 180ms var(--bs-ease); }
+.bs-switch__thumb { position: absolute; top: .2rem; left: .2rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: translate 240ms var(--bs-ease-spring); }
 .bs-switch__thumb[data-checked] { translate: 1.15rem 0; }
 .bs-switch__label { font-weight: 600; cursor: pointer; }
 .bs-switch__description { margin: .1rem 0 0; color: var(--bs-muted); font-size: .875rem; }
@@ -135,7 +135,7 @@
 /* Reduced motion stops the turn; the still arc and the label still say it is working. */
 
 .bs-menu__positioner { z-index: 110; outline: 0; }
-.bs-menu { min-width: max(12rem, var(--anchor-width)); padding: .3rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 2px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 16px 40px -16px rgb(0 0 0 / .35); outline: 0; transform-origin: var(--transform-origin); transition: opacity 150ms, scale 150ms var(--bs-ease); }
+.bs-menu { min-width: max(12rem, var(--anchor-width)); padding: .3rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 2px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 16px 40px -16px rgb(0 0 0 / .35); outline: 0; transform-origin: var(--transform-origin); transition: opacity var(--bs-duration-fast), scale 220ms var(--bs-ease-spring); }
 .bs-menu:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: .97; }
 .bs-menu__item { display: flex; align-items: center; min-height: 40px; padding: .45rem .65rem; border-radius: calc(var(--bs-radius) / 2 + 2px); color: inherit; font-size: .925rem; text-decoration: none; cursor: default; outline: 0; user-select: none; }
 .bs-menu__item[data-highlighted] { background: var(--bs-accent-soft); }
