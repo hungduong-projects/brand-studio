@@ -1,0 +1,36 @@
+---
+title: Chapter Rail
+description: "The chapter list that docks at the side once the reader scrolls past the Story Cover, and lights the chapter being read."
+---
+
+<Preview name="chapter-rail/default" layout="full" />
+
+## Installation
+
+<Install name="ChapterRail" />
+
+## Usage
+
+```tsx
+import { ChapterRail, StoryCover } from '@brand-studio/ui';
+```
+
+```tsx
+<StoryCover id="cover" title="Three plates" chapters={chapters} />
+<ChapterRail cover="cover" chapters={chapters} />
+```
+
+By default the rail is fixed to the left edge of wide screens. It appears once the first chapter reaches the middle of the screen, or a quarter of the cover has scrolled away, and leaves once the last chapter ends. Where the browser supports view transitions, the cover's chapter list moves into the rail. Leave about 11rem free at the left of wide screens so the rail does not cover your text.
+
+With `placement="inline"` the rail stays where you put it, such as a sticky side column, and only lights the current chapter. The preview above works this way.
+
+## Accessibility
+
+- The rail is a `<nav>` named by `label`, with an ordered list of links.
+- The chapter being read has `aria-current`, so screen readers announce it.
+- The fixed rail is hidden on narrow screens and before it docks, so readers meet one chapter list at a time.
+- With reduced motion the list appears without moving.
+
+## API Reference
+
+<Props name="ChapterRail" />

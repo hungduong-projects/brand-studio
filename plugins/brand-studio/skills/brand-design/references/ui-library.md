@@ -90,6 +90,7 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Walk sideways through chapters | `HorizontalStory` | The chapters need close reading |
 | Bring one paragraph forward as it scrolls in | `ScrollTextReveal` | The paragraph is long |
 | Open a long page with its title and chapter list over a picture | `StoryCover` | There is one promise and one action: use `StoryHero` |
+| Keep the chapter list in reach and show which chapter is being read | `ChapterRail` | The page has under four chapters |
 | Show many images with depth | `ParallaxGallery` | Each image needs a caption |
 | Leave images behind the pointer | `ImageTrail` | Touch is the main input |
 | Show any contract image at the right size and focal point | `BrandImage` | — |

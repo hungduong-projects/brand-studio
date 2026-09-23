@@ -55,6 +55,7 @@ export const catalog: Entry[] = [
   { slug: 'click-spark', exports: ['ClickSpark'], title: 'Click Spark', category: 'Effects', description: 'Sparks fly from each click.', base: 'HTMLAttributes<HTMLDivElement>' },
   { slug: 'brand-image', exports: ['BrandImage'], title: 'Brand Image', category: 'Storytelling', description: 'A responsive picture with focal point and loading priority.' },
   { slug: 'story-hero', exports: ['StoryHero'], title: 'Story Hero', category: 'Storytelling', description: 'The opening frame of a page: headline, promise, action and image.' },
+  { slug: 'chapter-rail', exports: ['ChapterRail'], title: 'Chapter Rail', category: 'Storytelling', description: 'The chapter list docks at the side once the cover scrolls away and lights the chapter being read.' },
   { slug: 'story-cover', exports: ['StoryCover'], title: 'Story Cover', category: 'Storytelling', description: 'The framed title card that opens a long page: kicker, title, one line, the chapter list and actions.' },
   { slug: 'editorial-section', exports: ['EditorialSection'], title: 'Editorial Section', category: 'Storytelling', description: 'A heading and prose beside an image.' },
   { slug: 'story-sequence', exports: ['StorySequence'], title: 'Story Sequence', category: 'Storytelling', description: 'Chapters that swap a pinned image as you scroll.' },
