@@ -11,14 +11,14 @@ export default function Home() {
   return <main id="main" tabIndex={-1} className="home">
     <section className="hero">
       <div className="hero__copy">
-        <p className="hero__badge"><span aria-hidden="true" />{catalog.length} components · MIT</p>
+        <a className="hero__badge" href="https://www.npmjs.com/package/@brand-studio/ui"><span aria-hidden="true" />@brand-studio/ui on npm</a>
         <h1>Components that wear your brand.</h1>
         <p className="hero__lead">React components for apps, AI agents and story pages. Each one reads its colours, type and corners from a brand contract, so one switch re-skins them all.</p>
         <div className="hero__actions">
           <a href="/docs/installation/" className="solid-button">Get started</a>
           <a href="/docs/" className="ghost-button">Browse components</a>
         </div>
-        <p className="hero__hint">Same markup on each card. Pick a brand in the header to bring it forward.</p>
+        <p className="hero__hint">Same markup on each card. Click a card behind, or pick a brand in the header, to bring it forward.</p>
       </div>
       <HeroSpecimens />
     </section>
