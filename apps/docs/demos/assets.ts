@@ -9,3 +9,6 @@ export const chapters: StoryChapter[] = [
   { id: 'pour', label: 'Plate II · The pour', title: 'Give it a moment.', body: 'The first pour. The slow bloom. A little attention changes an everyday drink into something worth pausing for.', asset: pour },
   { id: 'cup', label: 'Plate III · The cup', title: 'Make room for the first sip.', body: 'A warm cup. A clear counter. A moment that belongs to you, before the day asks for anything else.', asset: cup },
 ];
+
+/** Renders of the fictional Halden camera, from a CC0 model. See public/images/halden/PROVENANCE.md. */
+export const camera = (name: string, alt: string) => ({ src: `/images/halden/${name}.webp`, alt });

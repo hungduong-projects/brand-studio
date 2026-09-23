@@ -1,4 +1,4 @@
-export type Category = 'Foundations' | 'App' | 'Navigation' | 'Data' | 'AI agents' | 'Effects' | 'Storytelling';
+export type Category = 'Foundations' | 'App' | 'Navigation' | 'Data' | 'AI agents' | 'Effects' | 'Storytelling' | 'Product page';
 
 export interface Entry {
   slug: string;
@@ -11,7 +11,7 @@ export interface Entry {
   base?: string;
 }
 
-export const categories: Category[] = ['Foundations', 'App', 'Navigation', 'Data', 'AI agents', 'Effects', 'Storytelling'];
+export const categories: Category[] = ['Foundations', 'App', 'Navigation', 'Data', 'AI agents', 'Effects', 'Storytelling', 'Product page'];
 
 export const catalog: Entry[] = [
   { slug: 'brand-theme', exports: ['BrandTheme'], title: 'Brand Theme', category: 'Foundations', description: 'Applies a brand palette to everything inside it, in light, dark or the system mode.', base: 'HTMLAttributes<HTMLDivElement>' },
@@ -35,6 +35,9 @@ export const catalog: Entry[] = [
   { slug: 'spinner', exports: ['Spinner'], title: 'Spinner', category: 'App', description: 'A turning ring with a label, for a wait of unknown length.' },
   { slug: 'header', exports: ['Header'], title: 'Header', category: 'Navigation', description: 'The bar across the top: brand, links and actions. Links fold into a menu when it is narrow.' },
   { slug: 'sidebar', exports: ['Sidebar'], title: 'Sidebar', category: 'Navigation', description: 'Grouped side navigation for an app, with icons and counts.' },
+  { slug: 'story-header', exports: ['StoryHeader'], title: 'Story Header', category: 'Navigation', description: 'A floating glass bar for a long, chaptered page. It names the chapter you are reading and fills a line as you scroll.' },
+  { slug: 'site-bar', exports: ['SiteBar'], title: 'Site Bar', category: 'Navigation', description: 'A thin bar across the top of a whole site. Items can open a full-width menu panel while the page behind blurs.' },
+  { slug: 'product-bar', exports: ['ProductBar'], title: 'Product Bar', category: 'Navigation', description: 'The bar for one product: its name, its own pages and one action. It sticks to the top while the page scrolls.' },
   { slug: 'mobile-navigation', exports: ['MobileNavigation'], title: 'Mobile Navigation', category: 'Navigation', description: 'A menu button that opens the links in a full-screen panel.' },
   { slug: 'data-table', exports: ['DataTable'], title: 'Data Table', category: 'Data', description: 'A captioned table with sortable columns, loading rows and an empty message.' },
   { slug: 'stat-card', exports: ['StatCard'], title: 'Stat Card', category: 'Data', description: 'One key number with its change and a sparkline.' },
@@ -52,12 +55,19 @@ export const catalog: Entry[] = [
   { slug: 'click-spark', exports: ['ClickSpark'], title: 'Click Spark', category: 'Effects', description: 'Sparks fly from each click.', base: 'HTMLAttributes<HTMLDivElement>' },
   { slug: 'brand-image', exports: ['BrandImage'], title: 'Brand Image', category: 'Storytelling', description: 'A responsive picture with focal point and loading priority.' },
   { slug: 'story-hero', exports: ['StoryHero'], title: 'Story Hero', category: 'Storytelling', description: 'The opening frame of a page: headline, promise, action and image.' },
+  { slug: 'story-cover', exports: ['StoryCover'], title: 'Story Cover', category: 'Storytelling', description: 'The framed title card that opens a long page: kicker, title, one line, the chapter list and actions.' },
   { slug: 'editorial-section', exports: ['EditorialSection'], title: 'Editorial Section', category: 'Storytelling', description: 'A heading and prose beside an image.' },
   { slug: 'story-sequence', exports: ['StorySequence'], title: 'Story Sequence', category: 'Storytelling', description: 'Chapters that swap a pinned image as you scroll.' },
   { slug: 'scroll-text-reveal', exports: ['ScrollTextReveal'], title: 'Scroll Text Reveal', category: 'Storytelling', description: 'Words brighten one by one as the paragraph scrolls into view.' },
   { slug: 'parallax-gallery', exports: ['ParallaxGallery'], title: 'Parallax Gallery', category: 'Storytelling', description: 'Three columns of images that drift at different speeds.' },
   { slug: 'horizontal-story', exports: ['HorizontalStory'], title: 'Horizontal Story', category: 'Storytelling', description: 'Vertical scrolling moves chapters sideways.' },
   { slug: 'image-trail', exports: ['ImageTrail'], title: 'Image Trail', category: 'Storytelling', description: 'Moving the mouse leaves a fading trail of images.' },
+  { slug: 'highlights-gallery', exports: ['HighlightsGallery'], title: 'Highlights Gallery', category: 'Product page', description: 'A row of large slides that plays by itself while on screen, with a progress pill and a pause button.' },
+  { slug: 'product-viewer', exports: ['ProductViewer'], title: 'Product Viewer', category: 'Product page', description: 'A large stage for one product image at a time, with pill tabs under it to switch views.' },
+  { slug: 'card-carousel', exports: ['CardCarousel'], title: 'Card Carousel', category: 'Product page', description: 'A row of tall cards that scrolls sideways, with round previous and next buttons.' },
+  { slug: 'key-figures', exports: ['KeyFigures'], title: 'Key Figures', category: 'Product page', description: 'Big numbers side by side, each under a thin rule with a short lead-in and what it means.' },
+  { slug: 'model-compare', exports: ['ModelCompare'], title: 'Model Compare', category: 'Product page', description: 'Models side by side: picture, name, price and action at the top, then one line per feature.' },
+  { slug: 'footer-directory', exports: ['FooterDirectory'], title: 'Footer Directory', category: 'Product page', description: 'The closing directory of a site: numbered fine print, a breadcrumb, link columns and a legal line.' },
 ];
 
 export const guides = [

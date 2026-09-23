@@ -28,4 +28,6 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run check:brand
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run e2e
       - run: npm pack --workspace @brand-studio/ui --dry-run --ignore-scripts

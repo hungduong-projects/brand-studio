@@ -1,0 +1,130 @@
+/* Brand Studio Editions: a pinned painted stage, chapters over it, torn paper panels between. */
+.rl, .rl-header, .rl-footer, .rl-pause { --rl-serif: 'Instrument Serif', Georgia, serif; --rl-paper: #f1efe8; --rl-ground: #16171a; }
+/* Header: Story Header, with the edition's mark and serif numerals. */
+.rl-mark { display: inline-flex; align-items: baseline; gap: .35rem; color: var(--rl-paper); font-weight: 650; letter-spacing: -.02em; text-decoration: none; }
+.rl-mark em { font: italic 400 1.15rem/1 var(--rl-serif); letter-spacing: 0; opacity: .85; }
+.rl-mark__version { align-self: center; padding: .05rem .4rem; border: 1px solid rgb(241 239 232 / .35); border-radius: 99px; font: 500 .7rem/1.4 'Geist Mono', ui-monospace, monospace; }
+.rl-header .rl-numeral { font: 400 .95rem var(--rl-serif); opacity: 1; }
+@container bs-header (max-width: 30rem) { .rl-mark em, .rl-mark__version { display: none; } }
+
+.rl { background: var(--rl-ground); }
+.rl :is(h1, h2, h3) { text-wrap: balance; }
+.rl-world { position: relative; }
+.rl-stage { position: sticky; top: 0; height: 100vh; margin-bottom: -100vh; overflow: hidden; }
+.rl-stage canvas { display: block; width: 100%; height: 100%; }
+.rl-numeral { font-variant-numeric: tabular-nums; opacity: .7; }
+.rl-row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.rl-stack { display: grid; gap: .8rem; justify-items: start; width: 100%; }
+.rl-new { display: inline-block; margin-left: .5rem; padding: .1rem .45rem; border-radius: 99px; background: var(--bs-accent); color: var(--bs-on-accent); font: 600 .68rem/1.4 var(--bs-font); letter-spacing: .02em; vertical-align: .15em; }
+
+/* Hero: a framed title card over the feast, in the manner of an exhibition label. */
+.rl-hero { position: relative; min-height: 170svh; }
+.rl-hero__card { position: sticky; top: 16vh; width: min(25rem, calc(100% - 2.5rem)); margin-left: clamp(1.25rem, 12vw, 13rem); animation: rl-card 1.1s 1.6s both cubic-bezier(.2, .7, .2, 1); }
+.rl-hero__card .rl-numeral { font: 400 1rem var(--rl-serif); }
+@keyframes rl-card { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0); } }
+
+.rl-credit { position: absolute; z-index: 2; right: 10.5rem; bottom: 1rem; max-width: 34rem; margin: 0; font-size: .72rem; color: rgb(241 239 232 / .82); text-align: right; }
+.rl-credit a { color: inherit; }
+.rl-hero .rl-credit { position: sticky; top: calc(100vh - 3rem); margin: 0 1.25rem 1rem auto; display: block; width: fit-content; }
+
+/* Chapter index: a column of numerals, centred on the left edge. The current chapter's line grows and its word shows. */
+.rl-rail { position: fixed; z-index: 20; left: 1.25rem; top: 50%; translate: 0 -50%; mix-blend-mode: difference; color: #fff; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.rl-rail[data-show] { opacity: 1; pointer-events: auto; }
+.rl-rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; }
+.rl-rail a { display: flex; align-items: center; gap: .6rem; min-height: 28px; color: inherit; text-decoration: none; opacity: .5; transition: opacity .3s; }
+.rl-rail a::before { content: ""; width: .75rem; height: 1px; background: currentColor; transition: width .3s; }
+.rl-rail a:hover, .rl-rail a[aria-current] { opacity: 1; }
+.rl-rail a[aria-current]::before { width: 1.75rem; }
+.rl-rail .rl-numeral { min-width: 1.6rem; font: 400 1.05rem/1 var(--rl-serif); opacity: 1; }
+.rl-rail__word { font-size: .78rem; font-weight: 600; opacity: 0; translate: -.3rem 0; transition: opacity .3s, translate .3s; }
+.rl-rail a:hover .rl-rail__word, .rl-rail a:focus-visible .rl-rail__word, .rl-rail a[aria-current] .rl-rail__word { opacity: 1; translate: 0; }
+
+/* Chapter scene: the painting holds for two screens while the camera moves; the component rides on its anchor. */
+.rl-scene { position: relative; height: 230svh; }
+.rl-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.rl-scene__text { position: absolute; bottom: 12vh; width: min(34rem, 40vw); color: var(--rl-paper); }
+.rl-scene--right .rl-scene__text { right: clamp(1.25rem, 6vw, 6rem); }
+.rl-scene--left .rl-scene__text { left: clamp(11rem, 14vw, 14rem); }
+.rl-scene__numeral { margin: 0; font: 400 1.4rem var(--rl-serif); opacity: .8; }
+.rl-scene h2 { margin: 0 0 .9rem; font: 400 clamp(3rem, 6.4vw, 6.4rem)/.92 var(--rl-serif); letter-spacing: -.02em; color: inherit; }
+.rl-scene h2::first-letter { font-style: italic; }
+.rl-scene__text > p:last-child { margin: 0; max-width: 40ch; font-size: 1.02rem; line-height: 1.5; color: rgb(241 239 232 / .9); }
+.rl-scene .rl-credit { left: auto; }
+
+.rl-prop { position: absolute; z-index: 1; margin: 0; width: 21rem;
+  left: clamp(11rem, calc(var(--ax, 50%) - 10.5rem), calc(100% - 22rem));
+  top: clamp(5.5rem, calc(var(--ay, 45%) - 7rem), calc(100% - 20rem));
+  opacity: 0; translate: 0 1.5rem; transition: opacity .5s, translate .7s cubic-bezier(.2, .7, .2, 1); }
+[data-live] .rl-prop { opacity: 1; translate: 0; transition-delay: .25s; }
+/* Chapter text rises in once its painting is on the stage: numeral, then title, then the line under it. */
+@media (min-width: 768px) {
+  .rl-scene__text > * { opacity: 0; translate: 0 1.2rem; transition: opacity .6s, translate .9s cubic-bezier(.2, .7, .2, 1); }
+  [data-live] .rl-scene__text > * { opacity: 1; translate: 0; }
+  [data-live] .rl-scene__text > :nth-child(2) { transition-delay: .08s; }
+  [data-live] .rl-scene__text > :nth-child(3) { transition-delay: .18s; }
+}
+.rl-prop__object { padding: 1rem; border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-elevated); color: var(--bs-ink); box-shadow: 0 1px 0 rgb(255 255 255 / .6) inset, 0 30px 60px -20px rgb(0 0 0 / .65), 0 0 0 1px rgb(44 59 245 / .35); }
+.rl-prop__object > .bs-sidebar { min-height: 0; border: 0; background: transparent; }
+.rl-prop figcaption { display: inline-flex; align-items: center; margin-top: .6rem; padding: .3rem .4rem .3rem .7rem; border-radius: 99px; background: rgb(22 23 26 / .72); backdrop-filter: blur(6px); font-size: .78rem; font-weight: 600; }
+.rl-prop figcaption a { color: var(--rl-paper); text-decoration: none; }
+.rl-prop figcaption a:hover { text-decoration: underline; }
+.rl-prop__form { display: grid; gap: .8rem; justify-items: end; }
+.rl-prop__form .bs-field { width: 100%; }
+.rl-prop__title { display: block; font-size: .95rem; }
+.rl-prop__beam { padding: 1.1rem; border-radius: var(--bs-radius); }
+.rl-prop__beam p { margin: .3rem 0 0; color: var(--bs-muted); font-size: .9rem; }
+.rl-prop__flip { margin: 0; font: 400 2.2rem/1.1 var(--rl-serif); }
+
+/* Paper panel: tears in over the painting, holding every component of the chapter as a live demo. */
+.rl-panel { position: relative; z-index: 2; padding: 6rem clamp(1.25rem, 4vw, 3rem) 7rem clamp(1.25rem, 12vw, 12rem); background: var(--bs-surface); color: var(--bs-ink); clip-path: var(--torn); margin-top: -2px; }
+.rl-panel__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr)); gap: 1.25rem; max-width: 76rem; }
+.rl-demo { display: flex; flex-direction: column; }
+.rl-demo[data-wide] { grid-column: span 2; }
+.rl-demo__stage { display: grid; place-items: center; min-height: 11rem; padding: 1.5rem; border: 1px solid color-mix(in srgb, var(--bs-line) 55%, transparent); border-radius: var(--bs-radius); background: var(--bs-elevated); }
+.rl-demo__stage > * { max-width: 100%; }
+.rl-demo[data-wide] .rl-demo__stage { place-items: stretch; }
+.rl-gallery { width: min(100%, 34rem); margin: 0 auto 2.5rem; }
+.rl-demo h3 { margin: 1rem 0 .3rem; font-size: 1rem; font-weight: 650; }
+.rl-demo p { margin: 0 0 .5rem; color: var(--bs-muted); font-size: .9rem; line-height: 1.45; max-width: 44ch; }
+.rl-demo > a { margin-top: auto; font-size: .82rem; font-weight: 600; color: var(--bs-ink); text-underline-offset: .25em; }
+.rl-spark { display: inline-block; padding: 1rem; }
+.rl-demo .rl-flip { margin: 0; font: 400 1.9rem/1.1 var(--rl-serif); }
+
+/* Release notes: the whole package in one dense grid. */
+.rl-notes, .rl-install { position: relative; z-index: 2; background: var(--bs-surface); color: var(--bs-ink); padding: 5rem clamp(1.25rem, 4vw, 3rem) 5rem clamp(1.25rem, 12vw, 12rem); border-top: 1px solid var(--bs-line); }
+.rl-notes h2, .rl-install h2 { margin: 0 0 2.5rem; font: 400 clamp(2.6rem, 5vw, 4.6rem)/1 var(--rl-serif); }
+.rl-notes ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1.6rem 2rem; max-width: 76rem; }
+.rl-notes li a { font-weight: 650; font-size: .92rem; color: var(--bs-ink); text-decoration: none; }
+.rl-notes li a:hover { text-decoration: underline; }
+.rl-notes li p { margin: .3rem 0 0; font-size: .84rem; line-height: 1.45; color: var(--bs-muted); }
+.rl-install__command { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; width: fit-content; max-width: 100%; padding: .6rem .6rem .6rem 1.2rem; border-radius: var(--bs-radius); background: var(--rl-ground); color: var(--rl-paper); }
+.rl-install__command code { font: 400 1.05rem 'Geist Mono', ui-monospace, monospace; }
+.rl-install__command .bs-button { min-width: 6.5rem; }
+.rl-install > p { color: var(--bs-muted); margin: 1.4rem 0; }
+.rl-install > p code { font: .9em 'Geist Mono', ui-monospace, monospace; color: var(--bs-ink); }
+.rl-footer__links { display: flex; gap: 1.5rem; }
+.rl-footer { position: relative; z-index: 2; background: var(--bs-surface); padding-inline: clamp(1.25rem, 4vw, 3rem); }
+
+.rl-pause { position: fixed; z-index: 25; right: 1.25rem; bottom: 1.25rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid rgb(241 239 232 / .45); border-radius: 99px; background: rgb(22 23 26 / .7); color: var(--rl-paper); font: 600 .8rem var(--bs-font); backdrop-filter: blur(6px); cursor: pointer; }
+.rl-pause:focus-visible, .rl a:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 3px; }
+.rl[data-paused] *, .rl[data-paused] *::before, .rl[data-paused] *::after { animation-play-state: paused !important; }
+
+@media (max-width: 1100px) {
+  .rl-demo[data-wide] { grid-column: 1 / -1; }
+}
+@media (max-width: 767px) {
+  .rl-rail { display: none; }
+  .rl-hero { min-height: 130svh; }
+  .rl-hero__card { top: 5.5rem; margin-inline: 1.25rem; }
+  .rl-scene { height: auto; }
+  .rl-pin { position: relative; height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 1.5rem; padding: 6rem 1.25rem 3.5rem; overflow: visible; }
+  .rl-scene__text { position: static; width: auto; }
+  .rl-prop { position: static; width: auto; max-width: 22rem; opacity: 1; translate: 0; }
+  .rl-panel, .rl-notes, .rl-install { padding-inline: 1.25rem; }
+  .rl-credit { right: 1.25rem; left: 1.25rem; bottom: .9rem; text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rl-hero__card { animation: none; }
+  .rl-rail a, .rl-rail a::before, .rl-rail__word { transition: none; }
+  .rl-prop, .rl-scene__text > * { transition: none !important; }
+}

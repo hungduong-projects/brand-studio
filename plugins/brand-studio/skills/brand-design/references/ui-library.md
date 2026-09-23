@@ -28,6 +28,9 @@ Start from the job the person is doing on this screen, not from a component you 
 |---|---|---|
 | Know where they are and move between main areas | `Header` | The app has more than about six areas: use `Sidebar` |
 | Move between the areas of a working app | `Sidebar`, with `MobileNavigation` on narrow screens | It is a marketing site: use `Header` |
+| Know which chapter of a long page they are reading | `StoryHeader` | The page is short or an app screen: use `Header` |
+| Move between the areas of a whole site, with menus for the big ones | `SiteBar` | The site has a handful of pages and no menus: use `Header` |
+| Move between one product's pages and reach its main action | `ProductBar`, stacked under a `SiteBar` | The page is an app screen or a chaptered story: use `Header` or `StoryHeader` |
 | Reach the links on a phone, or in your own bar | `MobileNavigation` | You use `Header`: it already includes one |
 | Switch views of the same thing | `Tabs` | The views are separate pages: use links |
 
@@ -86,9 +89,21 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Walk through steps with a pinned image | `StorySequence` | The steps are short: use a list |
 | Walk sideways through chapters | `HorizontalStory` | The chapters need close reading |
 | Bring one paragraph forward as it scrolls in | `ScrollTextReveal` | The paragraph is long |
+| Open a long page with its title and chapter list over a picture | `StoryCover` | There is one promise and one action: use `StoryHero` |
 | Show many images with depth | `ParallaxGallery` | Each image needs a caption |
 | Leave images behind the pointer | `ImageTrail` | Touch is the main input |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
+
+### Present a product
+
+| The page needs to | Use | Not when |
+|---|---|---|
+| Show a few strong points about a product in turn | `HighlightsGallery` | Each point needs close reading: use `EditorialSection` |
+| Let the person look at a product from several sides | `ProductViewer` | There is only one picture |
+| Offer related guides, stories or accessories to browse | `CardCarousel` | The items must be compared: use `ModelCompare` |
+| Prove a claim with a few big numbers | `KeyFigures` | The number changes and needs a trend: use `StatCard` |
+| Choose between models or kits, feature by feature | `ModelCompare` | There are many rows and sorting matters: use `DataTable` |
+| Close a site with fine print, a way back up and every section | `FooterDirectory` | The page is a single landing page: a short footer is enough |
 
 ## Style for the purpose
 
@@ -98,8 +113,13 @@ The brand stays the same across these; its volume changes.
 - **Agent screens**: the AI components inside a working screen. Show state in words as well as motion, and ask before acting.
 - **Brand moments** (a launch, a signature offer): one effect or story component, chosen from the concept. Everything around it stays calm so it reads.
 - **Story pages**: storytelling components carry the narrative; working components appear only for the action at the end.
+- **Product pages**: a `SiteBar` and a sticky `ProductBar`, then the product components in a steady rhythm. One signature moment (a 3D stage, a film) carries the page; the rest stays quiet.
 
 Every component takes colour, type and corners from the contract, so pick by job and let the contract carry the look. Do not restyle a component to make it stand out; if it must stand out, the job may call for a different component.
+
+## Promote a pattern
+
+When a piece built for one page works and a second page needs it, make it a shared component. Name it by the job it does, not by its shape. Move only the reusable behaviour and look into the component, using semantic tokens. The page keeps its own brand touches. Give it documentation, a demo, an entry in this guide and a test before calling it done.
 
 ## Other libraries
 

@@ -51,3 +51,82 @@
 .bs-sidebar__list a[aria-current="page"] .bs-nav__icon { color: var(--bs-accent); }
 .bs-sidebar :is(a, button):focus-visible, .bs-header :is(a, button):focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 2px; }
 .bs-sidebar__footer { padding-top: .75rem; border-top: 1px solid var(--bs-line-soft); }
+
+/* Story header: a glass capsule that floats over the page. The line along its bottom edge follows the page scroll. */
+/* Dark glass with light text on either theme: the ink colour is the glass on light themes, the surface colour on dark ones. */
+.bs-story-header { --bs-story-glass: var(--bs-ink); --bs-story-on: var(--bs-surface); }
+[data-bs-theme="dark"] .bs-story-header { --bs-story-glass: var(--bs-surface); --bs-story-on: var(--bs-ink); }
+@media (prefers-color-scheme: dark) { [data-bs-theme="system"] .bs-story-header { --bs-story-glass: var(--bs-surface); --bs-story-on: var(--bs-ink); } }
+.bs-story-header.bs-header { position: fixed; z-index: 30; top: .75rem; left: .75rem; right: .75rem; border: 1px solid color-mix(in srgb, var(--bs-story-on) 14%, transparent); border-radius: calc(var(--bs-radius) + 4px); background: color-mix(in srgb, var(--bs-story-glass) 60%, transparent); backdrop-filter: blur(16px) saturate(1.25); color: var(--bs-story-on); box-shadow: 0 12px 32px -16px rgb(0 0 0 / .6); }
+.bs-story-header .bs-header__inner { min-height: 3.25rem; padding: .35rem .45rem .35rem 1rem; gap: 1rem; }
+.bs-story-header .bs-header__list a { min-height: 36px; color: color-mix(in srgb, var(--bs-story-on) 72%, transparent); font-size: .86rem; }
+.bs-story-header .bs-header__list a:hover, .bs-story-header .bs-header__list a[aria-current="page"] { color: var(--bs-story-on); background: color-mix(in srgb, var(--bs-story-on) 10%, transparent); }
+.bs-story-header .bs-header__actions > * { white-space: nowrap; }
+.bs-story-header .bs-menu-button { border-color: color-mix(in srgb, var(--bs-story-on) 20%, transparent); background: transparent; color: var(--bs-story-on); }
+.bs-story-header__current { display: inline-flex; align-items: center; gap: .5rem; min-height: 36px; padding: 0 .75rem; border-radius: 999px; color: var(--bs-story-on); font-size: .82rem; font-weight: 600; text-decoration: none; background: color-mix(in srgb, var(--bs-story-on) 8%, transparent); }
+.bs-story-header__current:hover { background: color-mix(in srgb, var(--bs-story-on) 14%, transparent); }
+.bs-story-header__marker { color: color-mix(in srgb, var(--bs-accent) 45%, var(--bs-story-on)); font-variant-numeric: tabular-nums; }
+@container bs-header (max-width: 56rem) { .bs-story-header__current { display: none; } }
+@keyframes bs-story-progress { to { scale: 1 1; } }
+@supports (animation-timeline: scroll()) {
+  .bs-story-header::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--bs-accent); transform-origin: left; scale: 0 1; animation: bs-story-progress linear both; animation-timeline: scroll(root); }
+}
+
+/* Site bar: a thin glass bar in the page's own colours. Menus open a full-width panel under it and blur the page. */
+.bs-sitebar { container: bs-sitebar / inline-size; position: relative; z-index: 40; color: var(--bs-ink); font-size: .78rem; }
+.bs-sitebar[data-sticky] { position: sticky; top: 0; }
+.bs-sitebar__inner { position: relative; z-index: 2; display: flex; align-items: center; gap: 1rem; height: 44px; padding: 0 var(--bs-space); background: color-mix(in srgb, var(--bs-surface) 80%, transparent); backdrop-filter: saturate(1.8) blur(20px); }
+.bs-sitebar[data-open] .bs-sitebar__inner { background: var(--bs-surface); }
+.bs-sitebar__brand { flex: none; display: flex; align-items: center; font-weight: 600; }
+.bs-sitebar__brand a { text-decoration: none; }
+.bs-sitebar__nav { flex: 1; display: flex; justify-content: center; min-width: 0; }
+.bs-sitebar__list { display: flex; margin: 0; padding: 0; list-style: none; }
+.bs-sitebar__list > li { position: static; display: flex; align-items: center; }
+.bs-sitebar__list > li > a { display: inline-flex; align-items: center; height: 44px; padding: 0 .7rem; color: color-mix(in srgb, var(--bs-ink) 80%, transparent); text-decoration: none; transition: color 160ms; }
+.bs-sitebar__list > li > a:hover, .bs-sitebar__list > li > a[aria-current="page"] { color: var(--bs-ink); }
+/* The arrow shows on keyboard focus or while its panel is open, so pointer users see a quiet bar. */
+.bs-sitebar__toggle { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -.55rem; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--bs-muted); cursor: pointer; opacity: 0; }
+.bs-sitebar__toggle:focus-visible, .bs-sitebar__toggle[aria-expanded="true"] { opacity: 1; }
+.bs-sitebar__toggle svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: rotate 200ms var(--bs-ease); }
+.bs-sitebar__toggle[aria-expanded="true"] svg { rotate: 180deg; }
+.bs-sitebar__panel { position: absolute; z-index: 2; top: 44px; left: 0; right: 0; padding: 2.5rem var(--bs-space) 4rem; background: var(--bs-surface); animation: bs-sitebar-panel 260ms var(--bs-ease); }
+.bs-sitebar__panel[hidden] { display: none; }
+@keyframes bs-sitebar-panel { from { opacity: 0; translate: 0 -.5rem; } }
+.bs-sitebar__groups { display: flex; gap: clamp(2rem, 5vw, 5rem); max-width: 61rem; margin: 0 auto; }
+.bs-sitebar__heading { margin: 0 0 .9rem; color: var(--bs-muted); font-size: .75rem; }
+.bs-sitebar__group ul { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.bs-sitebar__group a { color: var(--bs-ink); font-size: .8rem; font-weight: 600; text-decoration: none; }
+.bs-sitebar__group[data-lead] a { font-size: 1.5rem; letter-spacing: -.02em; }
+.bs-sitebar__group a:hover { text-decoration: underline; }
+.bs-sitebar__curtain { position: fixed; z-index: 1; inset: 0; background: color-mix(in srgb, var(--bs-surface) 40%, transparent); backdrop-filter: blur(20px); opacity: 0; pointer-events: none; transition: opacity 260ms var(--bs-ease); }
+.bs-sitebar[data-open] .bs-sitebar__curtain { opacity: 1; pointer-events: auto; }
+.bs-sitebar__actions { display: flex; align-items: center; gap: .5rem; }
+.bs-sitebar :is(a, button):focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 2px; }
+.bs-sitebar .bs-sitebar__menu { display: none; width: 36px; height: 36px; border: 0; background: transparent; }
+@container bs-sitebar (max-width: 40rem) {
+  .bs-sitebar__nav { display: none; }
+  .bs-sitebar .bs-sitebar__menu { display: grid; margin-left: auto; }
+  .bs-sitebar .bs-sitebar__actions + .bs-sitebar__menu { margin-left: 0; }
+  .bs-sitebar__actions { margin-left: auto; }
+}
+
+/* Product bar: sticks to the top (or under a sticky site bar, via --bs-productbar-top) with the product's own pages. */
+.bs-productbar { container: bs-productbar / inline-size; position: sticky; z-index: 30; top: var(--bs-productbar-top, 0); color: var(--bs-ink); }
+.bs-productbar__inner { position: relative; display: flex; align-items: center; gap: 1rem; height: 52px; padding: 0 var(--bs-space); border-bottom: 1px solid var(--bs-line-soft); background: color-mix(in srgb, var(--bs-surface) 72%, transparent); backdrop-filter: saturate(1.8) blur(20px); }
+.bs-productbar__title { margin-right: auto; font-size: 1.3rem; font-weight: 600; letter-spacing: -.02em; text-decoration: none; white-space: nowrap; }
+.bs-productbar__list { display: flex; gap: .15rem; margin: 0; padding: 0; list-style: none; }
+.bs-productbar__list a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 .6rem; color: color-mix(in srgb, var(--bs-ink) 80%, transparent); font-size: .78rem; text-decoration: none; }
+.bs-productbar__list a:hover { color: var(--bs-accent); }
+.bs-productbar__list a[aria-current="page"] { color: var(--bs-muted); cursor: default; }
+.bs-productbar__action .bs-button { min-height: 32px; padding: .25rem .9rem; font-size: .75rem; }
+.bs-productbar__toggle { display: none; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; background: transparent; color: var(--bs-ink); cursor: pointer; }
+.bs-productbar__toggle svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: rotate 200ms var(--bs-ease); }
+.bs-productbar[data-open] .bs-productbar__toggle svg { rotate: 180deg; }
+.bs-productbar :is(a, button):focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 2px; }
+@container bs-productbar (max-width: 44rem) {
+  .bs-productbar__toggle { display: grid; }
+  .bs-productbar__nav { display: none; position: absolute; top: 100%; left: 0; right: 0; padding: .5rem var(--bs-space) 1.5rem; border-bottom: 1px solid var(--bs-line-soft); background: var(--bs-surface); }
+  .bs-productbar[data-open] .bs-productbar__nav { display: block; }
+  .bs-productbar__list { flex-direction: column; }
+  .bs-productbar__list a { min-height: 44px; padding: 0; border-bottom: 1px solid var(--bs-line-soft); font-size: 1rem; }
+}

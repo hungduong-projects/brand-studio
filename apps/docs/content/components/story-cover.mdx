@@ -1,0 +1,41 @@
+---
+title: Story Cover
+description: "The framed title card that opens a long page: kicker, title, one line, the chapter list and actions."
+---
+
+<Preview name="story-cover/default" layout="full" />
+
+## Installation
+
+<Install name="StoryCover" />
+
+## Usage
+
+```tsx
+import { StoryCover } from '@brand-studio/ui';
+```
+
+```tsx
+<StoryCover
+  kicker="Still Coffee"
+  title="Three plates"
+  lead="How one cup is made, from the bean to the first sip."
+  chapters={[
+    { label: 'The bean', href: '#beans', marker: 'I' },
+    { label: 'The pour', href: '#pour', marker: 'II' },
+  ]}
+  actions={<ActionLink href="#beans" shape="pill">Start reading</ActionLink>}
+/>
+```
+
+Place it over a picture. The glass behind the words darkens the picture a little; check the contrast on the lightest part of the picture it covers.
+
+## Accessibility
+
+- The title is the page's `<h1>`. Use one cover per page.
+- The chapter list is an ordered list inside a `<nav>` named by `label`, so screen readers can jump to it.
+- Chapter links are at least 36px tall.
+
+## API Reference
+
+<Props name="StoryCover" />

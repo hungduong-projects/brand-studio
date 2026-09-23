@@ -1,0 +1,36 @@
+---
+title: Model Compare
+description: "Models side by side: picture, name, price and action at the top, then one line per feature."
+---
+
+<Preview name="model-compare/default" layout="full" />
+
+## Installation
+
+<Install name="ModelCompare" />
+
+## Usage
+
+```tsx
+import { ModelCompare } from '@brand-studio/ui';
+```
+
+```tsx
+<ModelCompare
+  title="Which kit is right for you?"
+  models={[{ name: 'Body only', price: '$1,080' }, { name: '50 mm kit', price: '$1,480', current: true }]}
+  rows={[{ label: 'Lens', values: [null, '50 mm ƒ/1.4'] }]}
+/>
+```
+
+Give `values` one entry per model, in the same order. Use `null` for a feature a model lacks. Mark the model on this page with `current`.
+
+## Accessibility
+
+- Each model is an article named after the model, with its features in a description list.
+- A missing feature shows a dash to sight and reads as "Lens: Not included" to a screen reader. Change the words with `missingLabel`.
+- On narrow screens the columns scroll sideways inside the component.
+
+## API Reference
+
+<Props name="ModelCompare" />

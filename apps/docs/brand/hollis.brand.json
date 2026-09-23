@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "name": "Hollis",
+  "positioning": "Fictional over-ear headphones. In the docs it is one of three example brands: the same components in a hardware brand's colours, corners and type.",
+  "audience": "People comparing premium wireless headphones on specs, battery and comfort.",
+  "voice": [
+    "Specs in plain numbers: hours, grams, decibels",
+    "One fact per line",
+    "No hype words"
+  ],
+  "primaryAction": {
+    "label": "See the specs",
+    "href": "#specs"
+  },
+  "direction": {
+    "concept": "Every part shown, then named.",
+    "tier": "Docs example palette. It began as a hardware product page study (structure measured from Apple, Sony and Bose pages; no reference media, copy or fonts), since removed; the palette stays for the docs.",
+    "devices": [
+      "Clay orange appears only on the primary action and the one accent per component",
+      "Large rounded corners, like a moulded ear cup"
+    ],
+    "invariants": [
+      "One accent, clay orange",
+      "Black stage in dark mode, light grey in light mode",
+      "Geist for everything; numbers set large"
+    ],
+    "variables": [
+      "Which component the docs show in the Hollis colours"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#f5f5f4",
+      "elevated": "#ffffff",
+      "ink": "#1c1c1e",
+      "muted": "#6b6b70",
+      "accent": "#c2410c",
+      "onAccent": "#ffffff",
+      "line": "#a1a1a6",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "18px"
+    },
+    "dark": {
+      "surface": "#000000",
+      "elevated": "#161617",
+      "ink": "#f5f5f4",
+      "muted": "#a1a1a6",
+      "accent": "#ff7a45",
+      "onAccent": "#000000",
+      "line": "#48484d",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "18px"
+    }
+  },
+  "motion": {
+    "character": "None of its own; components keep their default motion.",
+    "reducedMotion": "Components follow their own reduced-motion rules."
+  },
+  "evidence": [],
+  "imagery": {
+    "subject": "No photography: components shown in the Hollis colours",
+    "materials": "Matte black plastic and aluminium, suggested by the palette only",
+    "lighting": "No photography; depth from panel elevation",
+    "palette": "Grey #f5f5f4, ink #1c1c1e, clay orange #c2410c on the one action",
+    "invariants": [
+      "No images of real headphones",
+      "Labelled as a fictional brand wherever it appears"
+    ],
+    "avoid": [
+      "Reference brands' product photos, names or copy"
+    ]
+  },
+  "chapters": [
+    {
+      "id": "specimen",
+      "question": "How do the components look in a hardware brand?",
+      "message": "The same card and controls in Hollis colours.",
+      "visual": "The docs hero specimen card and every component preview when Hollis is picked.",
+      "transition": "None.",
+      "mobileFallback": "Same card, stacked."
+    }
+  ]
+}

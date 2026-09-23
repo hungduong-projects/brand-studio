@@ -5,3 +5,4 @@ export * from './app.js';
 export * from './story.js';
 export * from './nav.js';
 export * from './data.js';
+export * from './product.js';

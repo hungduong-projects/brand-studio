@@ -43,3 +43,15 @@
       animation-range: cover calc(20% + var(--bs-reveal-at) * 35%) cover calc(26% + var(--bs-reveal-at) * 35%); }
   }
 }
+
+/* Story cover: a thin frame over a picture, with glass behind the words. */
+.bs-cover { width: min(25rem, 100%); padding: 1.4rem 1.5rem 1.5rem; border: 1px solid color-mix(in srgb, var(--bs-surface) 75%, transparent); background: color-mix(in srgb, var(--bs-ink) 28%, transparent); backdrop-filter: blur(6px); color: var(--bs-surface); }
+.bs-cover__kicker { margin: 0; font-size: .8rem; font-weight: 600; }
+.bs-cover__title { margin: .2rem 0 .8rem; font: 700 clamp(2.6rem, 4.6vw, 3.6rem)/.95 var(--bs-font); letter-spacing: -.055em; color: inherit; }
+.bs-cover__lead { margin: 0 0 1.2rem; max-width: 30ch; font-size: .95rem; line-height: 1.45; }
+.bs-cover__index { list-style: none; margin: 0 0 1.4rem; padding: 0; border-top: 1px solid color-mix(in srgb, var(--bs-surface) 40%, transparent); }
+.bs-cover__index a { display: flex; justify-content: space-between; gap: 1rem; min-height: 36px; align-items: center; color: inherit; text-decoration: none; font-weight: 600; font-size: .92rem; border-bottom: 1px solid color-mix(in srgb, var(--bs-surface) 18%, transparent); transition: padding .2s; }
+.bs-cover__index a:hover { padding-left: .3rem; }
+.bs-cover__marker { opacity: .7; font-variant-numeric: tabular-nums; }
+.bs-cover__actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+@media (prefers-reduced-motion: reduce) { .bs-cover__index a { transition: none; } }

@@ -1,0 +1,42 @@
+---
+title: Site Bar
+description: "A thin bar across the top of a whole site. Items can open a full-width menu panel while the page behind blurs."
+---
+
+<Preview name="site-bar/default" layout="full" />
+
+## Installation
+
+<Install name="SiteBar" />
+
+## Usage
+
+```tsx
+import { SiteBar } from '@brand-studio/ui';
+```
+
+```tsx
+<SiteBar
+  brand={<a href="/">Halden</a>}
+  items={[
+    { label: 'Cameras', href: '/cameras', current: true, menu: [
+      { label: 'Explore cameras', links: [{ label: 'Halden R', href: '/r' }] },
+      { label: 'Shop', links: [{ label: 'Buy a camera', href: '/buy' }] },
+    ] },
+    { label: 'Film', href: '/film' },
+  ]}
+/>
+```
+
+The first group in each menu is set large, for the products; later groups hold smaller links. The bar scrolls away with the page unless you pass `sticky`. Stack a Product Bar under it for one product's pages; set `--bs-productbar-top: 44px` on the Product Bar when the Site Bar is sticky too.
+
+## Accessibility
+
+- The item link always goes to its page. A separate arrow button, with `aria-expanded` and `aria-controls`, opens the menu for keyboard and touch.
+- Escape closes the menu and returns focus to its button. Moving focus out of the bar closes it too.
+- Each menu group is a list labelled by its heading.
+- When the bar is narrower than 40rem, the items move into Mobile Navigation.
+
+## API Reference
+
+<Props name="SiteBar" />

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "name": "Halden",
+  "positioning": "Fictional camera maker. The Halden R is a mechanical rangefinder camera built to be used for decades and repaired, not replaced. Used to study the structure of a hardware product page.",
+  "audience": "Photographers choosing a film camera they will carry every day and keep for years.",
+  "voice": [
+    "Specs in plain numbers: millimetres, grams, fractions of a second",
+    "One fact per line",
+    "Talk about use and wear, never about perfection"
+  ],
+  "primaryAction": {
+    "label": "Buy",
+    "href": "#buy"
+  },
+  "direction": {
+    "concept": "Worn in. Never worn out. The camera is shown with its real wear, and the page treats each mark as proof that it keeps working.",
+    "tier": "Cinematic hardware page. Structure studied from Apple product pages (black product hero, highlights, product viewer, story sections, light specs close), measured for layout only. No Apple media, copy, fonts, icons or code. The 3D model is Poly Haven's Camera 01 (CC0).",
+    "devices": [
+      "One camera travels the whole page: a pinned 3D stage turns, closes in and comes apart as you scroll",
+      "Engraved numbers: specs set in small uppercase mono like the markings on a lens ring",
+      "Brass appears only where metal shows through the paint: the one action and the engraved markings"
+    ],
+    "invariants": [
+      "One camera model with its real wear, never retouched to look new",
+      "Black stage for the product, warm grey for reading",
+      "Geist for words, Geist Mono for engraved numbers",
+      "Every spec is fictional and the footer says so"
+    ],
+    "variables": [
+      "Which part the camera turns toward",
+      "How far apart the parts come"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#f4f3f0",
+      "elevated": "#ffffff",
+      "ink": "#161514",
+      "muted": "#5f5c56",
+      "accent": "#7a5a22",
+      "onAccent": "#ffffff",
+      "line": "#a8a49b",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "14px"
+    },
+    "dark": {
+      "surface": "#000000",
+      "elevated": "#161615",
+      "ink": "#f4f3f0",
+      "muted": "#a19d94",
+      "accent": "#d8b46a",
+      "onAccent": "#161514",
+      "line": "#4a4843",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "14px"
+    }
+  },
+  "imagery": {
+    "subject": "One rangefinder camera with a leather strap, worn at the edges, rendered in 3D on a black stage",
+    "materials": "Black paint over brass, chrome, glass, leather",
+    "lighting": "A small photo studio: soft key light from above left and a clean reflection on the lens",
+    "palette": "Black #000000, warm grey #f4f3f0, brass #d8b46a on the dark stage",
+    "invariants": [
+      "The same model and finish everywhere",
+      "Wear stays visible in close-ups",
+      "Source and licence recorded in source-3d/PROVENANCE.md"
+    ],
+    "avoid": [
+      "Apple product photos, renders, icons or copy",
+      "Real camera brand names or logos on the model",
+      "Models or textures without a CC0 or public-domain licence"
+    ]
+  },
+  "motion": {
+    "character": "The camera starts from the back, turns to face you as the title arrives, then the lens and strap come away from the body so each part can be named. Later sections move the same camera toward the part they describe. Drag to turn it in the closer look.",
+    "reducedMotion": "Each section shows the camera at rest in its final pose; poses change as cuts. No idle drift. Dragging still works."
+  },
+  "chapters": [
+    { "id": "hero", "question": "What is it?", "message": "Halden R, a mechanical rangefinder camera.", "visual": "The camera turns from the back to face you.", "transition": "The lens and strap come away from the body.", "mobileFallback": "Camera above, title below." },
+    { "id": "parts", "question": "What is it made of?", "message": "Four parts, all replaceable.", "visual": "Exploded view with each part named.", "transition": "Parts return; the camera turns to its lens.", "mobileFallback": "Exploded view, part list below." },
+    { "id": "focus", "question": "How does it focus?", "message": "A rangefinder: line up two images.", "visual": "Close-up on the lens and focus ring.", "transition": "Camera turns to the top plate.", "mobileFallback": "Close-up above, text below." },
+    { "id": "shutter", "question": "Does it need a battery?", "message": "No. The shutter is mechanical.", "visual": "Top plate and shutter dial.", "transition": "Camera turns to the strap.", "mobileFallback": "Close-up above, text below." },
+    { "id": "look", "question": "Can I see it all?", "message": "Drag to turn it.", "visual": "Free-turning camera with preset views.", "transition": "Stage fades to warm grey.", "mobileFallback": "Preset view buttons only." },
+    { "id": "specs", "question": "What are the numbers?", "message": "Tech specs.", "visual": "Engraved-number spec table.", "transition": "None.", "mobileFallback": "Single column." }
+  ],
+  "evidence": []
+}

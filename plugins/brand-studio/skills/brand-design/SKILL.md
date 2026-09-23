@@ -1,6 +1,6 @@
 ---
 name: brand-design
-description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
+description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, and pages built from open-licence art or models. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
 ---
 
 # Brand Design
@@ -31,6 +31,7 @@ Read only the references required by the task:
 - Contract creation or schema changes: [contract.md](references/contract.md).
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
+- Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - Translating an agreed brand into implementation: [brand-application.md](references/brand-application.md).
 - Any user-visible copy: [copy.md](references/copy.md). This audit is required before presenting or shipping the copy.

@@ -1,0 +1,37 @@
+---
+title: Story Header
+description: "A floating glass bar for a long, chaptered page. It names the chapter you are reading and fills a line as you scroll."
+---
+
+<Preview name="story-header/default" layout="full" />
+
+## Installation
+
+<Install name="StoryHeader" />
+
+## Usage
+
+```tsx
+import { StoryHeader } from '@brand-studio/ui';
+```
+
+```tsx
+<StoryHeader
+  brand={<a href="/">Still</a>}
+  items={[{ label: 'Coffee', href: '/coffee' }]}
+  current={{ label: 'The pour', href: '#pour', marker: 'II' }}
+  actions={<ActionLink href="/visit" shape="pill">Visit</ActionLink>}
+/>
+```
+
+The bar is fixed to the top of the window, so the page's first section should start under it. Update `current` as the reader moves between chapters, for example from an `IntersectionObserver`.
+
+## Accessibility
+
+- Built on Header: a `<header>` with a labelled `<nav>`, and a Mobile Navigation button when the bar is narrower than 40rem.
+- The current chapter is a link back to that chapter's heading. It hides when the bar is narrower than 56rem.
+- The scroll line is decoration. Browsers without scroll-driven animation leave it out.
+
+## API Reference
+
+<Props name="StoryHeader" />

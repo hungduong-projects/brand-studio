@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useThemeRoot } from './core.js';
 
@@ -47,6 +47,96 @@ export function Header({ brand, items = [], actions, label = 'Main', className =
       {items.length > 0 && <MobileNavigation items={items} title={label} className="bs-header__menu" />}
     </div>
   </header>;
+}
+
+/** A floating glass bar for a long, chaptered page: brand, links, the chapter being read and a line that fills as you scroll. */
+export function StoryHeader({ brand, items = [], current, actions, label = 'Main', className = '' }: { brand: ReactNode; items?: NavLink[]; current?: { label: ReactNode; href: string; marker?: ReactNode }; actions?: ReactNode; label?: string; className?: string }) {
+  const chip = current && <a className="bs-story-header__current" href={current.href}>
+    {current.marker && <span className="bs-story-header__marker">{current.marker}</span>}{current.label}
+  </a>;
+  return <Header className={`bs-story-header ${className}`} brand={brand} items={items} label={label} actions={chip || actions ? <>{chip}{actions}</> : undefined} />;
+}
+
+export interface SiteMenuGroup { label: string; links: { label: string; href: string }[] }
+export interface SiteBarItem { label: string; href: string; current?: boolean; menu?: SiteMenuGroup[] }
+
+/**
+ * A thin bar across the top of a whole site. Items with a menu open a full-width panel on hover, or from the small arrow
+ * button beside them; the page behind blurs. The first group in a panel is set large. Pair it with a Product Bar below.
+ */
+export function SiteBar({ brand, items, actions, label = 'Site', sticky = false, className = '' }: { brand: ReactNode; items: SiteBarItem[]; actions?: ReactNode; label?: string; sticky?: boolean; className?: string }) {
+  const id = useId();
+  const [open, setOpen] = useState<number | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const bar = useRef<HTMLElement>(null);
+  const later = (next: number | null, wait: number) => { clearTimeout(timer.current); timer.current = setTimeout(() => setOpen(next), wait); };
+  useEffect(() => {
+    if (open === null) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(null);
+      bar.current?.querySelector<HTMLElement>(`[aria-controls="${id}-${open}"]`)?.focus();
+    };
+    addEventListener('keydown', close);
+    return () => removeEventListener('keydown', close);
+  }, [open, id]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return <header ref={bar} className={`bs-sitebar ${className}`} data-sticky={sticky || undefined} data-open={open !== null || undefined}
+    onMouseLeave={() => later(null, 160)}
+    onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(null); }}>
+    <div className="bs-sitebar__inner">
+      <div className="bs-sitebar__brand">{brand}</div>
+      <nav aria-label={label} className="bs-sitebar__nav">
+        <ul className="bs-sitebar__list">
+          {items.map((item, index) => <li key={index} onMouseEnter={() => later(item.menu ? index : null, open === null ? 180 : 60)}>
+            <a href={item.href} aria-current={item.current ? 'page' : undefined}>{item.label}</a>
+            {item.menu && <>
+              <button type="button" className="bs-sitebar__toggle" aria-expanded={open === index} aria-controls={`${id}-${index}`}
+                onClick={() => setOpen(open === index ? null : index)}>
+                <span className="bs-sr-only">{item.label} menu</span>
+                <svg viewBox="0 0 10 10" aria-hidden="true"><path d="m2 3.5 3 3 3-3" /></svg>
+              </button>
+              <div id={`${id}-${index}`} className="bs-sitebar__panel" hidden={open !== index}>
+                <div className="bs-sitebar__groups">
+                  {item.menu.map((group, groupIndex) => <div key={group.label} className="bs-sitebar__group" data-lead={groupIndex === 0 || undefined}>
+                    <p id={`${id}-${index}-${groupIndex}`} className="bs-sitebar__heading">{group.label}</p>
+                    <ul aria-labelledby={`${id}-${index}-${groupIndex}`}>{group.links.map((link, i) => <li key={i}><a href={link.href}>{link.label}</a></li>)}</ul>
+                  </div>)}
+                </div>
+              </div>
+            </>}
+          </li>)}
+        </ul>
+      </nav>
+      {actions && <div className="bs-sitebar__actions">{actions}</div>}
+      <MobileNavigation items={items} title={label} className="bs-sitebar__menu" />
+    </div>
+    <div className="bs-sitebar__curtain" aria-hidden="true" onClick={() => setOpen(null)} />
+  </header>;
+}
+
+/**
+ * The bar for one product: its name, the product's own pages and one action. It sticks to the top of the window while
+ * the page scrolls. On a narrow bar the links fold into a list under an arrow button.
+ */
+export function ProductBar({ title, href = '#', items = [], action, label, className = '' }: { title: ReactNode; href?: string; items?: NavLink[]; action?: ReactNode; label?: string; className?: string }) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  return <div className={`bs-productbar ${className}`} data-open={open || undefined}>
+    <div className="bs-productbar__inner">
+      <a className="bs-productbar__title" href={href}>{title}</a>
+      {items.length > 0 && <>
+        <button type="button" className="bs-productbar__toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
+          <span className="bs-sr-only">{open ? 'Hide' : 'Show'} {label ?? 'product'} pages</span>
+          <svg viewBox="0 0 10 10" aria-hidden="true"><path d="m2 3.5 3 3 3-3" /></svg>
+        </button>
+        <nav id={id} aria-label={label ?? (typeof title === 'string' ? title : 'Product')} className="bs-productbar__nav">
+          <NavList items={items} className="bs-productbar__list" onNavigate={() => setOpen(false)} />
+        </nav>
+      </>}
+      {action && <div className="bs-productbar__action">{action}</div>}
+    </div>
+  </div>;
 }
 
 export interface SidebarSection { label?: string; items: NavLink[] }
