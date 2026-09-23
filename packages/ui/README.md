@@ -44,7 +44,7 @@ import '@brand-studio/ui/styles.css';
 
 Exported types: BrandTokens, BrandPalette, ImageAsset, StoryChapter.
 
-The full component catalogue, live previews and props are in the [documentation](https://brand-studio-c7e.pages.dev/docs/).
+The full component catalogue, live previews and props are in the [documentation](https://brandstudio.js.org/docs/).
 
 Import the stylesheet once. Supply a validated palette; the library does not silently normalize bad brand values. Its CSS is scoped to `.bs-theme` and `.bs-*` classes. The package does not install fonts, so load your licensed font separately. It contains no photos.
 

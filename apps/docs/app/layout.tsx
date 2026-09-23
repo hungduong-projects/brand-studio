@@ -11,8 +11,10 @@ import { DemoBrandProvider } from '@/components/demo-brand';
 import { SiteHeader } from '@/components/site-header';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://brandstudio.js.org'),
   title: { default: 'Brand Studio UI', template: '%s · Brand Studio UI' },
   description: 'React components that take their colours, type and shape from a brand contract.',
+  alternates: { canonical: '/' },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

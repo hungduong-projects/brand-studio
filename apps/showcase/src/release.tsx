@@ -17,7 +17,7 @@ import '@fontsource/instrument-serif/400-italic.css';
 import './release.css';
 import { at } from './paths';
 
-const DOCS = 'https://brand-studio-c7e.pages.dev/docs/';
+const DOCS = 'https://brandstudio.js.org/docs/';
 const docs = (slug: string) => `${DOCS}components/${slug}/`;
 const NEW = new Set(['textarea', 'checkbox', 'dropdown-menu', 'alert', 'empty-state', 'skeleton', 'spinner', 'header', 'sidebar', 'mobile-navigation', 'data-table', 'stat-card']);
 
