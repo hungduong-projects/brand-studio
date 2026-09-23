@@ -1,6 +1,6 @@
 # Public examples
 
-This directory contains curated, reviewable proofs of Brand Studio behavior. Examples are public evidence, not a scratch space and not automatically part of the UI or plugin packages.
+Standalone proofs of Brand Studio behavior. They are not part of the UI or plugin packages.
 
 An example belongs here only when it:
 
@@ -14,5 +14,3 @@ An example belongs here only when it:
 ## Motion
 
 `motion/` contains approved standalone motion studies. These files are dependency-free reference implementations. Reuse their structure and accessibility behavior, not their exact art direction or copy.
-
-Unfinished studies, copied upstream code, screenshots and exploratory assets belong in the ignored `workbench/` directory instead.
