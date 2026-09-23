@@ -27,17 +27,11 @@
 .rl-credit a { color: inherit; }
 .rl-hero .rl-credit { position: sticky; top: calc(100vh - 3rem); margin: 0 1.25rem 1rem auto; display: block; width: fit-content; }
 
-/* Chapter index: a column of numerals, centred on the left edge. The current chapter's line grows and its word shows. */
-.rl-rail { position: fixed; z-index: 20; left: 1.25rem; top: 50%; translate: 0 -50%; mix-blend-mode: difference; color: #fff; opacity: 0; transition: opacity .4s; pointer-events: none; }
-.rl-rail[data-show] { opacity: 1; pointer-events: auto; }
-.rl-rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; }
-.rl-rail a { display: flex; align-items: center; gap: .6rem; min-height: 28px; color: inherit; text-decoration: none; opacity: .5; transition: opacity .3s; }
-.rl-rail a::before { content: ""; width: .75rem; height: 1px; background: currentColor; transition: width .3s; }
-.rl-rail a:hover, .rl-rail a[aria-current] { opacity: 1; }
-.rl-rail a[aria-current]::before { width: 1.75rem; }
-.rl-rail .rl-numeral { min-width: 1.6rem; font: 400 1.05rem/1 var(--rl-serif); opacity: 1; }
-.rl-rail__word { font-size: .78rem; font-weight: 600; opacity: 0; translate: -.3rem 0; transition: opacity .3s, translate .3s; }
-.rl-rail a:hover .rl-rail__word, .rl-rail a:focus-visible .rl-rail__word, .rl-rail a[aria-current] .rl-rail__word { opacity: 1; translate: 0; }
+/* Chapter index: a Chapter Rail drawn as a column of numerals. The current chapter's word shows. */
+.rl-rail { mix-blend-mode: difference; color: #fff; }
+.rl-rail .rl-numeral { font: 400 1.05rem/1 var(--rl-serif); }
+.rl-rail .bs-rail__label { font-size: .78rem; opacity: 0; translate: -.3rem 0; transition: opacity .3s, translate .3s; }
+.rl-rail a:hover .bs-rail__label, .rl-rail a:focus-visible .bs-rail__label, .rl-rail a[aria-current] .bs-rail__label { opacity: 1; translate: 0; }
 
 /* Chapter scene: the painting holds for two screens while the camera moves; the component rides on its anchor. */
 .rl-scene { position: relative; height: 230svh; }
@@ -113,7 +107,6 @@
   .rl-demo[data-wide] { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-  .rl-rail { display: none; }
   .rl-hero { min-height: 130svh; }
   .rl-hero__card { top: 5.5rem; margin-inline: 1.25rem; }
   .rl-scene { height: auto; }
@@ -125,6 +118,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .rl-hero__card { animation: none; }
-  .rl-rail a, .rl-rail a::before, .rl-rail__word { transition: none; }
+  .rl-rail .bs-rail__label { transition: none; }
   .rl-prop, .rl-scene__text > * { transition: none !important; }
 }

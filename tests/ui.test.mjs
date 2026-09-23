@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -205,4 +205,14 @@ test('motion comes from the shared tokens and lists number their items for the s
   for (const file of readdirSync(src).filter(name => name.endsWith('.css') && name !== 'styles.css')) assert.doesNotMatch(readFileSync(new URL(file, src), 'utf8'), /cubic-bezier/, `${file} hardcodes an easing curve`);
   const html = render(h(Sidebar, { sections: [{ items: [{ label: 'Beans', href: '/beans' }, { label: 'Cups', href: '/cups' }] }] }));
   assert.match(html, /<li style="--i:0"><a href="\/beans">.*<li style="--i:1"><a href="\/cups">/);
+});
+
+test('chapter rail is a named list of chapter links that stays hidden until it docks', () => {
+  const chapters = [{ label: 'The bean', href: '#bean', marker: 'I' }, { label: 'The cup', href: '#cup' }];
+  const fixed = render(h(ChapterRail, { chapters, cover: 'cover' }));
+  assert.match(fixed, /^<nav class="bs-rail " aria-label="Chapters" data-placement="fixed"><ol class="bs-rail__list"><li><a href="#bean"><span class="bs-rail__marker">I<\/span><span class="bs-rail__label">The bean<\/span><\/a><\/li>/);
+  assert.doesNotMatch(fixed, /data-show|aria-current/);
+  const inline = render(h(ChapterRail, { chapters, placement: 'inline', title: 'Still', label: 'Plates' }));
+  assert.match(inline, /aria-label="Plates" data-placement="inline" data-show="true"><p class="bs-rail__title">Still<\/p>/);
+  assert.match(render(h(StoryCover, { id: 'cover', title: 'Three plates' })), /^<div id="cover" class="bs-cover /);
 });
