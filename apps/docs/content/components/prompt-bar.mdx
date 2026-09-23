@@ -1,0 +1,39 @@
+---
+title: Prompt Bar
+description: "A composer where @ adds a source, / runs a command and a menu picks the model."
+---
+
+<Preview name="prompt-bar/default" />
+
+## Installation
+
+<Install name="PromptBar" />
+
+## Usage
+
+```tsx
+import { PromptBar } from '@brand-studio/ui';
+```
+
+```tsx
+<PromptBar
+  sources={[{ id: 'roasts', label: 'Roast log', hint: 'Sheet' }]}
+  commands={[{ id: 'summarise', label: 'summarise' }]}
+  models={[{ value: 'fast', label: 'Fast' }, { value: 'deep', label: 'Deep thinking' }]}
+  onSubmit={({ text, sources, command, model }) => ask(text, { sources, command, model })}
+/>
+```
+
+Type `@` anywhere to add a source, or `/` at the very start for a command. A list opens above the text and narrows as you type. Arrow keys move, Enter or Tab picks, and Escape closes the list. Picks become chips above the text; Backspace in an empty box removes the last one. On send, a band of light crosses the bar once.
+
+Leave room above the bar for the list.
+
+## Accessibility
+
+- The text box points at the open list and its highlighted option, so screen readers follow the arrow keys without leaving the text.
+- A status line announces how many sources or commands match, and a description tells people that @ and / exist.
+- Each chip has a labelled remove button. The model menu is a labelled menu button.
+
+## API Reference
+
+<Props name="PromptBar" />

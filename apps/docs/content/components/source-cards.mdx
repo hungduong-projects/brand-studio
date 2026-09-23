@@ -1,0 +1,33 @@
+---
+title: Source Cards
+description: "What the agent retrieved, numbered to match its citations."
+---
+
+<Preview name="source-cards/default" />
+
+## Installation
+
+<Install name="SourceCards" />
+
+## Usage
+
+```tsx
+import { SourceCards } from '@brand-studio/ui';
+```
+
+```tsx
+<SourceCards sources={[
+  { id: 'cupping', source: 'Tasting notes', title: 'Cupping, 12 March', excerpt: 'Score 86.', href: '/notes/cupping' },
+]} />
+```
+
+The numbers follow the order of `sources`, so cite them as [1], [2] in the answer. A source with `href` becomes a link. The cards fill as many columns as fit and arrive one after another when they scroll into view.
+
+## Accessibility
+
+- The cards are an ordered list named by `label`, so screen readers hear the count and each number.
+- With reduced motion the cards show at once.
+
+## API Reference
+
+<Props name="SourceCards" />

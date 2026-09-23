@@ -1,0 +1,34 @@
+---
+title: Dictation Button
+description: "A microphone button whose bars follow your voice, to toggle or hold to talk."
+---
+
+<Preview name="dictation-button/default" />
+
+## Installation
+
+<Install name="DictationButton" />
+
+## Usage
+
+```tsx
+import { DictationButton } from '@brand-studio/ui';
+```
+
+```tsx
+<DictationButton onListeningChange={setListening} onLevel={setLevel} />
+<DictationButton mode="hold" />
+```
+
+The first press asks for the microphone. While on, five bars follow your voice and `onLevel` reports the loudness from 0 to 1. `mode="hold"` listens only while the button, Space or Enter is held down.
+
+The button only captures sound. Send it to your own speech recognition, and show the words with LiveTranscript. The microphone needs a secure page (https or localhost).
+
+## Accessibility
+
+- The button reports whether it is pressed, and its label stays the same in both states.
+- If the browser blocks the microphone, the button turns off and says "Microphone blocked" in words.
+
+## API Reference
+
+<Props name="DictationButton" />

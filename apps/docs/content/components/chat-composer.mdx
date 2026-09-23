@@ -1,0 +1,39 @@
+---
+title: Chat Composer
+description: "The message box: grows with the text, sends on Enter and turns into stop while the agent answers."
+---
+
+<Preview name="chat-composer/default" />
+
+## Installation
+
+<Install name="ChatComposer" />
+
+## Usage
+
+```tsx
+import { ChatComposer } from '@brand-studio/ui';
+```
+
+```tsx
+<ChatComposer
+  busy={answering}
+  onSubmit={text => ask(text)}
+  onStop={() => cancel()}
+  attachments={files.map(file => <Attachment key={file.name} name={file.name} />)}
+  start={<DictationButton />}
+/>
+```
+
+Enter sends and Shift+Enter starts a new line. Enter never sends in the middle of typing with an input method, such as Japanese or Vietnamese. The box grows with the text up to about eight lines, then scrolls. Send stays disabled until there is text. While `busy`, send becomes a stop button.
+
+`start` and `end` hold tools either side of the send button. `attachments` shows above the text. Leave `value` unset and the composer keeps its own text; set it with `onValueChange` to control it.
+
+## Accessibility
+
+- The text box has a label for screen readers, set with `label`.
+- Send and stop are labelled buttons. Send reports disabled while the box is empty.
+
+## API Reference
+
+<Props name="ChatComposer" />
