@@ -1,0 +1,37 @@
+---
+title: Header
+description: "The bar across the top: brand, links and actions. Links fold into a menu when it is narrow."
+---
+
+<Preview name="header/default" layout="full" />
+
+## Installation
+
+<Install name="Header" />
+
+## Usage
+
+```tsx
+import { Header } from '@brand-studio/ui';
+```
+
+```tsx
+<Header
+  brand={<a href="/">Still</a>}
+  items={[
+    { label: 'Coffee', href: '/coffee', current: true },
+    { label: 'Subscriptions', href: '/subscriptions' },
+  ]}
+  actions={<Button>Subscribe</Button>}
+/>
+```
+
+## Accessibility
+
+- Renders a `<header>` with a labelled `<nav>`. The current link gets `aria-current="page"`.
+- The header measures its own width. Below 40rem the links hide and a Mobile Navigation button takes their place, so it works in a narrow column as well as a narrow screen.
+- Link and button targets are at least 40px tall.
+
+## API Reference
+
+<Props name="Header" />

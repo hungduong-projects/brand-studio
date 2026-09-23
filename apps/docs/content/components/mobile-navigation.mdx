@@ -1,0 +1,30 @@
+---
+title: Mobile Navigation
+description: "A menu button that opens the links in a full-screen panel."
+---
+
+<Preview name="mobile-navigation/default" />
+
+## Installation
+
+<Install name="MobileNavigation" />
+
+## Usage
+
+```tsx
+import { MobileNavigation } from '@brand-studio/ui';
+```
+
+```tsx
+<MobileNavigation title="Still" items={[{ label: 'Coffee', href: '/coffee', current: true }]} />
+```
+
+## Accessibility
+
+- The button has a text label for screen readers. The panel is a modal dialog: focus moves inside, Escape closes it and focus returns to the button.
+- Following a link closes the panel.
+- Header includes this automatically; use it on its own when you build your own bar.
+
+## API Reference
+
+<Props name="MobileNavigation" />

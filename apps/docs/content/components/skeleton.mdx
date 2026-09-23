@@ -1,0 +1,30 @@
+---
+title: Skeleton
+description: "Placeholder lines in the shape of content that is loading."
+---
+
+<Preview name="skeleton/default" />
+
+## Installation
+
+<Install name="Skeleton" />
+
+## Usage
+
+```tsx
+import { Skeleton } from '@brand-studio/ui';
+```
+
+```tsx
+<Skeleton avatar lines={2} label="Loading your profile" />
+```
+
+## Accessibility
+
+- Screen readers hear `label` once through `role="status"`. The grey shapes are hidden from them.
+- The shimmer stops under reduced motion; the shapes stay.
+- Match the shape of the content that replaces it, so the page does not jump when it loads.
+
+## API Reference
+
+<Props name="Skeleton" />

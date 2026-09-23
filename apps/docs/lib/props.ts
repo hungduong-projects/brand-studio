@@ -5,7 +5,7 @@ import { isUnionType } from 'typescript/unstable/sync';
 
 const generator = createGenerator({ tsconfigPath: path.join(process.cwd(), 'tsconfig.json') });
 const sourceDir = path.join(process.cwd(), '..', '..', 'packages', 'ui', 'src');
-const sources = ['core.tsx', 'ai.tsx', 'effects.tsx', 'app.tsx', 'story.tsx'].map(file => readFileSync(path.join(sourceDir, file), 'utf8')).join('\n');
+const sources = ['core.tsx', 'ai.tsx', 'effects.tsx', 'app.tsx', 'nav.tsx', 'data.tsx', 'story.tsx'].map(file => readFileSync(path.join(sourceDir, file), 'utf8')).join('\n');
 
 const options: GenerateOptions = {
   transform(entry, type) {

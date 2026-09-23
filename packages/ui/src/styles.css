@@ -44,7 +44,8 @@
 .bs-button:disabled { cursor: not-allowed; opacity: .58; }
 .bs-field { display: grid; gap: .5rem; min-width: 0; }
 .bs-field label { font-weight: 600; }
-.bs-field input { width: 100%; min-height: 48px; padding: .85rem 1rem; border: 1px solid var(--bs-muted); background: var(--bs-elevated); color: var(--bs-ink); border-radius: var(--bs-radius); font: inherit; }
+.bs-field :is(input, textarea) { width: 100%; min-height: 48px; padding: .85rem 1rem; border: 1px solid var(--bs-muted); background: var(--bs-elevated); color: var(--bs-ink); border-radius: var(--bs-radius); font: inherit; }
+.bs-field textarea { min-height: 6.5rem; resize: vertical; field-sizing: content; max-height: 20rem; line-height: 1.5; }
 .bs-field small { color: var(--bs-muted); }
 .bs-field__error { font-size: .875rem; margin: 0; font-weight: 600; }
 .bs-picture { display: block; min-width: 0; overflow: hidden; }
