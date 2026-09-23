@@ -11,13 +11,13 @@ import { at, SITE } from './paths';
 
 /** One pose per [data-shot] section, in page order. */
 const poses: Pose[] = [
-  { yaw: -0.5, pitch: 0.18, explode: 0, distance: 5.6, x: 0, y: 0.3 },
-  { yaw: -0.55, pitch: 0.2, explode: 0, distance: 5.4, x: 0.35, y: -0.05 },
-  { yaw: -0.9, pitch: 0.32, explode: 1, distance: 7.6, x: 0.55, y: -0.3 },
-  { yaw: -0.15, pitch: 0.06, explode: 0, distance: 3.9, x: 0.5, y: 0.05 },
-  { yaw: 0.35, pitch: 0.95, explode: 0, distance: 4.4, x: -0.45, y: 0 },
-  { yaw: 2.3, pitch: 0.2, explode: 0, distance: 5.2, x: 0.7, y: 0 },
-  { yaw: -0.6, pitch: 0.25, explode: 0, distance: 5.8, x: 0, y: 0.1 },
+  { yaw: -0.5, pitch: 0.18, explode: 0, distance: 5.6, x: 0, y: 0.3, drop: 0.06 },
+  { yaw: -0.55, pitch: 0.2, explode: 0, distance: 5.4, x: 0.35, y: -0.05, drop: -0.16 },
+  { yaw: -0.9, pitch: 0.32, explode: 1, distance: 7.6, x: 0.55, y: -0.3, drop: -0.16 },
+  { yaw: -0.15, pitch: 0.06, explode: 0, distance: 3.9, x: 0.5, y: 0.05, drop: -0.16 },
+  { yaw: 0.35, pitch: 0.95, explode: 0, distance: 4.4, x: -0.45, y: 0, drop: -0.16 },
+  { yaw: 2.3, pitch: 0.2, explode: 0, distance: 5.2, x: 0.7, y: 0, drop: -0.16 },
+  { yaw: -0.6, pitch: 0.25, explode: 0, distance: 5.8, x: 0, y: 0.1, drop: -0.16 },
 ];
 
 const labels: { part: Part; name: string; note: string }[] = [
