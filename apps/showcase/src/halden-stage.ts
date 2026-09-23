@@ -44,7 +44,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
   onParts?: (parts: Record<Part, { x: number; y: number }>) => void;
   /** Parts to leave out, for close-up stills. */
   hide?: Part[];
-  /** Solid sections. On narrow screens the model fades out while one overlaps the band it sits in, so it never shows cut off at an edge. */
+  /** Solid sections and copy blocks. On narrow screens the model fades out while one overlaps the band it sits in, so it never shows cut off at an edge. */
   covers?: HTMLElement[];
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
