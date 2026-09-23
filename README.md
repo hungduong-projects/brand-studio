@@ -2,6 +2,10 @@
 
 Brand Studio turns business facts and visitor purpose into a durable brand contract, then applies that contract across websites and other creative artifacts.
 
+[![Brand Studio UI documentation homepage showing components in three demo brands](assets/readme/brand-studio-ui.webp)](https://brandstudio.js.org/)
+
+[Live docs](https://brandstudio.js.org/) · [Component catalogue](https://brandstudio.js.org/docs/) · [Examples](https://brandstudio.js.org/examples/) · [npm package](https://www.npmjs.com/package/@brand-studio/ui)
+
 It combines a design workflow, an optional accessible React UI package and public examples in one workspace. The system preserves a brand's positioning, voice, typography, colour logic, imagery and signature devices without forcing every output into one visual template or package.
 
 ## Products
@@ -14,7 +18,7 @@ It combines a design workflow, an optional accessible React UI package and publi
 | Docs | [apps/docs](apps/docs/) | Public component docs: live previews in any demo brand, props and copyable code |
 | Public examples | [examples](examples/README.md) | Curated standalone proofs, currently focused on authored motion |
 
-Install the published [`@brand-studio/ui`](https://www.npmjs.com/package/@brand-studio/ui) package with npm, pnpm, Yarn or Bun. Browse the [component documentation](https://brand-studio-c7e.pages.dev/docs/).
+Install the published [`@brand-studio/ui`](https://www.npmjs.com/package/@brand-studio/ui) package with npm, pnpm, Yarn or Bun. Browse the [component documentation](https://brandstudio.js.org/docs/).
 
 ## Repository boundary
 
@@ -93,4 +97,4 @@ npm run build:docs
 npx wrangler pages deploy apps/docs/out --project-name brand-studio --branch main
 ```
 
-`build:docs` also builds the showcase and copies it to `apps/docs/out/examples/`, so the same deploy publishes the [live examples](https://brand-studio-c7e.pages.dev/examples/). Check the [live docs](https://brand-studio-c7e.pages.dev/docs/) and examples after deployment.
+`build:docs` also builds the showcase and copies it to `apps/docs/out/examples/`, so the same deploy publishes the [live examples](https://brandstudio.js.org/examples/). Check the [live docs](https://brandstudio.js.org/docs/) and examples after deployment.
