@@ -48,7 +48,7 @@ The full component catalogue, live previews and props are in the [documentation]
 
 Import the stylesheet once. Supply a validated palette; the library does not silently normalize bad brand values. Its CSS is scoped to `.bs-theme` and `.bs-*` classes. The package does not install fonts, so load your licensed font separately. It contains no photos.
 
-The current client entry works in React applications and Next.js client boundaries. Static markup can render on the server, but browser behavior should be tested in the target framework. Peer range includes React 18.3 and 19; the showcase is tested with React 19.3 only.
+The current client entry works in React applications and Next.js client boundaries. Static markup can render on the server, but browser behavior should be tested in the target framework. Supports React 18.3 and 19.
 
 ## Story behavior and limits
 
