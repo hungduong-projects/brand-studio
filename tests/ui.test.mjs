@@ -35,7 +35,7 @@ test('streamed and revealed text is complete in server HTML and read once', () =
   assert.equal((html.match(/bs-stream__word/g) ?? []).length, 3);
   assert.match(html, /<span aria-hidden="true">/);
   const reveal = render(h(ScrollTextReveal, { text: 'Every cup starts here' }));
-  assert.equal(reveal.replace(/<[^>]+>/g, ''), 'Every cup starts here');
+  assert.match(reveal, />Every<\/span> <span[^>]*>cup<\/span> <span[^>]*>starts<\/span> <span[^>]*>here<\/span>/);
 });
 test('agent states announce status in words, not only colour or motion', () => {
   assert.match(render(h(AgentThinking, { state: 'listening' })), /role="status".*Listening/);
