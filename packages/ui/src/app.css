@@ -87,3 +87,56 @@
 .bs-card__title { margin: 0; font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em; }
 .bs-card__description { margin: .25rem 0 0; color: var(--bs-muted); font-size: .9rem; }
 .bs-card__footer { display: flex; flex-wrap: wrap; gap: .5rem; padding-top: .25rem; }
+
+.bs-checkbox { display: flex; align-items: flex-start; gap: .75rem; }
+.bs-checkbox__box { position: relative; flex: none; display: grid; place-items: center; width: 1.25rem; height: 1.25rem; padding: 0; margin-top: .15rem; border: 1.5px solid var(--bs-muted); border-radius: min(calc(var(--bs-radius) / 2), .375rem); background: var(--bs-elevated); cursor: pointer; transition: background-color 140ms var(--bs-ease), border-color 140ms var(--bs-ease); }
+.bs-checkbox__box:is([data-checked], [data-indeterminate]) { background: var(--bs-accent); border-color: var(--bs-accent); }
+.bs-checkbox__box[data-disabled] { opacity: .5; cursor: not-allowed; }
+.bs-checkbox__box:focus-visible { outline: 3px solid var(--bs-accent); outline-offset: 3px; }
+/* The mark stays mounted and fades, so the box never changes size. */
+.bs-checkbox__mark { width: .7rem; height: .38rem; border-left: 2px solid var(--bs-on-accent); border-bottom: 2px solid var(--bs-on-accent); rotate: -45deg; translate: 0 -1px; opacity: 0; transition: opacity 120ms; }
+.bs-checkbox__mark[data-checked] { opacity: 1; }
+.bs-checkbox__mark[data-indeterminate] { opacity: 1; height: 0; border-left: 0; rotate: 0deg; translate: 0; }
+.bs-checkbox__label { font-weight: 600; cursor: pointer; }
+.bs-checkbox__description { margin: .1rem 0 0; color: var(--bs-muted); font-size: .875rem; }
+
+/* Tone shows in shape and icon as well as colour: info is a soft accent panel with an "i"; critical is an ink frame with a "!". */
+.bs-alert { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .75rem; padding: .9rem 1rem; border: 1px solid color-mix(in srgb, var(--bs-accent) 30%, var(--bs-line)); border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-accent-soft); color: var(--bs-ink); }
+.bs-alert--critical { border: 2px solid var(--bs-ink); background: var(--bs-elevated); }
+.bs-alert__icon { flex: none; width: 1.1rem; height: 1.1rem; margin-top: .15rem; background: var(--bs-accent); -webkit-mask: var(--bs-alert-icon) center / contain no-repeat; mask: var(--bs-alert-icon) center / contain no-repeat;
+  --bs-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Zm1 7H7v5h2Zm0-3H7v2h2Z'/%3E%3C/svg%3E"); }
+.bs-alert--critical .bs-alert__icon { background: var(--bs-ink); --bs-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM7 3.5v6h2v-6Zm0 7.5v2h2v-2Z'/%3E%3C/svg%3E"); }
+/* In a narrow container the action wraps under the text instead of squeezing it. */
+.bs-alert__body { flex: 1 1 14rem; min-width: 0; }
+.bs-alert__title { margin: 0; font-weight: 600; font-size: .95rem; }
+.bs-alert__text { margin-top: .15rem; color: var(--bs-muted); font-size: .9rem; }
+.bs-alert__text > :last-child { margin-bottom: 0; }
+.bs-alert__action { flex: none; align-self: center; }
+
+.bs-empty { display: grid; justify-items: center; gap: .4rem; padding: clamp(1.5rem, 5vw, 3rem) 1.25rem; border: 1px dashed var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); text-align: center; }
+.bs-empty__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: .6rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-elevated); color: var(--bs-accent); }
+.bs-empty__icon svg { width: 1.25rem; height: 1.25rem; }
+.bs-empty__title { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.bs-empty__description { max-width: 34ch; margin: 0; color: var(--bs-muted); font-size: .925rem; text-wrap: pretty; }
+.bs-empty__action { margin-top: 1rem; }
+
+.bs-skeleton { display: flex; align-items: center; gap: .9rem; width: 100%; }
+.bs-skeleton__avatar { flex: none; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--bs-line-soft); }
+.bs-skeleton__lines { flex: 1; display: grid; gap: .55rem; }
+.bs-skeleton__line { display: block; height: .7rem; border-radius: 999px; background: linear-gradient(90deg, var(--bs-line-soft) 30%, color-mix(in srgb, var(--bs-ink) 6%, transparent) 50%, var(--bs-line-soft) 70%) 0 0 / 300% 100%; animation: bs-skeleton 1.6s linear infinite; }
+.bs-skeleton__line:nth-child(3n + 2) { width: 72%; }
+.bs-skeleton__line:nth-child(3n) { width: 44%; }
+@keyframes bs-skeleton { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+.bs-spinner { display: inline-flex; align-items: center; gap: .6rem; color: var(--bs-muted); font-size: .9rem; }
+.bs-spinner__ring { flex: none; border: 2px solid var(--bs-line-soft); border-top-color: var(--bs-accent); border-radius: 50%; animation: bs-spin 800ms linear infinite; }
+@keyframes bs-spin { to { rotate: 1turn; } }
+/* Reduced motion stops the turn; the still arc and the label still say it is working. */
+
+.bs-menu__positioner { z-index: 110; outline: 0; }
+.bs-menu { min-width: max(12rem, var(--anchor-width)); padding: .3rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 2px); background: var(--bs-elevated); color: var(--bs-ink); font-family: var(--bs-font); box-shadow: 0 16px 40px -16px rgb(0 0 0 / .35); outline: 0; transform-origin: var(--transform-origin); transition: opacity 150ms, scale 150ms var(--bs-ease); }
+.bs-menu:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: .97; }
+.bs-menu__item { display: flex; align-items: center; min-height: 40px; padding: .45rem .65rem; border-radius: calc(var(--bs-radius) / 2 + 2px); color: inherit; font-size: .925rem; text-decoration: none; cursor: default; outline: 0; user-select: none; }
+.bs-menu__item[data-highlighted] { background: var(--bs-accent-soft); }
+.bs-menu__item[data-disabled] { opacity: .45; }
+.bs-menu__separator { height: 1px; margin: .3rem .35rem; background: var(--bs-line-soft); }

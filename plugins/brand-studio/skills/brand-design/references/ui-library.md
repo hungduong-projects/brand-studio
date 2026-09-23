@@ -1,23 +1,110 @@
 # Use Brand Studio UI
 
-The companion React package is provisionally named `@brand-studio/ui`. It is optional and not assumed to be published. Inspect the target project's stack and dependencies first. Preserve its existing accessible component system when it can express the contract; do not install or replace a UI package merely to use Brand Studio.
+`@brand-studio/ui` is an optional React package, published on npm. Inspect the target project's stack and dependencies first. Preserve its existing accessible component system when it can express the contract; do not install or replace a UI package merely to use Brand Studio.
 
-In the Brand Studio source workspace, the showcase declares `@brand-studio/ui` as its own dependency because it demonstrates that package. Other applications may declare different packages or use another framework. Outside the workspace, use `@brand-studio/ui` only from an explicitly supplied package archive or a confirmed published version.
+When the target has chosen `@brand-studio/ui`, import components from `@brand-studio/ui` and styles from `@brand-studio/ui/styles.css`. Wrap the intended subtree in `BrandTheme` with `palette={brand.tokens}`. Its theme is scoped to the subtree. Check the installed version's exports before using a component: some components below arrived after 0.1.0 and need a newer release.
 
-When the target has chosen `@brand-studio/ui`, import components from `@brand-studio/ui` and styles from `@brand-studio/ui/styles.css`. Wrap the intended subtree in `BrandTheme` with `palette={brand.tokens}`. Its theme is scoped to the subtree.
+## Pick by job
 
-Available v0.1 components:
-- BrandTheme: semantic light/dark/system tokens.
-- Button: actions with default, disabled and loading behavior.
-- ActionLink: navigation with button presentation.
-- TextField: linked labels, hints and errors.
-- BrandImage: intrinsic dimensions, responsive sources, focal point and priority.
-- StoryHero: focused promise, action and product image.
-- EditorialSection: a text/media composition.
-- StorySequence: desktop shared image stage, inline mobile/reduced-motion chapters.
+Start from the job the person is doing on this screen, not from a component you want to show. Find the job below, check the "not when" column, then use the component. If no row fits, build the smallest thing that does the job and record it as a candidate pattern.
 
-These are storytelling foundations, not a replacement for a complete application design system. For dialogs, menus and complex controls, use the existing app's accessible foundation; for a new React application, consider shadcn/ui or React Aria before implementing custom behavior.
+### Act and enter
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| Take the main action on a screen | `Button` (primary) | The action goes to another page: use `ActionLink` |
+| Take a lesser action beside it | `Button` tone `secondary` | There are more than two: group the rest in `DropdownMenu` |
+| Go somewhere that looks like an action | `ActionLink` | It changes data: use `Button` |
+| Type one line | `TextField` | The answer is one of a known few: use `Select` |
+| Write several lines | `Textarea` | A single line is enough |
+| Pick one of many options | `Select` | There are two or three options: show them all, for example as `Tabs` or buttons |
+| Turn a setting on or off, taking effect at once | `Switch` | The choice is only saved on submit: use `Checkbox` |
+| Agree, or pick several items, then submit | `Checkbox` (with `indeterminate` for a parent box) | The choice acts immediately: use `Switch` |
+| Reach several actions on one object | `DropdownMenu` | One action matters most: show it as a `Button` |
+
+### Find their way
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| Know where they are and move between main areas | `Header` | The app has more than about six areas: use `Sidebar` |
+| Move between the areas of a working app | `Sidebar`, with `MobileNavigation` on narrow screens | It is a marketing site: use `Header` |
+| Reach the links on a phone, or in your own bar | `MobileNavigation` | You use `Header`: it already includes one |
+| Switch views of the same thing | `Tabs` | The views are separate pages: use links |
+
+### Know what happened
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| See that a quick action worked | `ToastProvider` + `useToast` | They must act on it: use `Alert` |
+| Read a message that stays until it is resolved | `Alert` tone `info` | It is a passing confirmation: use a toast |
+| Fix something before they can go on | `Alert` tone `critical` | Nothing is blocked: `critical` interrupts screen readers, so use `info` |
+| Confirm a decision, or finish a short task, before returning | `Dialog` | The content is long or needs the page behind it |
+| Wait for content of a known shape | `Skeleton` | The shape is unknown or the wait is an action: use `Spinner` |
+| Wait for an action of unknown length | `Spinner`, or `Button` with `loading` for the pressed button | Content is loading into a known layout: use `Skeleton` |
+| Understand an empty list or page, and fill it | `EmptyState` | The emptiness is an error: use `Alert` |
+| Learn what an unlabelled control does | `Tooltip` | The text is needed to use the control: show it as a visible label |
+
+### Read data
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| Compare rows across columns, sort them, scan them | `DataTable` | Each item is read alone with a picture or actions: use `Card` |
+| Watch one key number and its direction | `StatCard` | The change needs axes and values to be understood: use a full chart |
+| Read one item: title, detail, actions | `Card` | The items are compared column by column: use `DataTable` |
+| Read a status or category at a glance | `Badge` | The status needs an explanation: use `Alert` |
+
+### Work with an AI agent
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| See whether the agent is idle, listening, thinking or speaking | `AgentThinking` | You can show the actual steps: use `ThinkingTrace` or `TaskRows` |
+| Follow the agent's reasoning, collapsed by default | `ThinkingTrace` | The steps are a plan the person approves: use `TaskRows` |
+| Track a list of tasks the agent works through | `TaskRows` | There is a single step: use `AgentThinking` |
+| See which tools the agent called and whether they worked | `ToolChips` | The person must allow the call first: use `ApprovalCard` |
+| Allow or deny an action before the agent takes it | `ApprovalCard` | The action is harmless and reversible: let it run and report it |
+| Read an answer as the model writes it | `StreamingText` | The text is complete: render it directly |
+
+### Feel the brand
+
+Use these for a brand moment, not for routine controls. Allow at most one per view, and only when it comes from the brand concept.
+
+| The moment | Use | Not when |
+|---|---|---|
+| Draw the eye to one card or offer | `BorderBeam` | Several things compete for attention |
+| Make one premium action feel physical | `MetalButton` | The brand is quiet or the action is routine |
+| Choose between a few modes with some play | `MagnetTabs` | The switch is a working control in a dense app: use `Tabs` |
+| Rotate a short list of words in a headline | `FlipText` | The words carry facts the person needs |
+| Reward a click with a small burst | `ClickSpark` | The click is frequent or serious |
+| Pile up cards as the page scrolls | `ScrollStack` | The cards must be compared side by side |
+
+### Tell a story
+
+| The page needs to | Use | Not when |
+|---|---|---|
+| Open with one promise, one action and one image | `StoryHero` | The page is a working screen |
+| Pair a claim with an image | `EditorialSection` | The image adds nothing to the claim |
+| Walk through steps with a pinned image | `StorySequence` | The steps are short: use a list |
+| Walk sideways through chapters | `HorizontalStory` | The chapters need close reading |
+| Bring one paragraph forward as it scrolls in | `ScrollTextReveal` | The paragraph is long |
+| Show many images with depth | `ParallaxGallery` | Each image needs a caption |
+| Leave images behind the pointer | `ImageTrail` | Touch is the main input |
+| Show any contract image at the right size and focal point | `BrandImage` | — |
+
+## Style for the purpose
+
+The brand stays the same across these; its volume changes.
+
+- **Working screens** (settings, orders, dashboards): the act, navigation, feedback and data components. Neutral surfaces, the accent only on the main action and the current place, and no effects. The person came to finish a task.
+- **Agent screens**: the AI components inside a working screen. Show state in words as well as motion, and ask before acting.
+- **Brand moments** (a launch, a signature offer): one effect or story component, chosen from the concept. Everything around it stays calm so it reads.
+- **Story pages**: storytelling components carry the narrative; working components appear only for the action at the end.
+
+Every component takes colour, type and corners from the contract, so pick by job and let the contract carry the look. Do not restyle a component to make it stand out; if it must stand out, the job may call for a different component.
+
+## Other libraries
+
+For controls the package does not cover, use the existing app's accessible foundation. For a new React application, consider shadcn/ui or React Aria before implementing custom behavior.
 
 The private `workbench/references/` catalogue is optional research material and is not bundled with this plugin. Do not assume another user's filesystem contains it. Borrow a documented pattern; copy code only after checking the exact snapshot licence and recording required attribution. Restricted or custom licences do not become MIT merely because a component is renamed.
 
-Existing Harry UI informed semantic tokens, complete states and responsive discipline. Brand Studio's initial components are newly authored, not a wholesale rename or publication of the reference catalogue.
+Existing Harry UI informed semantic tokens, complete states and responsive discipline. Brand Studio's components are newly authored, not a wholesale rename or publication of the reference catalogue.

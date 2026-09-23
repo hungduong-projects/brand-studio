@@ -1,0 +1,47 @@
+---
+title: Data Table
+description: "A captioned table with sortable columns, loading rows and an empty message."
+---
+
+<Preview name="data-table/default" />
+
+## Installation
+
+<Install name="DataTable" />
+
+## Usage
+
+```tsx
+import { DataTable } from '@brand-studio/ui';
+```
+
+```tsx
+<DataTable
+  caption="This week’s orders"
+  rows={orders}
+  rowKey={(order) => order.id}
+  columns={[
+    { key: 'customer', header: 'Customer', sortValue: (order) => order.customer },
+    { key: 'bags', header: 'Bags', align: 'end', sortValue: (order) => order.bags },
+  ]}
+/>
+```
+
+## Examples
+
+### Loading and empty
+
+Pass `loading` while rows load and `empty` for what to show when there are none.
+
+<Preview name="data-table/states" />
+
+## Accessibility
+
+- A real `<table>` with a `<caption>` and column headers. `hideCaption` keeps the caption for screen readers only.
+- Sortable headers are buttons, and the sorted column carries `aria-sort`.
+- On narrow screens the table scrolls sideways inside its own frame. The frame is focusable and named by the caption, so keyboard users can scroll it too.
+- `loading` sets `aria-busy` on the table.
+
+## API Reference
+
+<Props name="DataTable" />

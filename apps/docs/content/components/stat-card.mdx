@@ -1,0 +1,29 @@
+---
+title: Stat Card
+description: "One key number with its change and a sparkline."
+---
+
+<Preview name="stat-card/default" />
+
+## Installation
+
+<Install name="StatCard" />
+
+## Usage
+
+```tsx
+import { StatCard } from '@brand-studio/ui';
+```
+
+```tsx
+<StatCard label="Active subscribers" value="1,284" change="+6.1%" trend="up" series={[1120, 1181, 1244, 1284]} />
+```
+
+## Accessibility
+
+- The change is read with its direction in words, such as “Up +6.1%”, not by arrow or colour alone.
+- The sparkline is decorative and hidden from screen readers. Put the numbers that matter in `value` and `note`.
+
+## API Reference
+
+<Props name="StatCard" />

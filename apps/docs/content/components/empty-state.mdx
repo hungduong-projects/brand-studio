@@ -1,0 +1,33 @@
+---
+title: Empty State
+description: "What a list or page shows before it has content, with the action that fills it."
+---
+
+<Preview name="empty-state/default" />
+
+## Installation
+
+<Install name="EmptyState" />
+
+## Usage
+
+```tsx
+import { EmptyState } from '@brand-studio/ui';
+```
+
+```tsx
+<EmptyState
+  title="No orders yet"
+  description="Your first bag ships the Friday after you subscribe."
+  action={<Button>Choose a coffee</Button>}
+/>
+```
+
+## Accessibility
+
+- The title is an `<h3>`. The icon is decorative and hidden from screen readers.
+- Say what will appear here and give one action that makes it appear. Skip the action when the person cannot fix the emptiness.
+
+## API Reference
+
+<Props name="EmptyState" />

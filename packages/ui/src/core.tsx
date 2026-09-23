@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
 
 export interface BrandTokens {
   surface: string; elevated: string; ink: string; muted: string; accent: string; onAccent: string; line: string;
@@ -52,6 +52,14 @@ export function TextField({ label, hint, error, id: providedId, className = '', 
   const id = providedId ?? generatedId;
   const descriptions = [describedBy, hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
   return <div className={`bs-field ${className}`}><label htmlFor={id}>{label}</label><input {...props} id={id} aria-invalid={error ? true : props['aria-invalid']} aria-describedby={descriptions} />{hint && <small id={`${id}-hint`}>{hint}</small>}{error && <p className="bs-field__error" id={`${id}-error`}>{error}</p>}</div>;
+}
+
+/** A labelled multi-line input with an optional hint and error message. It grows with its content where the browser supports it. */
+export function Textarea({ label, hint, error, id: providedId, className = '', 'aria-describedby': describedBy, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; hint?: string; error?: string }) {
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
+  const descriptions = [describedBy, hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
+  return <div className={`bs-field ${className}`}><label htmlFor={id}>{label}</label><textarea {...props} id={id} aria-invalid={error ? true : props['aria-invalid']} aria-describedby={descriptions} />{hint && <small id={`${id}-hint`}>{hint}</small>}{error && <p className="bs-field__error" id={`${id}-error`}>{error}</p>}</div>;
 }
 
 export function BrandImage({ asset, priority = false, className = '', sizes = '100vw' }: { asset: ImageAsset; priority?: boolean; className?: string; sizes?: string }) {

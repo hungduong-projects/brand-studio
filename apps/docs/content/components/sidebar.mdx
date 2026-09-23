@@ -1,0 +1,36 @@
+---
+title: Sidebar
+description: "Grouped side navigation for an app, with icons and counts."
+---
+
+<Preview name="sidebar/default" />
+
+## Installation
+
+<Install name="Sidebar" />
+
+## Usage
+
+```tsx
+import { Sidebar } from '@brand-studio/ui';
+```
+
+```tsx
+<Sidebar
+  label="Roastery"
+  sections={[
+    { items: [{ label: 'Overview', href: '/', current: true }] },
+    { label: 'Stock', items: [{ label: 'Green beans', href: '/beans', badge: 4 }] },
+  ]}
+/>
+```
+
+## Accessibility
+
+- Renders an `<aside>` holding a labelled `<nav>`. Each section heading labels its list, so screen readers announce the group.
+- The current link gets `aria-current="page"`. Icons are decorative; counts are read as part of the link.
+- The sidebar fills its parent's width and height. On narrow screens, hide it and pass the same links to Header or Mobile Navigation.
+
+## API Reference
+
+<Props name="Sidebar" />

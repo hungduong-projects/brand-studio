@@ -1,0 +1,38 @@
+---
+title: Dropdown Menu
+description: "A list of actions that opens from a button."
+---
+
+<Preview name="dropdown-menu/default" />
+
+## Installation
+
+<Install name="DropdownMenu" />
+
+## Usage
+
+```tsx
+import { DropdownMenu } from '@brand-studio/ui';
+```
+
+```tsx
+<DropdownMenu
+  trigger={<Button tone="secondary">Subscription</Button>}
+  items={[
+    { label: 'Skip next delivery', onSelect: skip },
+    { label: 'Delivery history', href: '/history' },
+    'separator',
+    { label: 'Pause for a month', onSelect: pause },
+  ]}
+/>
+```
+
+## Accessibility
+
+- Enter, Space or the arrow keys open the menu. Arrow keys move, typing a letter jumps to an item, Escape closes it and returns focus to the button.
+- Items with `href` render as links; the rest as menu items that call `onSelect`.
+- Disabled items stay visible and the keyboard skips them.
+
+## API Reference
+
+<Props name="DropdownMenu" />

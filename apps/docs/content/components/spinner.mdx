@@ -1,0 +1,30 @@
+---
+title: Spinner
+description: "A turning ring with a label, for a wait of unknown length."
+---
+
+<Preview name="spinner/default" />
+
+## Installation
+
+<Install name="Spinner" />
+
+## Usage
+
+```tsx
+import { Spinner } from '@brand-studio/ui';
+```
+
+```tsx
+<Spinner label="Checking stock" />
+```
+
+## Accessibility
+
+- The label sits in a `role="status"` region. `hideLabel` keeps it for screen readers only.
+- Under reduced motion the ring stops turning and the label carries the meaning.
+- Use Skeleton when you know the shape of what is loading, and Button's `loading` prop for a pressed button.
+
+## API Reference
+
+<Props name="Spinner" />

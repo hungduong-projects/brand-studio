@@ -1,6 +1,8 @@
 "use client";
 
+import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
+import { Menu as BaseMenu } from '@base-ui/react/menu';
 import { Select as BaseSelect } from '@base-ui/react/select';
 import { Switch as BaseSwitch } from '@base-ui/react/switch';
 import { Tabs as BaseTabs } from '@base-ui/react/tabs';
@@ -147,4 +149,75 @@ export function Card({ title, description, footer, children, className = '', ...
     {children && <div className="bs-card__body">{children}</div>}
     {footer && <footer className="bs-card__footer">{footer}</footer>}
   </article>;
+}
+
+/** A tick box with a visible label. Space toggles it; `indeterminate` shows a dash for a partly selected group. */
+export function Checkbox({ label, description, checked, defaultChecked, indeterminate, onCheckedChange, disabled, name, value, className = '' }: {
+  label: string; description?: string; checked?: boolean; defaultChecked?: boolean; indeterminate?: boolean; onCheckedChange?: (checked: boolean) => void;
+  disabled?: boolean; name?: string; value?: string; className?: string;
+}) {
+  const id = useId();
+  return <div className={`bs-checkbox ${className}`}>
+    <BaseCheckbox.Root id={id} nativeButton render={<button type="button" />} className="bs-checkbox__box" checked={checked} defaultChecked={defaultChecked} indeterminate={indeterminate} onCheckedChange={next => onCheckedChange?.(next)} disabled={disabled} name={name} value={value} aria-describedby={description ? `${id}-description` : undefined}>
+      <BaseCheckbox.Indicator className="bs-checkbox__mark" keepMounted />
+    </BaseCheckbox.Root>
+    <div><label htmlFor={id} className="bs-checkbox__label">{label}</label>{description && <p id={`${id}-description`} className="bs-checkbox__description">{description}</p>}</div>
+  </div>;
+}
+
+/** An inline message about the page or a task. `critical` interrupts screen readers; `info` waits its turn. */
+export function Alert({ tone = 'info', title, children, action, className = '' }: { tone?: 'info' | 'critical'; title: ReactNode; children?: ReactNode; action?: ReactNode; className?: string }) {
+  return <div role={tone === 'critical' ? 'alert' : 'status'} className={`bs-alert bs-alert--${tone} ${className}`}>
+    <span className="bs-alert__icon" aria-hidden="true" />
+    <div className="bs-alert__body"><p className="bs-alert__title">{title}</p>{children && <div className="bs-alert__text">{children}</div>}</div>
+    {action && <div className="bs-alert__action">{action}</div>}
+  </div>;
+}
+
+/** What a list, table or page shows when it has nothing yet: what belongs here and the one action that fills it. */
+export function EmptyState({ icon, title, description, action, className = '' }: { icon?: ReactNode; title: ReactNode; description?: ReactNode; action?: ReactNode; className?: string }) {
+  return <div className={`bs-empty ${className}`}>
+    {icon && <span className="bs-empty__icon" aria-hidden="true">{icon}</span>}
+    <h3 className="bs-empty__title">{title}</h3>
+    {description && <p className="bs-empty__description">{description}</p>}
+    {action && <div className="bs-empty__action">{action}</div>}
+  </div>;
+}
+
+/** Grey placeholder lines in the shape of content that is loading. Screen readers hear the label once, not the shapes. */
+export function Skeleton({ lines = 3, avatar = false, label = 'Loading', className = '' }: { lines?: number; avatar?: boolean; label?: string; className?: string }) {
+  return <div role="status" className={`bs-skeleton ${className}`}>
+    <span className="bs-sr-only">{label}</span>
+    {avatar && <span className="bs-skeleton__avatar" aria-hidden="true" />}
+    <span className="bs-skeleton__lines" aria-hidden="true">{Array.from({ length: lines }, (_, index) => <span key={index} className="bs-skeleton__line" />)}</span>
+  </div>;
+}
+
+/** A turning ring for a wait of unknown length, with its label in words. `hideLabel` keeps the words for screen readers only. */
+export function Spinner({ label = 'Loading', hideLabel = false, size = 20, className = '' }: { label?: string; hideLabel?: boolean; size?: number; className?: string }) {
+  return <span role="status" className={`bs-spinner ${className}`}>
+    <span className="bs-spinner__ring" aria-hidden="true" style={{ width: size, height: size }} />
+    <span className={hideLabel ? 'bs-sr-only' : 'bs-spinner__label'}>{label}</span>
+  </span>;
+}
+
+export interface MenuItem { label: string; onSelect?: () => void; href?: string; disabled?: boolean }
+
+/** A list of actions that opens from a button. Arrow keys move, typing jumps to an item, Escape closes. Put `'separator'` between groups. */
+export function DropdownMenu({ trigger, items, align = 'start' }: { trigger: ReactElement; items: (MenuItem | 'separator')[]; align?: 'start' | 'center' | 'end' }) {
+  const container = useThemeRoot();
+  return <BaseMenu.Root>
+    <BaseMenu.Trigger render={trigger} />
+    <BaseMenu.Portal container={container}>
+      <BaseMenu.Positioner className="bs-menu__positioner" sideOffset={6} align={align}>
+        <BaseMenu.Popup className="bs-menu">
+          {items.map((item, index) => item === 'separator'
+            ? <BaseMenu.Separator key={`separator-${index}`} className="bs-menu__separator" />
+            : item.href
+              ? <BaseMenu.LinkItem key={item.label} href={item.href} className="bs-menu__item">{item.label}</BaseMenu.LinkItem>
+              : <BaseMenu.Item key={item.label} disabled={item.disabled} onClick={item.onSelect} className="bs-menu__item">{item.label}</BaseMenu.Item>)}
+        </BaseMenu.Popup>
+      </BaseMenu.Positioner>
+    </BaseMenu.Portal>
+  </BaseMenu.Root>;
 }

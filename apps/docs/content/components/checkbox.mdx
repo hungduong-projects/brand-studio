@@ -1,0 +1,30 @@
+---
+title: Checkbox
+description: "A tick box with a visible label, including a mixed state."
+---
+
+<Preview name="checkbox/default" />
+
+## Installation
+
+<Install name="Checkbox" />
+
+## Usage
+
+```tsx
+import { Checkbox } from '@brand-studio/ui';
+```
+
+```tsx
+<Checkbox label="Grind for filter" defaultChecked />
+```
+
+## Accessibility
+
+- Renders a native `<button role="checkbox">` with a real `<label>`. Space toggles it.
+- `indeterminate` sets `aria-checked="mixed"` for a parent box whose group is partly ticked.
+- `description` is linked with `aria-describedby`.
+
+## API Reference
+
+<Props name="Checkbox" />

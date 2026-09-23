@@ -1,0 +1,32 @@
+---
+title: Alert
+description: "An inline message about the page or a task, in info or critical tone."
+---
+
+<Preview name="alert/default" />
+
+## Installation
+
+<Install name="Alert" />
+
+## Usage
+
+```tsx
+import { Alert } from '@brand-studio/ui';
+```
+
+```tsx
+<Alert title="Friday deliveries move to Saturday" action={<Button tone="secondary">Choose a day</Button>}>
+  The courier is closed on 3 October.
+</Alert>
+```
+
+## Accessibility
+
+- `info` uses `role="status"`, which screen readers announce when they are free. `critical` uses `role="alert"`, which interrupts. Use `critical` only when the person must act.
+- The tone shows in the icon and frame as well as colour, so it reads without colour vision.
+- Use a Toast for a passing confirmation and an Alert for a message that should stay on the page.
+
+## API Reference
+
+<Props name="Alert" />

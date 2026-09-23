@@ -1,4 +1,4 @@
-export type Category = 'Foundations' | 'App' | 'AI agents' | 'Effects' | 'Storytelling';
+export type Category = 'Foundations' | 'App' | 'Navigation' | 'Data' | 'AI agents' | 'Effects' | 'Storytelling';
 
 export interface Entry {
   slug: string;
@@ -11,13 +11,15 @@ export interface Entry {
   base?: string;
 }
 
-export const categories: Category[] = ['Foundations', 'App', 'AI agents', 'Effects', 'Storytelling'];
+export const categories: Category[] = ['Foundations', 'App', 'Navigation', 'Data', 'AI agents', 'Effects', 'Storytelling'];
 
 export const catalog: Entry[] = [
   { slug: 'brand-theme', exports: ['BrandTheme'], title: 'Brand Theme', category: 'Foundations', description: 'Applies a brand palette to everything inside it, in light, dark or the system mode.', base: 'HTMLAttributes<HTMLDivElement>' },
   { slug: 'button', exports: ['Button'], title: 'Button', category: 'App', description: 'A native button with primary, secondary and inverse tones.', base: 'ButtonHTMLAttributes<HTMLButtonElement>' },
   { slug: 'action-link', exports: ['ActionLink'], title: 'Action Link', category: 'App', description: 'A link styled as a button, for actions that go somewhere.', base: 'AnchorHTMLAttributes<HTMLAnchorElement>' },
   { slug: 'text-field', exports: ['TextField'], title: 'Text Field', category: 'App', description: 'A labelled input with an optional hint and error message.', base: 'InputHTMLAttributes<HTMLInputElement>' },
+  { slug: 'textarea', exports: ['Textarea'], title: 'Textarea', category: 'App', description: 'A labelled multi-line input with an optional hint and error message.', base: 'TextareaHTMLAttributes<HTMLTextAreaElement>' },
+  { slug: 'checkbox', exports: ['Checkbox'], title: 'Checkbox', category: 'App', description: 'A tick box with a visible label, including a mixed state.' },
   { slug: 'select', exports: ['Select'], title: 'Select', category: 'App', description: 'A labelled single-choice list that opens in a popup.' },
   { slug: 'switch', exports: ['Switch'], title: 'Switch', category: 'App', description: 'An on/off control with a visible label.' },
   { slug: 'tabs', exports: ['Tabs'], title: 'Tabs', category: 'App', description: 'Panels of content, one visible at a time.' },
@@ -26,6 +28,16 @@ export const catalog: Entry[] = [
   { slug: 'toast', exports: ['ToastProvider'], title: 'Toast', category: 'App', description: 'Brief messages that stack in a corner and dismiss themselves.' },
   { slug: 'badge', exports: ['Badge'], title: 'Badge', category: 'App', description: 'A short status or category label.', base: 'HTMLAttributes<HTMLSpanElement>' },
   { slug: 'card', exports: ['Card'], title: 'Card', category: 'App', description: 'A bordered surface with a title, body and footer.', base: 'HTMLAttributes<HTMLElement>' },
+  { slug: 'dropdown-menu', exports: ['DropdownMenu'], title: 'Dropdown Menu', category: 'App', description: 'A list of actions that opens from a button.' },
+  { slug: 'alert', exports: ['Alert'], title: 'Alert', category: 'App', description: 'An inline message about the page or a task, in info or critical tone.' },
+  { slug: 'empty-state', exports: ['EmptyState'], title: 'Empty State', category: 'App', description: 'What a list or page shows before it has content, with the action that fills it.' },
+  { slug: 'skeleton', exports: ['Skeleton'], title: 'Skeleton', category: 'App', description: 'Placeholder lines in the shape of content that is loading.' },
+  { slug: 'spinner', exports: ['Spinner'], title: 'Spinner', category: 'App', description: 'A turning ring with a label, for a wait of unknown length.' },
+  { slug: 'header', exports: ['Header'], title: 'Header', category: 'Navigation', description: 'The bar across the top: brand, links and actions. Links fold into a menu when it is narrow.' },
+  { slug: 'sidebar', exports: ['Sidebar'], title: 'Sidebar', category: 'Navigation', description: 'Grouped side navigation for an app, with icons and counts.' },
+  { slug: 'mobile-navigation', exports: ['MobileNavigation'], title: 'Mobile Navigation', category: 'Navigation', description: 'A menu button that opens the links in a full-screen panel.' },
+  { slug: 'data-table', exports: ['DataTable'], title: 'Data Table', category: 'Data', description: 'A captioned table with sortable columns, loading rows and an empty message.' },
+  { slug: 'stat-card', exports: ['StatCard'], title: 'Stat Card', category: 'Data', description: 'One key number with its change and a sparkline.' },
   { slug: 'agent-thinking', exports: ['AgentThinking'], title: 'Agent Thinking', category: 'AI agents', description: 'A dot-matrix disc that shows whether an agent is idle, listening, thinking or speaking.' },
   { slug: 'thinking-trace', exports: ['ThinkingTrace'], title: 'Thinking Trace', category: 'AI agents', description: 'Collapsible reasoning steps with a live status for each.' },
   { slug: 'streaming-text', exports: ['StreamingText'], title: 'Streaming Text', category: 'AI agents', description: 'Text that arrives word by word, as a model writes it.' },

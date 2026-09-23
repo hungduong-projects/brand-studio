@@ -1,0 +1,38 @@
+---
+title: Textarea
+description: "A labelled multi-line input with an optional hint and error message."
+---
+
+<Preview name="textarea/default" />
+
+## Installation
+
+<Install name="Textarea" />
+
+## Usage
+
+```tsx
+import { Textarea } from '@brand-studio/ui';
+```
+
+```tsx
+<Textarea label="Delivery note" hint="We pass this to the courier." />
+```
+
+## Examples
+
+### Error
+
+Pass `error` to show the message under the field and mark it invalid.
+
+<Preview name="textarea/error" />
+
+## Accessibility
+
+- The label is a real `<label>` tied to the textarea.
+- `hint` and `error` join `aria-describedby`, so screen readers read them after the label. `error` also sets `aria-invalid`.
+- The box grows with its text up to 20rem where the browser supports `field-sizing`, and the user can still drag it taller.
+
+## API Reference
+
+<Props name="Textarea" />

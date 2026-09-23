@@ -39,3 +39,9 @@ test('each component page ships title, preview code, install, usage and props as
   assert.ok(button.includes('<code>&#x27;primary&#x27;</code>'), 'defaults come from the source');
   assert.ok(!button.includes('ButtonTone'), 'private alias names never reach the page');
 });
+
+test('the skill guide tells an agent when to use every exported component', () => {
+  const guide = readFileSync(new URL('../plugins/brand-studio/skills/brand-design/references/ui-library.md', import.meta.url), 'utf8');
+  const missing = catalog.flatMap((entry) => entry.exports).filter((name) => name !== 'DialogClose' && !guide.includes(`\`${name}\``));
+  assert.deepEqual(missing, []);
+});
