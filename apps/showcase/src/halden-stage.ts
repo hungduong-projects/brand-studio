@@ -44,6 +44,8 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
   onParts?: (parts: Record<Part, { x: number; y: number }>) => void;
   /** Parts to leave out, for close-up stills. */
   hide?: Part[];
+  /** Solid sections. On narrow screens the model fades out while one overlaps the band it sits in, so it never shows cut off at an edge. */
+  covers?: HTMLElement[];
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -161,6 +163,8 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
     turn.position.set(narrow ? 0 : current.x * 1.1, narrow ? 0 : current.y, 0);
     // Narrow screens stack copy and model, so each pose says where the model sits between them.
     if (narrow) camera.setViewOffset(w, h, 0, -(current.drop ?? 0) * h, w, h);
+    const spot = h * (0.5 + (current.drop ?? 0));
+    canvas.toggleAttribute('data-covered', narrow && !!options.covers?.some(el => { const r = el.getBoundingClientRect(); return r.top < spot + h * 0.14 && r.bottom > spot - h * 0.14; }));
     for (const piece of pieces) {
       const e = smooth(clamp(current.explode));
       piece.object.position.copy(piece.home).addScaledVector(piece.away, e);

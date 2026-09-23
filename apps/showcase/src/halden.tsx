@@ -121,6 +121,7 @@ export function Halden() {
     return startHalden(canvas, sections, poses, {
       reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
       spin: () => 0,
+      covers: [...document.querySelectorAll<HTMLElement>('.hd-solid, .hd-paper')],
       onReady: () => setLoaded(true),
       onParts: parts => {
         const list = labelsRef.current;
