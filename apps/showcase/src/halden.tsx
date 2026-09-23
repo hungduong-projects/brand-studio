@@ -7,7 +7,7 @@ import '@fontsource-variable/geist';
 import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 import './halden.css';
-import { at } from './paths';
+import { at, SITE } from './paths';
 
 /** One pose per [data-shot] section, in page order. */
 const poses: Pose[] = [
@@ -135,7 +135,7 @@ export function Halden() {
   }, []);
 
   return <ToastProvider>
-    <SiteBar className="hd-sitebar" label="Halden" brand={<a href={at("camera")} className="hd-mark">Halden</a>} items={siteItems}
+    <SiteBar className="hd-sitebar" label="Halden" brand={<a href={at("camera/")} className="hd-mark">Halden</a>} items={siteItems}
       actions={<a className="hd-sitebar__link" href={at("/")}>Editions</a>} />
     <ProductBar className="hd-productbar" title="Halden R" href="#hero" label="Halden R"
       items={[{ label: 'Overview', href: '#hero', current: current !== 'specs' }, { label: 'Parts', href: '#parts' }, { label: 'Compare', href: '#compare' }, { label: 'Tech specs', href: '#specs', current: current === 'specs' }]}
@@ -249,11 +249,11 @@ export function Halden() {
       </section>
       <FooterDirectory className="hd-directory"
         notes={['Halden is a fictional brand. The product, prices and specs are made up to study a product page.', '3D model: Camera 01 by Rajil Jose Macatangay. Lighting: Studio Small 09 by Sergej Majboroda. Both from Poly Haven, CC0.']}
-        breadcrumbs={[{ label: 'Halden', href: at('camera') }, { label: 'Cameras', href: '#hero' }, { label: 'Halden R', href: '#hero' }]}
+        breadcrumbs={[{ label: 'Halden', href: at('camera/') }, { label: 'Cameras', href: '#hero' }, { label: 'Halden R', href: '#hero' }]}
         columns={[
           { title: 'Cameras', links: [{ label: 'Halden R', href: '#hero' }, { label: 'Compare kits', href: '#compare' }, { label: 'Tech specs', href: '#specs' }] },
           { title: 'Service', links: [{ label: 'Guides', href: '#guides' }, { label: 'Buy', href: '#buy' }] },
-          { title: 'Brand Studio', links: [{ label: 'Editions', href: at('/') }, { label: 'Deskhand', href: at('deskhand') }] },
+          { title: 'Brand Studio', links: [{ label: 'Home', href: SITE }, { label: 'Components', href: `${SITE}docs/` }, { label: 'Editions', href: at('/') }, { label: 'Deskhand', href: at('deskhand/') }] },
         ]}
         legal={<p>A Brand Studio showcase. Nothing here is for sale.</p>} />
       </BrandTheme>

@@ -1,3 +1,4 @@
+import { agentPrompt } from '@/lib/agent-prompt';
 import { highlight } from '@/lib/code';
 import { CopyButton } from './copy-button';
 import { DocsTabs } from './tabs';
@@ -11,6 +12,11 @@ const managers = [
 
 async function Snippet({ code, lang = 'bash' }: { code: string; lang?: string }) {
   return <div className="code-frame"><div className="code" tabIndex={0}>{await highlight(code, lang)}</div><CopyButton text={code} /></div>;
+}
+
+/** The setup prompt for a coding agent, with a copy button. */
+export async function AgentPrompt() {
+  return <div className="code-frame code-frame--wrap"><div className="code" tabIndex={0}>{await highlight(agentPrompt, 'text')}</div><CopyButton text={agentPrompt} label="Copy prompt" /></div>;
 }
 
 /** Command and manual install steps, as tabs. */

@@ -331,3 +331,8 @@ test('voice pieces say their state in words and keep guesses away from screen re
   assert.match(transcript, /<p class="bs-sr-only" aria-live="polite"><span>Two<\/span><span> <\/span><span>bags<\/span><\/p>/);
   assert.match(transcript, /<p class="bs-transcript__text" aria-hidden="true">.*of Huila.*bs-transcript__caret/);
 });
+
+test('select draws its own tick, so the library default emoji never shows', () => {
+  const source = readFileSync('packages/ui/src/app.tsx', 'utf8');
+  assert.match(source, /<BaseSelect\.ItemIndicator className="bs-select__check"><svg /);
+});

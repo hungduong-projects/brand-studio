@@ -73,7 +73,7 @@ export function Select({ label, options, placeholder = 'Select…', defaultValue
             <BaseSelect.List className="bs-select__list">
               {options.map(option => <BaseSelect.Item key={option.value} value={option.value} disabled={option.disabled} className="bs-select__item">
                 <BaseSelect.ItemText>{option.label}</BaseSelect.ItemText>
-                <BaseSelect.ItemIndicator className="bs-select__check" />
+                <BaseSelect.ItemIndicator className="bs-select__check"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.5 3 3 6-7" /></svg></BaseSelect.ItemIndicator>
               </BaseSelect.Item>)}
             </BaseSelect.List>
           </BaseSelect.Popup>

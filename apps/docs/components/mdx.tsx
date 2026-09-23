@@ -2,7 +2,7 @@ import type { MDXComponents } from 'mdx/types';
 import { catalog } from '@/lib/catalog';
 import { ownProps } from '@/lib/props';
 import { CodeFrame } from './code-frame';
-import { Install } from './install';
+import { AgentPrompt, Install } from './install';
 import { Preview } from './preview';
 import { PropsTable } from './props-table';
 
@@ -16,4 +16,4 @@ async function Props({ name }: { name: string }) {
   </>;
 }
 
-export const mdxComponents: MDXComponents = { pre: CodeFrame, Preview, Install, Props };
+export const mdxComponents: MDXComponents = { pre: CodeFrame, Preview, Install, AgentPrompt, Props };

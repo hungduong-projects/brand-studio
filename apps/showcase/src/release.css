@@ -94,12 +94,16 @@
 .rl-install__command { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; width: fit-content; max-width: 100%; padding: .6rem .6rem .6rem 1.2rem; border-radius: var(--bs-radius); background: var(--rl-ground); color: var(--rl-paper); }
 .rl-install__command code { font: 400 1.05rem 'Geist Mono', ui-monospace, monospace; }
 .rl-install__command .bs-button { min-width: 6.5rem; }
+.rl-install__buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bs-theme .rl-install__command .rl-install__prompt { color: var(--rl-paper); border-color: rgb(241 239 232 / .4); }
+.bs-theme .rl-install__command .rl-install__prompt:hover { border-color: var(--rl-paper); }
 .rl-install > p { color: var(--bs-muted); margin: 1.4rem 0; }
 .rl-install > p code { font: .9em 'Geist Mono', ui-monospace, monospace; color: var(--bs-ink); }
 .rl-footer__links { display: flex; gap: 1.5rem; }
 .rl-footer { position: relative; z-index: 2; background: var(--bs-surface); padding-inline: clamp(1.25rem, 4vw, 3rem); }
 
-.rl-pause { position: fixed; z-index: 25; right: 1.25rem; bottom: 1.25rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid rgb(241 239 232 / .45); border-radius: 99px; background: rgb(22 23 26 / .7); color: var(--rl-paper); font: 600 .8rem var(--bs-font); backdrop-filter: blur(6px); cursor: pointer; }
+.rl-pause { position: fixed; z-index: 25; right: 1.25rem; bottom: 1.25rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid rgb(241 239 232 / .45); border-radius: 99px; background: rgb(22 23 26 / .7); color: var(--rl-paper); font: 600 .8rem var(--bs-font); backdrop-filter: blur(6px); cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; }
+.rl-pause svg { width: .9rem; height: .9rem; fill: currentColor; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .rl-pause:focus-visible, .rl a:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 3px; }
 .rl[data-paused] *, .rl[data-paused] *::before, .rl[data-paused] *::after { animation-play-state: paused !important; }
 
@@ -114,7 +118,14 @@
   .rl-scene__text { position: static; width: auto; }
   .rl-prop { position: static; width: auto; max-width: 22rem; opacity: 1; translate: 0; }
   .rl-panel, .rl-notes, .rl-install { padding-inline: 1.25rem; }
-  .rl-credit { right: 1.25rem; left: 1.25rem; bottom: .9rem; text-align: left; }
+  .rl .rl-credit { right: 1.25rem; left: 1.25rem; bottom: .9rem; text-align: left; }
+  .rl-hero .rl-credit { margin: 0 4.5rem 1rem 1.25rem; }
+  /* A round icon on phones, so the button covers less of the page. */
+  .rl-pause { right: .9rem; bottom: .9rem; width: 44px; padding: 0; justify-content: center; }
+  .rl-pause__label { display: none; }
+  .rl-install__command { width: 100%; padding: 1rem; }
+  .rl-install__command code { font-size: .92rem; }
+  .rl-install__buttons, .rl-install__buttons .bs-button { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rl-hero__card { animation: none; }

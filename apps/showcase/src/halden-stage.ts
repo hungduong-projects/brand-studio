@@ -120,8 +120,8 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
-    // On narrow screens the copy scrolls over the middle, so the model sits in the top third instead.
-    if (w < 768) camera.setViewOffset(w, h, 0, h * 0.2, w, h);
+    // On narrow screens the copy scrolls over the lower half, so the model sits above the middle instead.
+    if (w < 768) camera.setViewOffset(w, h, 0, h * 0.04, w, h);
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
@@ -144,7 +144,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
 
   let current = { ...poses[0] }, raf = 0, last = performance.now(), time = 0;
   const projected = new THREE.Vector3(), bounds = new THREE.Box3();
-  let spin = 0;
+  let spin = 0, shift = 0;
   const loop = (now: number) => {
     const dt = Math.min(now - last, 64);
     last = now;
@@ -157,12 +157,14 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
     const drift = options.reduced ? 0 : Math.sin(time / 2400) * 0.04;
     spin += (options.spin() - spin) * (options.reduced ? 1 : 1 - Math.exp(-dt / 90));
     turn.rotation.set(current.pitch + drift * 0.3, current.yaw + spin + drift, 0);
-    turn.position.set(narrow ? 0 : current.x * 1.1, narrow ? current.y * 0.6 : current.y, 0);
+    // Narrow screens centre everything you see, strap included, since the body alone reads as off to one side.
+    if (narrow && ready) shift += (-bounds.setFromObject(turn).getCenter(projected).x + turn.position.x - shift) * k;
+    turn.position.set(narrow ? shift : current.x * 1.1, narrow ? current.y * 0.6 : current.y, 0);
     for (const piece of pieces) {
       const e = smooth(clamp(current.explode));
       piece.object.position.copy(piece.home).addScaledVector(piece.away, e);
     }
-    camera.position.set(0, 0, current.distance * (narrow ? Math.max(1.5, 1.05 / camera.aspect) : 1));
+    camera.position.set(0, 0, current.distance * (narrow ? Math.max(1.4, 0.92 / camera.aspect) : 1));
     camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
 

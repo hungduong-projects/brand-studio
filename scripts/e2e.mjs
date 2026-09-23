@@ -78,10 +78,13 @@ try {
     await install.scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
     assert.equal(await page.locator('.rl-rail[data-show]').count(), 0, 'rail should hide after the chapters');
-    await install.getByRole('button', { name: 'Copy' }).click();
+    await install.getByRole('button', { name: 'Copy', exact: true }).click();
     await page.waitForTimeout(150);
     assert.equal(await install.getByRole('button', { name: 'Copied' }).count(), 1, 'Copy button did not confirm');
     assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'npm install @brand-studio/ui');
+    await install.getByRole('button', { name: 'Copy agent prompt' }).click();
+    await page.waitForTimeout(150);
+    assert.match(await page.evaluate(() => navigator.clipboard.readText()), /\/brand-studio:brand-design/, 'agent prompt was not copied');
     await page.screenshot({ path: path.join(shots, 'desktop-08-install.png') });
     assert.deepEqual(errors, []);
     await context.close();

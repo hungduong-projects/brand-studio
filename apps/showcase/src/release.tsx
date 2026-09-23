@@ -7,6 +7,7 @@ import {
   Skeleton, Spinner, StatCard, StreamingText, Switch, Tabs, TaskRows, Textarea, TextField, ThinkingTrace, ToastProvider, ToolChips, useToast,
 } from '@brand-studio/ui';
 import type { ApprovalStatus, ImageAsset, TableColumn } from '@brand-studio/ui';
+import { agentPrompt } from '../../docs/lib/agent-prompt';
 import { catalog } from '../../docs/lib/catalog';
 import { startStage } from './stage';
 import type { Scene } from './stage';
@@ -15,9 +16,9 @@ import '@fontsource/geist-mono/400.css';
 import '@fontsource/instrument-serif/400.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import './release.css';
-import { at } from './paths';
+import { at, SITE } from './paths';
 
-const DOCS = 'https://brandstudio.js.org/docs/';
+const DOCS = `${SITE}docs/`;
 const docs = (slug: string) => `${DOCS}components/${slug}/`;
 const NEW = new Set(['textarea', 'checkbox', 'dropdown-menu', 'alert', 'empty-state', 'skeleton', 'spinner', 'header', 'sidebar', 'mobile-navigation', 'data-table', 'stat-card']);
 
@@ -199,17 +200,21 @@ function CreditLine({ credit }: { credit: Credit }) {
 }
 
 function InstallBlock() {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'command' | 'prompt' | null>(null);
   const command = 'npm install @brand-studio/ui';
   useEffect(() => {
     if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
+    const timer = setTimeout(() => setCopied(null), 2000);
     return () => clearTimeout(timer);
   }, [copied]);
+  const copy = (what: 'command' | 'prompt') => navigator.clipboard.writeText(what === 'command' ? command : agentPrompt).then(() => setCopied(what));
   return <div className="rl-install__command">
     <code>{command}</code>
-    <Button tone="inverse" onClick={() => navigator.clipboard.writeText(command).then(() => setCopied(true))}>{copied ? 'Copied' : 'Copy'}</Button>
-    <span className="bs-sr-only" aria-live="polite">{copied ? 'Install command copied' : ''}</span>
+    <span className="rl-install__buttons">
+      <Button tone="inverse" onClick={() => copy('command')}>{copied === 'command' ? 'Copied' : 'Copy'}</Button>
+      <Button tone="secondary" className="rl-install__prompt" onClick={() => copy('prompt')}>{copied === 'prompt' ? 'Prompt copied' : 'Copy agent prompt'}</Button>
+    </span>
+    <span className="bs-sr-only" aria-live="polite">{copied === 'command' ? 'Install command copied' : copied === 'prompt' ? 'Agent prompt copied' : ''}</span>
   </div>;
 }
 
@@ -246,7 +251,7 @@ export function Release() {
 
   return <ToastProvider>
     <StoryHeader className="rl-header" brand={<a href={at("/")} className="rl-mark">Brand Studio <em>Editions</em><span className="rl-mark__version">0.2</span></a>}
-      items={[{ label: 'Components', href: DOCS }, { label: 'Deskhand study', href: at('deskhand') }, { label: 'Camera study', href: at('camera') }, { label: 'npm', href: 'https://www.npmjs.com/package/@brand-studio/ui' }]}
+      items={[{ label: 'Home', href: SITE }, { label: 'Components', href: DOCS }, { label: 'Deskhand study', href: at('deskhand/') }, { label: 'Camera study', href: at('camera/') }, { label: 'npm', href: 'https://www.npmjs.com/package/@brand-studio/ui' }]}
       current={now && { label: now.title, href: `#${now.id}`, marker: <span className="rl-numeral">{now.numeral}</span> }}
       actions={<ActionLink href={`${DOCS}installation/`} shape="pill">Install</ActionLink>} />
     <main id="main" tabIndex={-1} className="rl" data-paused={paused || undefined}>
@@ -299,15 +304,18 @@ export function Release() {
       <section className="rl-install" data-chapter="" aria-labelledby="install-title">
         <h2 id="install-title">Install</h2>
         <InstallBlock />
-        <p>Then import <code>@brand-studio/ui/styles.css</code> and wrap your app in <code>BrandTheme</code>.</p>
+        <p>Then import <code>@brand-studio/ui/styles.css</code> and wrap your app in <code>BrandTheme</code>. Or copy the agent prompt into Claude Code: it installs the package and the brand-design skill, then runs <code>/brand-studio:brand-design</code>.</p>
         <ActionLink href={`${DOCS}installation/`} shape="pill">Read the setup guide</ActionLink>
       </section>
     </main>
-    <button type="button" className="rl-pause" onClick={() => setPaused(p => !p)}>{paused ? 'Play motion' : 'Pause motion'}</button>
+    <button type="button" className="rl-pause" onClick={() => setPaused(p => !p)} aria-label={paused ? 'Play motion' : 'Pause motion'}>
+      <svg viewBox="0 0 16 16" aria-hidden="true">{paused ? <path d="M5 3.5v9l7-4.5z" /> : <path d="M5 3.5v9M11 3.5v9" />}</svg>
+      <span className="rl-pause__label" aria-hidden="true">{paused ? 'Play motion' : 'Pause motion'}</span>
+    </button>
     <footer className="site-footer bs-container rl-footer">
       <strong>Brand Studio</strong>
       <p>Paintings are public domain: The Metropolitan Museum of Art, Open Access, and the National Gallery of Art, Washington. Orders and names in the demos are made up.</p>
-      <span className="rl-footer__links"><a href={at("deskhand")}>Deskhand study</a><a href={at("camera")}>Camera study</a></span>
+      <span className="rl-footer__links"><a href={SITE}>Home</a><a href={DOCS}>Components</a><a href={at("deskhand/")}>Deskhand study</a><a href={at("camera/")}>Camera study</a></span>
     </footer>
   </ToastProvider>;
 }
