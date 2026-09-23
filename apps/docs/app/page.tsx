@@ -17,6 +17,7 @@ export default function Home() {
         <div className="hero__actions">
           <a href="/docs/installation/" className="solid-button">Get started</a>
           <a href="/docs/" className="ghost-button">Browse components</a>
+          <a href="/examples/camera/" className="ghost-button">See a full page</a>
         </div>
         <p className="hero__hint">Same markup on each card. Click a card behind, or pick a brand in the header, to bring it forward.</p>
       </div>

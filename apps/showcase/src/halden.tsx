@@ -7,6 +7,7 @@ import '@fontsource-variable/geist';
 import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 import './halden.css';
+import { at } from './paths';
 
 /** One pose per [data-shot] section, in page order. */
 const poses: Pose[] = [
@@ -26,7 +27,7 @@ const labels: { part: Part; name: string; note: string }[] = [
   { part: 'strap', name: 'Strap', note: 'Full-grain leather, 110 cm' },
 ];
 
-const still = (name: string, alt: string) => <img src={`/images/halden/${name}.webp`} alt={alt} width={2400} height={1350} loading="lazy" decoding="async" />;
+const still = (name: string, alt: string) => <img src={at(`images/halden/${name}.webp`)} alt={alt} width={2400} height={1350} loading="lazy" decoding="async" />;
 
 const highlights = [
   { media: still('three', 'The Halden R from the front left, black paint worn to brass at the edges.'), caption: <><strong>Worn to brass.</strong> The paint gives way where your hands go.</> },
@@ -134,8 +135,8 @@ export function Halden() {
   }, []);
 
   return <ToastProvider>
-    <SiteBar className="hd-sitebar" label="Halden" brand={<a href="/camera" className="hd-mark">Halden</a>} items={siteItems}
-      actions={<a className="hd-sitebar__link" href="/">Editions</a>} />
+    <SiteBar className="hd-sitebar" label="Halden" brand={<a href={at("camera")} className="hd-mark">Halden</a>} items={siteItems}
+      actions={<a className="hd-sitebar__link" href={at("/")}>Editions</a>} />
     <ProductBar className="hd-productbar" title="Halden R" href="#hero" label="Halden R"
       items={[{ label: 'Overview', href: '#hero', current: current !== 'specs' }, { label: 'Parts', href: '#parts' }, { label: 'Compare', href: '#compare' }, { label: 'Tech specs', href: '#specs', current: current === 'specs' }]}
       action={<ActionLink href="#buy" shape="pill">Buy</ActionLink>} />
@@ -248,11 +249,11 @@ export function Halden() {
       </section>
       <FooterDirectory className="hd-directory"
         notes={['Halden is a fictional brand. The product, prices and specs are made up to study a product page.', '3D model: Camera 01 by Rajil Jose Macatangay. Lighting: Studio Small 09 by Sergej Majboroda. Both from Poly Haven, CC0.']}
-        breadcrumbs={[{ label: 'Halden', href: '/camera' }, { label: 'Cameras', href: '#hero' }, { label: 'Halden R', href: '#hero' }]}
+        breadcrumbs={[{ label: 'Halden', href: at('camera') }, { label: 'Cameras', href: '#hero' }, { label: 'Halden R', href: '#hero' }]}
         columns={[
           { title: 'Cameras', links: [{ label: 'Halden R', href: '#hero' }, { label: 'Compare kits', href: '#compare' }, { label: 'Tech specs', href: '#specs' }] },
           { title: 'Service', links: [{ label: 'Guides', href: '#guides' }, { label: 'Buy', href: '#buy' }] },
-          { title: 'Brand Studio', links: [{ label: 'Editions', href: '/' }, { label: 'Deskhand', href: '/deskhand' }] },
+          { title: 'Brand Studio', links: [{ label: 'Editions', href: at('/') }, { label: 'Deskhand', href: at('deskhand') }] },
         ]}
         legal={<p>A Brand Studio showcase. Nothing here is for sale.</p>} />
       </BrandTheme>

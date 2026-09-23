@@ -15,6 +15,7 @@ import '@fontsource/geist-mono/400.css';
 import '@fontsource/instrument-serif/400.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import './release.css';
+import { at } from './paths';
 
 const DOCS = 'https://brand-studio-c7e.pages.dev/docs/';
 const docs = (slug: string) => `${DOCS}components/${slug}/`;
@@ -32,14 +33,14 @@ const hero: Credit = { who: 'Giovanni Bellini and Titian', title: 'The Feast of 
 
 /** One scene per [data-scene] section: the hero, then each chapter. */
 const scenes = (px: number): Scene[] => [
-  { src: `/images/release/bellini-${px}.webp`, position: [0.5, 0.62], focus: [0.52, 0.55], zoom: [1, 1.12], light: 'dapple', shade: 'left' },
-  { src: `/images/release/fragonard-${px}.webp`, position: [0.5, 0.28], focus: [0.36, 0.3], anchor: [0.2, 0.36], zoom: [1, 1.3], light: 'gold', shade: 'right' },
-  { src: `/images/release/pickenoy-${px}.webp`, position: [0.5, 0.3], focus: [0.8, 0.72], anchor: [0.62, 0.6], zoom: [1, 1.5], light: 'gold', shade: 'left' },
-  { src: `/images/release/botticelli-${px}.webp`, position: [0.5, 0.5], focus: [0.6, 0.5], anchor: [0.61, 0.44], zoom: [1, 1.15], light: 'gold', shade: 'bottom' },
-  { src: `/images/release/christus-${px}.webp`, position: [0.5, 0.3], focus: [0.57, 0.78], anchor: [0.3, 0.8], zoom: [1, 1.25], light: 'flicker', shade: 'right' },
-  { src: `/images/release/elgreco-${px}.webp`, position: [0.5, 0.3], focus: [0.5, 0.28], anchor: [0.16, 0.5], zoom: [1, 1.15], light: 'flicker', shade: 'right' },
-  { src: `/images/release/kalf-${px}.webp`, position: [0.5, 0.62], focus: [0.4, 0.7], anchor: [0.64, 0.5], zoom: [1, 1.35], light: 'flicker', shade: 'right' },
-  { src: `/images/release/sassetta-${px}.webp`, position: [0.5, 0.5], focus: [0.66, 0.55], anchor: [0.3, 0.3], zoom: [1, 1.2], light: 'gold', shade: 'left' },
+  { src: at(`images/release/bellini-${px}.webp`), position: [0.5, 0.62], focus: [0.52, 0.55], zoom: [1, 1.12], light: 'dapple', shade: 'left' },
+  { src: at(`images/release/fragonard-${px}.webp`), position: [0.5, 0.28], focus: [0.36, 0.3], anchor: [0.2, 0.36], zoom: [1, 1.3], light: 'gold', shade: 'right' },
+  { src: at(`images/release/pickenoy-${px}.webp`), position: [0.5, 0.3], focus: [0.8, 0.72], anchor: [0.62, 0.6], zoom: [1, 1.5], light: 'gold', shade: 'left' },
+  { src: at(`images/release/botticelli-${px}.webp`), position: [0.5, 0.5], focus: [0.6, 0.5], anchor: [0.61, 0.44], zoom: [1, 1.15], light: 'gold', shade: 'bottom' },
+  { src: at(`images/release/christus-${px}.webp`), position: [0.5, 0.3], focus: [0.57, 0.78], anchor: [0.3, 0.8], zoom: [1, 1.25], light: 'flicker', shade: 'right' },
+  { src: at(`images/release/elgreco-${px}.webp`), position: [0.5, 0.3], focus: [0.5, 0.28], anchor: [0.16, 0.5], zoom: [1, 1.15], light: 'flicker', shade: 'right' },
+  { src: at(`images/release/kalf-${px}.webp`), position: [0.5, 0.62], focus: [0.4, 0.7], anchor: [0.64, 0.5], zoom: [1, 1.35], light: 'flicker', shade: 'right' },
+  { src: at(`images/release/sassetta-${px}.webp`), position: [0.5, 0.5], focus: [0.66, 0.55], anchor: [0.3, 0.3], zoom: [1, 1.2], light: 'gold', shade: 'left' },
 ];
 
 function ToastDemo() {
@@ -78,7 +79,7 @@ const orderColumns: TableColumn<Order>[] = [
 ];
 
 // Portrait crops at one size, so the columns read as a set; the focal point keeps each painting's subject in frame.
-const art = (name: string, height: number, focalPoint: string, alt: string): ImageAsset => ({ src: `/images/release/${name}-1000.webp`, alt, width: 1000, height, focalPoint });
+const art = (name: string, height: number, focalPoint: string, alt: string): ImageAsset => ({ src: at(`images/release/${name}-1000.webp`), alt, width: 1000, height, focalPoint });
 const gallery: ImageAsset[] = [
   art('fragonard', 1237, '35% 30%', 'Fragonard, The Love Letter: a woman at a desk holds a letter.'),
   art('pickenoy', 1358, '50% 35%', 'Pickenoy, Man with a Celestial Globe: a man in a ruff rests a hand on a globe.'),
@@ -244,8 +245,8 @@ export function Release() {
   }, []);
 
   return <ToastProvider>
-    <StoryHeader className="rl-header" brand={<a href="/" className="rl-mark">Brand Studio <em>Editions</em><span className="rl-mark__version">0.2</span></a>}
-      items={[{ label: 'Components', href: DOCS }, { label: 'Deskhand study', href: '/deskhand' }, { label: 'Camera study', href: '/camera' }, { label: 'npm', href: 'https://www.npmjs.com/package/@brand-studio/ui' }]}
+    <StoryHeader className="rl-header" brand={<a href={at("/")} className="rl-mark">Brand Studio <em>Editions</em><span className="rl-mark__version">0.2</span></a>}
+      items={[{ label: 'Components', href: DOCS }, { label: 'Deskhand study', href: at('deskhand') }, { label: 'Camera study', href: at('camera') }, { label: 'npm', href: 'https://www.npmjs.com/package/@brand-studio/ui' }]}
       current={now && { label: now.title, href: `#${now.id}`, marker: <span className="rl-numeral">{now.numeral}</span> }}
       actions={<ActionLink href={`${DOCS}installation/`} shape="pill">Install</ActionLink>} />
     <main id="main" tabIndex={-1} className="rl" data-paused={paused || undefined}>
@@ -308,7 +309,7 @@ export function Release() {
     <footer className="site-footer bs-container rl-footer">
       <strong>Brand Studio</strong>
       <p>Paintings are public domain: The Metropolitan Museum of Art, Open Access, and the National Gallery of Art, Washington. Orders and names in the demos are made up.</p>
-      <span className="rl-footer__links"><a href="/deskhand">Deskhand study</a><a href="/camera">Camera study</a></span>
+      <span className="rl-footer__links"><a href={at("deskhand")}>Deskhand study</a><a href={at("camera")}>Camera study</a></span>
     </footer>
   </ToastProvider>;
 }

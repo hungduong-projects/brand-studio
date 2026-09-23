@@ -18,7 +18,7 @@
     "pack:plugin": "node scripts/pack-plugin.mjs",
     "refs": "node scripts/grab-refs.mjs",
     "dev:docs": "npm run build -w @brand-studio/ui && npm run dev -w @brand-studio/docs",
-    "build:docs": "npm run build -w @brand-studio/ui && npm run build -w @brand-studio/docs"
+    "build:docs": "npm run build -w @brand-studio/ui && npm run build -w @brand-studio/showcase && npm run build -w @brand-studio/docs && node scripts/copy-examples.mjs"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",

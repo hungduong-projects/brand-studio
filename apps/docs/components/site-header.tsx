@@ -22,6 +22,8 @@ export function SiteHeader() {
         <nav aria-label="Docs" className="mobile-menu__panel">
           <h2>Getting Started</h2>
           <ul>{guides.map((guide) => <li key={guide.slug}><a href={guideHref(guide.slug)}>{guide.title}</a></li>)}</ul>
+          <h2>Examples</h2>
+          <ul><li><a href="/examples/">Editions release</a></li><li><a href="/examples/camera/">Halden camera</a></li><li><a href="/examples/deskhand/">Deskhand support</a></li></ul>
           {categories.map((category) => <div key={category}><h2>{category}</h2><ul>{catalog.filter((entry) => entry.category === category).map((entry) => <li key={entry.slug}><a href={componentHref(entry.slug)}>{entry.title}</a></li>)}</ul></div>)}
         </nav>
       </details>
