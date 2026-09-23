@@ -79,3 +79,18 @@ npm run pack:plugin
 ```
 
 Build the UI before typechecking because showcase types resolve from `packages/ui/dist`.
+
+## Updates and releases
+
+Open a pull request against `main` for source or documentation changes. The required CI check builds the UI, showcase and docs, then runs typechecks, tests, brand validation and a package dry run. Merge once it passes.
+
+For a new UI release, choose a version that has not been published. Update `packages/ui/package.json` and the exact `@brand-studio/ui` dependency in both app manifests, then run `npm install` to refresh `package-lock.json`. After the version change passes CI and merges, run **Publish UI to npm** from the Actions tab on `main`. This manual workflow uses npm trusted publishing and does not need a stored npm token. Confirm the result with `npm view @brand-studio/ui version` before announcing it.
+
+The docs site uses Cloudflare Pages Direct Upload, so merging does not deploy it. After a docs change is merged, build and deploy the static output from the repository root:
+
+```sh
+npm run build:docs
+npx wrangler pages deploy apps/docs/out --project-name brand-studio --branch main
+```
+
+Check the [live docs](https://brand-studio-c7e.pages.dev/docs/) after deployment.
