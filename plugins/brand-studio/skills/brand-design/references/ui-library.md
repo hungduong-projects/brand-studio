@@ -107,6 +107,9 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Invite exploring a set of related topics, each with a short detail | `TopicMap` | The reader must compare or read every item: use a list or `DataTable` |
 | Show many images with depth | `ParallaxGallery` | Each image needs a caption |
 | Leave images behind the pointer | `ImageTrail` | Touch is the main input |
+| Invite wandering through a large set of images | `InfiniteCanvas` | The order matters or each image needs a caption |
+| Let people open any image full screen and step through the set | `Lightbox` | There are one or two images: show them large |
+| Show one object or set from every side, one at a time | `RingGallery` | There are fewer than five images or more than twelve |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
 
 ### Present a product

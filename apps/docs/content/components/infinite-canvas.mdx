@@ -1,0 +1,30 @@
+---
+title: Infinite Canvas
+description: "A wall of images you drag in any direction. It never runs out and glides after a flick."
+---
+
+<Preview name="infinite-canvas/default" layout="full" />
+
+## Installation
+
+<Install name="InfiniteCanvas" />
+
+## Usage
+
+```tsx
+import { InfiniteCanvas } from '@brand-studio/ui';
+```
+
+```tsx
+<InfiniteCanvas label="Archive" images={images} />
+```
+
+## Accessibility
+
+- The canvas is one focusable region; arrow keys pan it.
+- Each image is named once. Copies that fill the wrap are hidden from screen readers.
+- Before scripts run it is a plain scrolling grid. With reduced motion it stops when you let go.
+
+## API Reference
+
+<Props name="InfiniteCanvas" />

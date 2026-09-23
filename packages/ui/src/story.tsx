@@ -244,3 +244,271 @@ export function TopicMap({ topics, label = 'Topics', className = '' }: { topics:
     </ul>
   </div>;
 }
+
+const CANVAS_GAP = 24;
+const wrap = (value: number, size: number) => ((value % size) + size) % size;
+
+/**
+ * A wall of images you drag in any direction. It wraps, so it never runs out, and glides on after a flick. Arrow keys
+ * pan it when focused. Before scripts run it is a plain scrolling grid; with reduced motion it stops when you let go.
+ */
+export function InfiniteCanvas({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+  const root = useRef<HTMLDivElement>(null);
+  const [copies, setCopies] = useState<{ x: number; y: number } | null>(null);
+  const columns = Math.max(1, Math.ceil(Math.sqrt(images.length)));
+  const rows = Math.max(1, Math.ceil(images.length / columns));
+
+  useEffect(() => {
+    const view = root.current;
+    const tile = view?.querySelector<HTMLElement>('.bs-canvas__tile');
+    if (!view || !tile) return;
+    const measure = () => {
+      const w = tile.offsetWidth + CANVAS_GAP, h = tile.offsetHeight + CANVAS_GAP;
+      setCopies({ x: Math.ceil((view.clientWidth + w) / (columns * w)), y: Math.ceil((view.clientHeight + 2 * h) / (rows * h)) });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(view);
+    return () => observer.disconnect();
+  }, [columns, rows]);
+
+  useEffect(() => {
+    const view = root.current;
+    if (!view || !copies) return;
+    const tiles = [...view.querySelectorAll<HTMLElement>('.bs-canvas__tile')];
+    const w = tiles[0].offsetWidth + CANVAS_GAP, h = tiles[0].offsetHeight + CANVAS_GAP;
+    const width = copies.x * columns * w, height = copies.y * rows * h;
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    let x = -w / 2, y = -h / 2, vx = 0, vy = 0, frame = 0;
+    let drag: { x: number; y: number } | null = null;
+    const place = () => tiles.forEach(item => {
+      const column = Number(item.dataset.column), row = Number(item.dataset.row);
+      const left = wrap(column * w + x, width) - w;
+      const top = wrap(row * h + (column % 2 ? h / 2 : 0) + y, height) - h;
+      item.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+    });
+    const tick = () => {
+      frame = 0;
+      if (!drag && Math.hypot(vx, vy) > 0.1) { x += vx; y += vy; vx *= 0.94; vy *= 0.94; frame = requestAnimationFrame(tick); }
+      place();
+    };
+    const glide = () => { if (!frame) frame = requestAnimationFrame(tick); };
+    const down = (event: globalThis.PointerEvent) => {
+      if (event.button !== 0) return;
+      view.setPointerCapture(event.pointerId);
+      drag = { x: event.clientX, y: event.clientY };
+      vx = vy = 0;
+      view.dataset.dragging = '';
+    };
+    const move = (event: globalThis.PointerEvent) => {
+      if (!drag) return;
+      const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+      drag = { x: event.clientX, y: event.clientY };
+      x += dx; y += dy;
+      vx = vx * 0.5 + dx * 0.5; vy = vy * 0.5 + dy * 0.5;
+      glide();
+    };
+    const up = () => {
+      if (!drag) return;
+      drag = null;
+      delete view.dataset.dragging;
+      if (still.matches) vx = vy = 0;
+      glide();
+    };
+    const key = (event: KeyboardEvent) => {
+      const step = { ArrowLeft: [1, 0], ArrowRight: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[event.key];
+      if (!step) return;
+      event.preventDefault();
+      if (still.matches) { x += step[0] * w; y += step[1] * h; }
+      else { vx = step[0] * w * 0.06; vy = step[1] * h * 0.06; }
+      glide();
+    };
+    place();
+    view.addEventListener('pointerdown', down);
+    view.addEventListener('pointermove', move);
+    view.addEventListener('pointerup', up);
+    view.addEventListener('pointercancel', up);
+    view.addEventListener('keydown', key);
+    return () => {
+      cancelAnimationFrame(frame);
+      view.removeEventListener('pointerdown', down);
+      view.removeEventListener('pointermove', move);
+      view.removeEventListener('pointerup', up);
+      view.removeEventListener('pointercancel', up);
+      view.removeEventListener('keydown', key);
+    };
+  }, [copies, columns, rows]);
+
+  // Each image is named once; the copies that fill the wrap are hidden from assistive technology.
+  const cells = Array.from({ length: (copies?.x ?? 1) * columns * (copies?.y ?? 1) * rows }, (_, index) => {
+    const span = (copies?.x ?? 1) * columns;
+    const column = index % span, row = Math.floor(index / span);
+    const source = (row % rows) * columns + (column % columns);
+    return { column, row, image: images[source % images.length], named: column < columns && row < rows && source < images.length };
+  });
+  if (!images.length) return null;
+  return <div ref={root} className={`bs-canvas ${className}`} role="region" aria-label={`${label}, drag or use arrow keys to explore`} tabIndex={0} data-enhanced={copies ? '' : undefined}>
+    {cells.map(({ column, row, image, named }) => <div key={`${column}-${row}`} className="bs-canvas__tile" data-column={column} data-row={row} aria-hidden={named ? undefined : true}>
+      <img src={image.src} srcSet={image.srcSet} sizes="16rem" alt={named ? image.alt : ''} width={image.width} height={image.height} loading="lazy" decoding="async" draggable={false} style={{ objectPosition: image.focalPoint ?? 'center' }} />
+    </div>)}
+  </div>;
+}
+
+/**
+ * A grid of thumbnails. Choosing one grows it into a full-screen view you can step through with buttons, arrow keys or a
+ * swipe. Escape, the close button or a click outside shrinks it back into its place and returns focus there.
+ */
+export function Lightbox({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const grid = useRef<HTMLUListElement>(null);
+  const swipe = useRef<number | null>(null);
+  const [index, setIndex] = useState(0);
+  const thumb = (at: number) => grid.current?.children[at]?.querySelector('button') ?? null;
+  const image = () => dialog.current?.querySelector<HTMLImageElement>('.bs-lightbox__image') ?? null;
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Grows or shrinks the big image between its own box and the thumbnail's, scaled evenly from the centre.
+  const morph = (target: HTMLElement, from: DOMRect, back = false) => {
+    const to = target.getBoundingClientRect();
+    const frames = [
+      { transform: `translate(${from.left + from.width / 2 - (to.left + to.width / 2)}px, ${from.top + from.height / 2 - (to.top + to.height / 2)}px) scale(${from.width / to.width})` },
+      { transform: 'none' },
+    ];
+    return target.animate(back ? frames.reverse() : frames, { duration: 460, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'both' });
+  };
+  const open = (at: number) => {
+    const from = thumb(at)?.getBoundingClientRect();
+    flushSync(() => setIndex(at));
+    dialog.current?.showModal();
+    const big = image();
+    if (!big || !from || !moving()) return;
+    morph(big, from).finished.then(animation => animation.cancel(), () => {});
+  };
+  const close = () => {
+    const box = dialog.current;
+    if (!box?.open) return;
+    const big = image(), to = thumb(index);
+    if (!big || !to || !moving()) { box.close(); to?.focus(); return; }
+    box.dataset.closing = '';
+    const fade = box.animate({ opacity: [1, 0] }, { duration: 460, pseudoElement: '::backdrop', fill: 'forwards' });
+    const shrink = morph(big, to.getBoundingClientRect(), true);
+    const done = () => { box.close(); fade.cancel(); shrink.cancel(); delete box.dataset.closing; to.focus(); };
+    shrink.finished.then(done, done);
+  };
+  const step = (by: number) => setIndex(current => (current + by + images.length) % images.length);
+  const current = images[index];
+  if (!current) return null;
+  return <div className={`bs-lightbox ${className}`}>
+    <ul ref={grid} className="bs-lightbox__grid" aria-label={label}>
+      {images.map((item, at) => <li key={item.src + at}>
+        <button type="button" className="bs-lightbox__thumb" aria-haspopup="dialog" onClick={() => open(at)}>
+          <img src={item.src} srcSet={item.srcSet} sizes="(min-width: 768px) 25vw, 50vw" alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" style={{ objectPosition: item.focalPoint ?? 'center' }} />
+        </button>
+      </li>)}
+    </ul>
+    <dialog ref={dialog} className="bs-lightbox__dialog" aria-label={label}
+      onCancel={event => { event.preventDefault(); close(); }}
+      onClick={event => { if (event.target === event.currentTarget) close(); }}
+      onKeyDown={event => { if (event.key === 'ArrowRight') step(1); if (event.key === 'ArrowLeft') step(-1); }}
+      onPointerDown={event => { swipe.current = event.clientX; }}
+      onPointerUp={event => {
+        const dx = swipe.current === null ? 0 : event.clientX - swipe.current;
+        swipe.current = null;
+        if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+      }}>
+      <img key={index} className="bs-lightbox__image" src={current.src} srcSet={current.srcSet} sizes="92vw" alt={current.alt} width={current.width} height={current.height} loading="lazy" draggable={false} />
+      <button type="button" className="bs-lightbox__button bs-lightbox__close" aria-label="Close" onClick={close}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg></button>
+      {images.length > 1 && <div className="bs-lightbox__bar">
+        <button type="button" className="bs-lightbox__button" aria-label="Previous image" onClick={() => step(-1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5" /></svg></button>
+        <p className="bs-lightbox__count" aria-live="polite">{index + 1} / {images.length}</p>
+        <button type="button" className="bs-lightbox__button" aria-label="Next image" onClick={() => step(1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></button>
+      </div>}
+    </dialog>
+  </div>;
+}
+
+/**
+ * Images stand on a 3D ring. Drag sideways to spin it; it glides and settles with one image facing you. The buttons and
+ * arrow keys turn it one image at a time. With reduced motion it turns without gliding.
+ */
+export function RingGallery({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+  const stage = useRef<HTMLDivElement>(null);
+  const ring = useRef<HTMLUListElement>(null);
+  const turn = useRef<(by: number) => void>(() => {});
+  const [front, setFront] = useState(0);
+  const count = images.length;
+
+  useEffect(() => {
+    const area = stage.current, list = ring.current;
+    if (!area || !list || count < 2) return;
+    const slot = 360 / count;
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    let angle = 0, target = 0, velocity = 0, frame = 0;
+    let drag: number | null = null;
+    const paint = () => {
+      list.style.setProperty('--bs-ring-angle', `${angle}deg`);
+      setFront(wrap(Math.round(-angle / slot), count));
+    };
+    const tick = () => {
+      frame = 0;
+      if (drag !== null) return;
+      if (Math.abs(velocity) > 0.08) { angle += velocity; velocity *= 0.93; target = Math.round(angle / slot) * slot; }
+      else { velocity = 0; angle += (target - angle) * 0.14; }
+      if (Math.abs(target - angle) < 0.02 && !velocity) angle = target;
+      else frame = requestAnimationFrame(tick);
+      paint();
+    };
+    const settle = () => {
+      if (still.matches) { velocity = 0; angle = target; paint(); return; }
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    turn.current = by => { velocity = 0; target = Math.round(angle / slot) * slot - by * slot; settle(); };
+    const down = (event: globalThis.PointerEvent) => {
+      if (event.button !== 0) return;
+      area.setPointerCapture(event.pointerId);
+      drag = event.clientX;
+      velocity = 0;
+    };
+    const move = (event: globalThis.PointerEvent) => {
+      if (drag === null) return;
+      const delta = (event.clientX - drag) * 0.3;
+      drag = event.clientX;
+      angle += delta;
+      velocity = velocity * 0.5 + delta * 0.5;
+      paint();
+    };
+    const up = () => {
+      if (drag === null) return;
+      drag = null;
+      target = Math.round(angle / slot) * slot;
+      settle();
+    };
+    area.addEventListener('pointerdown', down);
+    area.addEventListener('pointermove', move);
+    area.addEventListener('pointerup', up);
+    area.addEventListener('pointercancel', up);
+    return () => {
+      cancelAnimationFrame(frame);
+      area.removeEventListener('pointerdown', down);
+      area.removeEventListener('pointermove', move);
+      area.removeEventListener('pointerup', up);
+      area.removeEventListener('pointercancel', up);
+    };
+  }, [count]);
+
+  return <section className={`bs-ring ${className}`} aria-roledescription="carousel" aria-label={label}
+    onKeyDown={event => { if (event.key === 'ArrowRight') turn.current(1); if (event.key === 'ArrowLeft') turn.current(-1); }}>
+    <div ref={stage} className="bs-ring__stage">
+      <ul ref={ring} className="bs-ring__ring" style={{ '--n': count } as CSSProperties}>
+        {images.map((image, at) => <li key={image.src + at} className="bs-ring__item" style={{ '--i': at } as CSSProperties}
+          aria-roledescription="slide" aria-label={`${at + 1} of ${count}`} aria-hidden={at === front ? undefined : true} data-front={at === front || undefined}>
+          <img src={image.src} srcSet={image.srcSet} sizes="16rem" alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" draggable={false} style={{ objectPosition: image.focalPoint ?? 'center' }} />
+        </li>)}
+      </ul>
+    </div>
+    {count > 1 && <div className="bs-ring__nav">
+      <button type="button" aria-label="Previous image" onClick={() => turn.current(-1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5" /></svg></button>
+      <p className="bs-ring__count" aria-live="polite">{front + 1} / {count}</p>
+      <button type="button" aria-label="Next image" onClick={() => turn.current(1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></button>
+    </div>}
+  </section>;
+}
