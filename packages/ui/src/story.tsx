@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { CSSProperties, ElementType, PointerEvent, ReactNode } from 'react';
 import { BrandImage } from './core.js';
+import { useEntrance } from './entrance.js';
 import type { ImageAsset, StoryChapter } from './core.js';
 
 /** Images in three columns that drift at different speeds while the page scrolls. Without scroll-driven animation support it is a still grid. */
@@ -180,4 +181,66 @@ export function ChapterRail({ chapters, cover, title, placement = 'fixed', label
       </a></li>)}
     </ol>
   </nav>;
+}
+
+export interface Topic { id: string; label: string; detail: ReactNode; weight?: 1 | 2 | 3; links?: string[] }
+
+/** Places topics on a sunflower spiral, heaviest first, so the biggest words sit near the middle. Percent of the map. */
+function placeTopics(topics: Topic[]) {
+  const order = topics.map((topic, index) => ({ topic, index })).sort((a, b) => (b.topic.weight ?? 1) - (a.topic.weight ?? 1) || a.index - b.index);
+  const places = new Map<string, { x: number; y: number }>();
+  order.forEach(({ topic }, i) => {
+    const radius = Math.sqrt((i + 0.5) / order.length);
+    const angle = i * 2.39996;
+    places.set(topic.id, { x: Math.round((50 + 42 * radius * Math.cos(angle)) * 10) / 10, y: Math.round((50 + 40 * radius * Math.sin(angle)) * 10) / 10 });
+  });
+  return places;
+}
+
+/**
+ * Related topics spread across a section at three sizes, joined by thin lines that draw in when the map scrolls into
+ * view. Each word drifts a little. Choosing one opens its detail and brightens the topics it links to. Narrow screens
+ * show a plain list.
+ */
+export function TopicMap({ topics, label = 'Topics', className = '' }: { topics: Topic[]; label?: string; className?: string }) {
+  const id = useId();
+  const map = useEntrance<HTMLDivElement>();
+  const [open, setOpen] = useState<string | null>(null);
+  const places = placeTopics(topics);
+  const known = new Set(topics.map(topic => topic.id));
+  const lines = topics.flatMap(topic => (topic.links ?? []).filter(link => known.has(link) && link !== topic.id).map(link => [topic.id, link] as const));
+  const linked = new Set(open ? lines.flatMap(([a, b]) => a === open ? [b] : b === open ? [a] : []) : []);
+  useEffect(() => {
+    if (open === null) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(null);
+      document.getElementById(`${id}-${open}-button`)?.focus();
+    };
+    addEventListener('keydown', close);
+    return () => removeEventListener('keydown', close);
+  }, [open, id]);
+  return <div ref={map} className={`bs-topics ${className}`} data-open={open ?? undefined}>
+    <svg className="bs-topics__lines" aria-hidden="true">
+      {lines.map(([a, b], i) => {
+        const from = places.get(a)!, to = places.get(b)!;
+        return <line key={`${a}-${b}`} x1={`${from.x}%`} y1={`${from.y}%`} x2={`${to.x}%`} y2={`${to.y}%`} pathLength={1}
+          data-lit={open !== null && (a === open || b === open) || undefined} style={{ '--i': i } as CSSProperties} />;
+      })}
+    </svg>
+    <ul className="bs-topics__list" aria-label={label}>
+      {topics.map((topic, i) => {
+        const place = places.get(topic.id)!;
+        const side = place.x < 38 ? 'start' : place.x > 62 ? 'end' : 'center';
+        const isOpen = open === topic.id;
+        return <li key={topic.id} className="bs-topics__topic" data-weight={topic.weight ?? 1} data-side={side} data-open={isOpen || undefined} data-linked={linked.has(topic.id) || undefined}
+          style={{ '--x': `${place.x}%`, '--y': `${place.y}%`, '--i': i } as CSSProperties}>
+          <button type="button" id={`${id}-${topic.id}-button`} className="bs-topics__word" aria-expanded={isOpen} aria-controls={`${id}-${topic.id}`} onClick={() => setOpen(isOpen ? null : topic.id)}>{topic.label}</button>
+          <div id={`${id}-${topic.id}`} className="bs-topics__detail" role="region" aria-labelledby={`${id}-${topic.id}-button`} hidden={!isOpen}>
+            <div className="bs-topics__card">{topic.detail}</div>
+          </div>
+        </li>;
+      })}
+    </ul>
+  </div>;
 }

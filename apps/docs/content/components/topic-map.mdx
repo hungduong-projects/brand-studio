@@ -1,0 +1,41 @@
+---
+title: Topic Map
+description: "Related topics spread across a section, joined by lines that draw in. Choosing one opens its detail."
+---
+
+<Preview name="topic-map/default" layout="full" />
+
+## Installation
+
+<Install name="TopicMap" />
+
+## Usage
+
+```tsx
+import { TopicMap } from '@brand-studio/ui';
+```
+
+```tsx
+<TopicMap
+  label="What the roastery teaches"
+  topics={[
+    { id: 'origin', label: 'Origin', weight: 3, links: ['farm'], detail: 'Where the coffee grows sets most of how it tastes.' },
+    { id: 'farm', label: 'The farm', detail: 'Finca La Esperanza, Huila.' },
+  ]}
+/>
+```
+
+Each topic's `weight` (1 to 3) sets its size; the heaviest topics sit near the middle. `links` names the topics it connects to, and the map draws one line per link. The map places the topics itself and reads best with 8 to 16 of them.
+
+On wide screens the lines draw in when the map scrolls into view and each word drifts a little. Choosing a topic opens its detail in a card and brightens the topics it links to. Narrow screens show the topics as a wrapped list.
+
+## Accessibility
+
+- The topics are a list named by `label`. Each topic is a button that reports whether its detail is open.
+- Each detail is a region named by its topic. Escape closes it and returns focus to the topic.
+- The lines are decoration and hidden from screen readers; the detail text carries the meaning.
+- With reduced motion the lines show at once and the words stay still.
+
+## API Reference
+
+<Props name="TopicMap" />

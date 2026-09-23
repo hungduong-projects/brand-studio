@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -215,4 +215,17 @@ test('chapter rail is a named list of chapter links that stays hidden until it d
   const inline = render(h(ChapterRail, { chapters, placement: 'inline', title: 'Still', label: 'Plates' }));
   assert.match(inline, /aria-label="Plates" data-placement="inline" data-show="true"><p class="bs-rail__title">Still<\/p>/);
   assert.match(render(h(StoryCover, { id: 'cover', title: 'Three plates' })), /^<div id="cover" class="bs-cover /);
+});
+
+test('topic map is a named list of buttons, each tied to its closed detail, with one line per link', () => {
+  const html = render(h(TopicMap, { label: 'Roastery', topics: [
+    { id: 'origin', label: 'Origin', weight: 3, links: ['farm', 'missing'], detail: 'Where it grows' },
+    { id: 'farm', label: 'The farm', detail: 'Huila' },
+  ] }));
+  assert.match(html, /<ul class="bs-topics__list" aria-label="Roastery">/);
+  const button = html.match(/<button type="button" id="([^"]+)" class="bs-topics__word" aria-expanded="false" aria-controls="([^"]+)">Origin<\/button>/);
+  assert.ok(button, 'origin button');
+  assert.match(html, new RegExp(`<div id="${button[2]}" class="bs-topics__detail" role="region" aria-labelledby="${button[1]}" hidden="">`));
+  assert.equal((html.match(/<line /g) ?? []).length, 1, 'links to unknown topics draw nothing');
+  assert.match(html, /<svg class="bs-topics__lines" aria-hidden="true">/);
 });
