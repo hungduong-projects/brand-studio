@@ -45,3 +45,21 @@ test('the skill guide tells an agent when to use every exported component', () =
   const missing = catalog.flatMap((entry) => entry.exports).filter((name) => name !== 'DialogClose' && !guide.includes(`\`${name}\``));
   assert.deepEqual(missing, []);
 });
+
+test('component counts written in prose match the catalog', () => {
+  const files = ['../packages/ui/README.md', '../README.md'].map((file) => new URL(file, import.meta.url)).filter((file) => existsSync(file));
+  for (const file of files) {
+    for (const [, count] of readFileSync(file, 'utf8').matchAll(/\b(\d+) (?:typed )?(?:React )?components\b/g)) assert.equal(Number(count), catalog.length, file.pathname);
+  }
+});
+
+test('brand-design skill links only to references and scripts that exist', () => {
+  const skill = new URL('../plugins/brand-studio/skills/brand-design/', import.meta.url);
+  const docs = ['SKILL.md', ...readdirSync(new URL('references/', skill)).map((file) => `references/${file}`)];
+  for (const doc of docs) {
+    const text = readFileSync(new URL(doc, skill), 'utf8');
+    const base = new URL(doc, skill);
+    for (const [, link] of text.matchAll(/\]\(((?:references\/)?[\w-]+\.md)\)/g)) assert.ok(existsSync(new URL(link, base)), `${doc} links to missing ${link}`);
+    for (const [, script] of text.matchAll(/`(?:node |python3 )?(scripts\/[\w.-]+)/g)) assert.ok(existsSync(new URL(script, skill)), `${doc} names missing ${script}`);
+  }
+});

@@ -1,0 +1,36 @@
+---
+title: Product Bar
+description: "The bar for one product: its name, its own pages and one action. It sticks to the top while the page scrolls."
+---
+
+<Preview name="product-bar/default" layout="full" />
+
+## Installation
+
+<Install name="ProductBar" />
+
+## Usage
+
+```tsx
+import { ActionLink, ProductBar } from '@brand-studio/ui';
+```
+
+```tsx
+<ProductBar
+  title="Halden R"
+  href="/r"
+  items={[{ label: 'Overview', href: '/r', current: true }, { label: 'Tech specs', href: '/r/specs' }]}
+  action={<ActionLink href="/buy" shape="pill">Buy</ActionLink>}
+/>
+```
+
+Place it right after a Site Bar, or at the top of the page on its own. It sticks at `top: var(--bs-productbar-top, 0)`.
+
+## Accessibility
+
+- The links sit in a `<nav>` named after the product, and the current page has `aria-current="page"`.
+- When the bar is narrower than 44rem, the links fold under an arrow button with `aria-expanded`. Choosing a link closes the list.
+
+## API Reference
+
+<Props name="ProductBar" />

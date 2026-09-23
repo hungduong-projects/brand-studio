@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "name": "Brand Studio Edition",
+  "positioning": "The release page for @brand-studio/ui 0.2.0: 44 React components that take their colours, type and corners from a brand contract.",
+  "audience": "Front-end developers and designers choosing a component library for a branded React app, site or AI product.",
+  "voice": [
+    "Plain facts: counts, names, versions",
+    "One job per chapter, named the way a person would say it",
+    "Short lines; the components carry the proof"
+  ],
+  "primaryAction": {
+    "label": "Read the docs",
+    "href": "https://brand-studio-c7e.pages.dev/docs/"
+  },
+  "direction": {
+    "concept": "Modern interface inside old paintings: each chapter's component sits in the hands of a public-domain painting, in ultramarine, the pigment those painters prized.",
+    "tier": "Set-piece release edition. Structure studied from Shopify Editions Winter '26 (pinned painted stage, chapter index, torn paper, dense release grid); art and copy are our own.",
+    "devices": [
+      "Ultramarine props: the live component for each chapter is anchored to a point in the painting and moves with the camera",
+      "Tile wave: between paintings square tiles flip in a diagonal wave from the bottom left, ultramarine edge-on, to reveal the next one",
+      "Torn paper: each chapter's demo panel tears in over the painting"
+    ],
+    "invariants": [
+      "Public-domain museum paintings only, credited in each chapter and in the footer",
+      "Instrument Serif for headlines, Geist for everything else",
+      "Ultramarine only on components, the current chapter and the primary action",
+      "Every component on the page is live and from the published package"
+    ],
+    "variables": [
+      "Which painting and component each chapter uses",
+      "Camera path and ambient light per painting"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#ecebe5",
+      "elevated": "#f8f7f3",
+      "ink": "#141413",
+      "muted": "#58574f",
+      "accent": "#2c3bf5",
+      "onAccent": "#ffffff",
+      "line": "#9e9c92",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "10px"
+    },
+    "dark": {
+      "surface": "#16161a",
+      "elevated": "#212127",
+      "ink": "#f1efe8",
+      "muted": "#aeaca3",
+      "accent": "#7d86ff",
+      "onAccent": "#101014",
+      "line": "#55544f",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "10px"
+    }
+  },
+  "imagery": {
+    "subject": "Public-domain paintings from The Met and the National Gallery of Art, one per chapter, chosen for a gesture that matches the chapter's job",
+    "materials": "Oil and tempera on panel and canvas; laid paper for the demo panels",
+    "lighting": "The paintings' own light, with a slow ambient layer per painting: a gold sweep, leaf shade or candle flicker",
+    "palette": "Paper #ecebe5, ink #141413, ultramarine #2c3bf5 on the components only",
+    "invariants": [
+      "Museum's own image, rights line recorded in source-art",
+      "No invented facts about a painting; each caption comes from the museum record"
+    ],
+    "avoid": [
+      "Brand campaign art, including Shopify's",
+      "Generated imitations of a living artist",
+      "Jokes at the expense of the paintings' religious subjects"
+    ]
+  },
+  "motion": {
+    "character": "Opening: tiles flip out of the dark into the feast, then the camera pulls back while the title card draws in. Chapters: each painting stays pinned for two screens while the camera moves toward the chapter's gesture and the component rides with it. Between paintings a wave of square tiles flips from the bottom left, ultramarine edge-on, to reveal the next one.",
+    "reducedMotion": "Each painting shows at rest with its component in place; transitions become a cut; the demo panels are unchanged."
+  },
+  "chapters": [
+    { "id": "act", "question": "How does someone commit?", "message": "Buttons, fields and menus.", "visual": "Fragonard, The Love Letter; a reply form beside the letter.", "transition": "Camera moves toward the letter.", "mobileFallback": "Painting above, component below." },
+    { "id": "find", "question": "Where am I?", "message": "Header, sidebar and phone menu.", "visual": "Pickenoy, Man with a Celestial Globe; a sidebar beside the globe.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." },
+    { "id": "know", "question": "What just happened?", "message": "Alerts, toasts and loading states.", "visual": "Botticelli, The Annunciation; an alert between the two figures.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." },
+    { "id": "read", "question": "What do the numbers say?", "message": "Data table and stat card.", "visual": "Petrus Christus, A Goldsmith in his Shop; a stat card over the scales.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." },
+    { "id": "agent", "question": "What is the agent doing?", "message": "Agent state, steps, tools and approval.", "visual": "El Greco, Saint Jerome as Scholar; a task list beside the book.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." },
+    { "id": "brand", "question": "Where does the brand show off?", "message": "One effect per page.", "visual": "Kalf, Still Life with a Wanli Bowl; a border beam card by the bowl.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." },
+    { "id": "story", "question": "How does a page tell a story?", "message": "Pinned, sideways and revealed chapters.", "visual": "Sassetta, The Journey of the Magi; flip text by the star.", "transition": "Tile wave.", "mobileFallback": "Painting above, component below." }
+  ],
+  "evidence": []
+}

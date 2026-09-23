@@ -1,7 +1,7 @@
 /* Agent states */
 .bs-agent { display: inline-flex; align-items: center; gap: .75em; color: var(--bs-accent); }
 .bs-agent__disc { position: relative; flex: none; width: var(--bs-agent-size); height: var(--bs-agent-size); }
-.bs-agent__disc i { position: absolute; width: calc(var(--bs-agent-size) / var(--bs-agent-columns) * .5); aspect-ratio: 1; border-radius: 50%; background: currentColor; opacity: .55; translate: -50% -50%; }
+.bs-agent__disc i { position: absolute; width: calc(var(--bs-agent-size) / var(--bs-agent-columns) * .5); aspect-ratio: 1; border-radius: 1px; background: currentColor; opacity: .55; translate: -50% -50%; }
 .bs-agent__label { font: 500 .9rem/1.2 var(--bs-font); background: linear-gradient(90deg, var(--bs-muted) 0 40%, var(--bs-ink) 50%, var(--bs-muted) 60% 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: bs-agent-shine 2.2s linear infinite; }
 .bs-agent[data-state="idle"] .bs-agent__label { animation: none; color: var(--bs-muted); }
 @keyframes bs-agent-shine { from { background-position: 100% 0; } to { background-position: 0 0; } }

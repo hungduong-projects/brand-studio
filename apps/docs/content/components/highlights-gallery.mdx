@@ -1,0 +1,35 @@
+---
+title: Highlights Gallery
+description: "A row of large slides that plays by itself while on screen, with a progress pill and a pause button."
+---
+
+<Preview name="highlights-gallery/default" layout="full" />
+
+## Installation
+
+<Install name="HighlightsGallery" />
+
+## Usage
+
+```tsx
+import { HighlightsGallery } from '@brand-studio/ui';
+```
+
+```tsx
+<HighlightsGallery
+  title="Get the highlights."
+  items={[{ media: <img src="/worn.webp" alt="…" />, caption: <><strong>Worn to brass.</strong> The paint gives way where your hands go.</> }]}
+/>
+```
+
+Keep captions to one short sentence: they sit over the top left of each slide, so leave that part of the picture clear. `interval` sets the time per slide in milliseconds.
+
+## Accessibility
+
+- The gallery plays only while half of it is on screen, and pauses while the pointer or keyboard focus is inside it.
+- It starts paused when the reader prefers reduced motion. The play button toggles it at any time.
+- Each dot is a button naming its slide, and the current one has `aria-current`. Slides that are not current are hidden from screen readers.
+
+## API Reference
+
+<Props name="HighlightsGallery" />

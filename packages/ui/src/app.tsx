@@ -65,7 +65,7 @@ export function Select({ label, options, placeholder = 'Select…', defaultValue
       <BaseSelect.Label className="bs-select__label">{label}</BaseSelect.Label>
       <BaseSelect.Trigger className="bs-select__trigger">
         <BaseSelect.Value className="bs-select__value" placeholder={placeholder} />
-        <BaseSelect.Icon className="bs-select__icon" />
+        <BaseSelect.Icon className="bs-select__icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 6 3-3 3 3M5 10l3 3 3-3" /></svg></BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
         <BaseSelect.Positioner className="bs-select__positioner" sideOffset={6} alignItemWithTrigger={false}>

@@ -1,0 +1,31 @@
+---
+title: Key Figures
+description: "Big numbers side by side, each under a thin rule with a short lead-in and what it means."
+---
+
+<Preview name="key-figures/default" layout="center" />
+
+## Installation
+
+<Install name="KeyFigures" />
+
+## Usage
+
+```tsx
+import { KeyFigures } from '@brand-studio/ui';
+```
+
+```tsx
+<KeyFigures items={[{ lead: 'Shutter up to', value: '1/1000', unit: 's', detail: 'Set by a spring and a gear.' }]} />
+```
+
+Use three or four figures. Each number should be true and say something the reader can check.
+
+## Accessibility
+
+- The figures are a list; pass `label` to name it.
+- Each figure reads in order: lead-in, number with its unit, then the meaning.
+
+## API Reference
+
+<Props name="KeyFigures" />

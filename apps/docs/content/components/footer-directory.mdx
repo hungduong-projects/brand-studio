@@ -1,0 +1,36 @@
+---
+title: Footer Directory
+description: "The closing directory of a site: numbered fine print, a breadcrumb, link columns and a legal line."
+---
+
+<Preview name="footer-directory/default" layout="full" />
+
+## Installation
+
+<Install name="FooterDirectory" />
+
+## Usage
+
+```tsx
+import { FooterDirectory } from '@brand-studio/ui';
+```
+
+```tsx
+<FooterDirectory
+  notes={['Prices include tax.']}
+  breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Cameras', href: '/cameras' }]}
+  columns={[{ title: 'Shop', links: [{ label: 'Cameras', href: '/cameras' }] }]}
+  legal={<p>Copyright 2026 Halden.</p>}
+/>
+```
+
+Number footnotes in the page copy to match the order of `notes`.
+
+## Accessibility
+
+- The breadcrumb is a `<nav>` labelled Breadcrumb, and its last link has `aria-current="page"`.
+- The link columns are a `<nav>` named by `label`, each list labelled by its column heading.
+
+## API Reference
+
+<Props name="FooterDirectory" />

@@ -1,0 +1,37 @@
+---
+title: Product Viewer
+description: "A large stage for one product image at a time, with pill tabs under it to switch views."
+---
+
+<Preview name="product-viewer/default" layout="full" />
+
+## Installation
+
+<Install name="ProductViewer" />
+
+## Usage
+
+```tsx
+import { ProductViewer } from '@brand-studio/ui';
+```
+
+```tsx
+<ProductViewer
+  title="Take a closer look."
+  items={[
+    { value: 'front', label: 'Front', media: <img src="/front.webp" alt="…" /> },
+    { value: 'back', label: 'Back', media: <img src="/back.webp" alt="…" /> },
+  ]}
+/>
+```
+
+Use pictures with the same framing, so switching views feels like turning the product.
+
+## Accessibility
+
+- Built on Base UI Tabs: arrow keys move between tabs, and each panel is labelled by its tab.
+- The tabs follow the stage in reading order, so a screen reader hears the view before the choice of views.
+
+## API Reference
+
+<Props name="ProductViewer" />

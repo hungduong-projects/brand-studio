@@ -1,0 +1,86 @@
+/* Halden: one camera on a black stage, words beside it, warm grey for the specs. */
+.hd, .hd-sitebar, .hd-productbar { --hd-mono: 'Geist Mono', ui-monospace, monospace; }
+.hd { position: relative; background: var(--bs-surface); color: var(--bs-ink); }
+.hd :is(h1, h2) { text-wrap: balance; }
+.hd-stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s; }
+.hd[data-loaded] .hd-stage { opacity: 1; }
+.hd-stage canvas { display: block; width: 100%; height: 100%; }
+.hd[data-current="specs"] .hd-stage { opacity: 0; transition-duration: .4s; }
+.hd > section, .hd-paper { position: relative; z-index: 1; }
+
+.hd-mark { color: var(--bs-ink); font-weight: 650; letter-spacing: -.02em; text-decoration: none; }
+/* Engraved numbers: small uppercase mono in brass, like the markings on a lens ring. */
+.hd-engraved { margin: 0 0 1rem; font: 500 .78rem/1 var(--hd-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--bs-accent); }
+
+/* Welcome: name bottom left, price and buy bottom right, the camera above them. */
+.hd-hero { min-height: calc(100svh - 96px); display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; padding: 0 clamp(1.5rem, 7vw, 7rem) 9vh; }
+.hd-hero h1 { margin: 0; font: 650 clamp(3.6rem, 9vw, 8rem)/.9 var(--bs-font); letter-spacing: -.055em; }
+.hd-hero__line { margin: .9rem 0 0; font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 550; color: var(--bs-muted); }
+.hd-hero__buy { display: flex; align-items: center; gap: 1rem; }
+.hd-hero__buy span { font-weight: 550; }
+
+/* Solid sections cover the fixed stage, so the camera shows only in its own chapters. */
+.hd-solid { background: var(--bs-surface); padding: 7rem clamp(1.5rem, 7vw, 7rem); }
+.hd-title { margin: 0 0 2.5rem; font: 650 clamp(2.2rem, 4.2vw, 3.6rem)/1.02 var(--bs-font); letter-spacing: -.04em; }
+.hd-viewer img, .hd-compare img, .hd-guides img { display: block; width: 100%; height: auto; }
+.hd-viewer .bs-viewer__media { background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--bs-ink) 9%, var(--bs-surface)), var(--bs-surface) 72%); }
+/* Each highlight is a lit card; the camera sits low so the caption keeps the top left. */
+.hd-highlights .bs-highlights__media { background: radial-gradient(ellipse at 50% 70%, color-mix(in srgb, var(--bs-ink) 16%, var(--bs-elevated)), var(--bs-elevated) 70%); }
+.hd-highlights .bs-highlights__media img { box-sizing: border-box; padding: 16% 8% 3%; object-fit: contain; }
+.hd-statement { padding-block: 12rem; text-align: center; }
+.hd-statement h2 { max-width: 16ch; margin: 0 auto; font: 650 clamp(2.6rem, 6vw, 5.4rem)/1 var(--bs-font); letter-spacing: -.05em; }
+.hd-statement h2 span { color: var(--bs-accent); }
+.hd-viewer .bs-viewer__title { font: 650 clamp(2.2rem, 4.2vw, 3.6rem)/1.02 var(--bs-font); letter-spacing: -.04em; }
+.hd-compare .bs-compare__media img { aspect-ratio: 1; object-fit: contain; }
+.hd-sitebar__link { color: inherit; font-size: .8rem; text-decoration: none; opacity: .8; }
+.hd-sitebar__link:hover { opacity: 1; }
+
+.hd-chapter { min-height: 160svh; padding: 0 clamp(1.5rem, 7vw, 7rem); }
+.hd-chapter--tall { min-height: 220svh; }
+.hd-copy { position: sticky; top: 22vh; width: min(30rem, 42vw); padding-bottom: 20vh; }
+.hd-chapter--right .hd-copy { margin-left: auto; }
+.hd-copy h2 { margin: 0 0 1.25rem; font: 650 clamp(2.4rem, 4.6vw, 4rem)/1.02 var(--bs-font); letter-spacing: -.04em; }
+.hd-copy > p { margin: 0; max-width: 32ch; font-size: 1.15rem; line-height: 1.5; color: var(--bs-muted); }
+
+.hd-parts { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: .75rem; color: var(--bs-muted); }
+.hd-parts strong { color: var(--bs-ink); }
+.hd-cards { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: .75rem; }
+.hd-cards li { display: grid; gap: .25rem; padding: 1rem 1.2rem; border-radius: var(--bs-radius); background: color-mix(in srgb, var(--bs-elevated) 72%, transparent); backdrop-filter: blur(12px); color: var(--bs-muted); font-size: .95rem; }
+.hd-cards strong { font: 500 .95rem var(--hd-mono); color: var(--bs-ink); }
+
+/* Part labels follow the exploded parts on screen. */
+.hd-labels { position: fixed; inset: 0; z-index: 2; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.hd-labels li { position: absolute; left: var(--x, -100px); top: var(--y, -100px); display: grid; gap: .1rem; padding-left: 1.1rem; translate: 0 -50%; opacity: 0; transition: opacity .4s; font-size: .8rem; color: var(--bs-muted); white-space: nowrap; text-shadow: 0 0 6px var(--bs-surface), 0 0 14px var(--bs-surface); }
+.hd-labels li::before { content: ""; position: absolute; left: -4px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--bs-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--bs-accent) 25%, transparent); }
+.hd-labels strong { font: 500 .72rem var(--hd-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--bs-ink); }
+/* The glass sits next to the barrel, so its label hangs below the part instead of beside it. */
+.hd-labels li[data-part="glass"] { translate: -50% 0; padding: 5.2rem 0 0; text-align: center; }
+.hd-labels li[data-part="glass"]::before { left: 50%; top: 0; margin: -4px 0 0 -4px; }
+.hd[data-current="parts"] .hd-labels li { opacity: 1; transition-delay: .5s; }
+
+.hd a:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 3px; }
+
+/* Specs and buy: warm grey paper, dark ink. */
+.hd-paper { background: var(--bs-surface); color: var(--bs-ink); }
+.hd-specs, .hd-buy { padding: 7rem clamp(1.5rem, 7vw, 7rem); }
+.hd-specs h2 { margin: 0 0 3rem; font: 650 clamp(2.4rem, 4.6vw, 4rem)/1 var(--bs-font); letter-spacing: -.04em; }
+.hd-specs dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 0 3rem; margin: 0; max-width: 72rem; }
+.hd-specs dl > div { padding: 1.1rem 0; border-top: 1px solid var(--bs-line-soft); }
+.hd-specs dt { font: 500 .72rem var(--hd-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--bs-accent); }
+.hd-specs dd { margin: .4rem 0 0; font-size: 1.05rem; line-height: 1.45; }
+.hd-buy { padding-top: 3rem; text-align: center; border-top: 1px solid var(--bs-line-soft); }
+.hd-buy h2 { margin: 0; font: 650 clamp(2.8rem, 6vw, 5rem)/1 var(--bs-font); letter-spacing: -.05em; }
+.hd-buy p { margin: 1rem 0 1.75rem; color: var(--bs-muted); font-size: 1.15rem; }
+
+@media (max-width: 767px) {
+  .hd-hero { flex-direction: column; align-items: flex-start; justify-content: flex-end; padding-bottom: 7vh; }
+  .hd-solid { padding: 4.5rem 1.25rem; }
+  .hd-statement { padding-block: 7rem; }
+  .hd-chapter { min-height: auto; padding: 60vh 1.25rem 12vh; }
+  .hd-copy { position: relative; top: 0; width: auto; padding: 1.5rem; border-radius: var(--bs-radius); background: color-mix(in srgb, var(--bs-surface) 72%, transparent); backdrop-filter: blur(12px); }
+  .hd-chapter--right .hd-copy { margin-left: 0; }
+  .hd-labels { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hd-stage, .hd-labels li { transition: none; }
+}

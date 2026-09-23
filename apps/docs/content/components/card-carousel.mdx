@@ -1,0 +1,34 @@
+---
+title: Card Carousel
+description: "A row of tall cards that scrolls sideways, with round previous and next buttons."
+---
+
+<Preview name="card-carousel/default" layout="full" />
+
+## Installation
+
+<Install name="CardCarousel" />
+
+## Usage
+
+```tsx
+import { CardCarousel } from '@brand-studio/ui';
+```
+
+```tsx
+<CardCarousel
+  title="Keep it running."
+  cards={[{ eyebrow: 'Guide', title: 'Loading film without looking.', body: 'Three steps you learn once.', href: '/guides/film' }]}
+/>
+```
+
+Give each card a picture in `media` at the bottom, or leave it text only. A card with `href` becomes one link.
+
+## Accessibility
+
+- The row is a list labelled by the title. Touch and trackpad users can swipe it; the buttons move one screen of cards.
+- The previous and next buttons are disabled at the ends of the row.
+
+## API Reference
+
+<Props name="CardCarousel" />

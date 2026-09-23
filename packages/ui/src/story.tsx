@@ -104,3 +104,18 @@ export function ScrollTextReveal({ text, as: Tag = 'p', className = '' }: { text
       : word)}
   </Tag>;
 }
+
+export interface StoryCoverChapter { label: ReactNode; href: string; marker?: ReactNode }
+
+/** The framed title card that opens a long page: kicker, title, one line of promise, the chapter list and actions. Made to sit over a picture. */
+export function StoryCover({ kicker, title, lead, chapters = [], actions, label = 'Chapters', className = '' }: { kicker?: ReactNode; title: ReactNode; lead?: ReactNode; chapters?: StoryCoverChapter[]; actions?: ReactNode; label?: string; className?: string }) {
+  return <div className={`bs-cover ${className}`}>
+    {kicker && <p className="bs-cover__kicker">{kicker}</p>}
+    <h1 className="bs-cover__title">{title}</h1>
+    {lead && <p className="bs-cover__lead">{lead}</p>}
+    {chapters.length > 0 && <nav aria-label={label}><ol className="bs-cover__index">
+      {chapters.map(chapter => <li key={chapter.href}><a href={chapter.href}><span>{chapter.label}</span>{chapter.marker && <span className="bs-cover__marker">{chapter.marker}</span>}</a></li>)}
+    </ol></nav>}
+    {actions && <div className="bs-cover__actions">{actions}</div>}
+  </div>;
+}
