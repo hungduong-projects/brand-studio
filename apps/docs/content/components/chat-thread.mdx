@@ -1,0 +1,45 @@
+---
+title: Chat Thread
+description: "The conversation: turns from you and the agent that follow the newest message and group by speaker."
+---
+
+<Preview name="chat-thread/default" />
+
+## Installation
+
+<Install name="ChatThread" />
+
+## Usage
+
+```tsx
+import { ChatThread, ChatMessage } from '@brand-studio/ui';
+```
+
+```tsx
+<ChatThread label="Brew assistant">
+  <ChatMessage from="user" name="You">How should I brew the new beans?</ChatMessage>
+  <ChatMessage name="Brew assistant" avatar="B" actions={<MessageActions copyText={answer} />}>
+    <StreamingText text={answer} />
+  </ChatMessage>
+</ChatThread>
+```
+
+Give the thread a height, or put it in a grid row that has one. While you are at the bottom, the thread follows each new message and each streamed word. Scroll up to read and it stays put; a **Jump to latest** button brings you back. Older messages added above keep your place in browsers that support scroll anchoring.
+
+Your messages sit on the right in a bubble; the agent's read as open text. Messages in a row from one side share one name.
+
+## Accessibility
+
+- The thread is a log named by `label`, so screen readers announce new messages politely as they arrive.
+- The scroll area takes focus, so arrow keys scroll it.
+- Each message is an article named by its speaker.
+
+## API Reference
+
+### ChatThread
+
+<Props name="ChatThread" />
+
+### ChatMessage
+
+<Props name="ChatMessage" />

@@ -1,0 +1,32 @@
+---
+title: Code Block
+description: "Code the agent wrote, with lines that arrive in turn and a copy button that always works."
+---
+
+<Preview name="code-block/default" />
+
+## Installation
+
+<Install name="CodeBlock" />
+
+## Usage
+
+```tsx
+import { CodeBlock } from '@brand-studio/ui';
+```
+
+```tsx
+<CodeBlock code={code} filename="brew.ts" language="TypeScript" reveal lineNumbers />
+```
+
+`reveal` brings the lines in one after another at `linesPerSecond`. To stream real output, pass the growing `code` without `reveal`; new lines appear as they arrive. Copy always takes the whole of `code`, even mid-stream. The block shows plain text and adds no syntax colouring.
+
+## Accessibility
+
+- The code area takes focus, so arrow keys scroll long lines.
+- The copy button says "Copied" in words, not only with a tick.
+- With reduced motion every line shows at once.
+
+## API Reference
+
+<Props name="CodeBlock" />

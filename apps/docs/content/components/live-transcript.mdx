@@ -1,0 +1,31 @@
+---
+title: Live Transcript
+description: "Words as they are spoken, with the unsettled guess faded after them."
+---
+
+<Preview name="live-transcript/default" />
+
+## Installation
+
+<Install name="LiveTranscript" />
+
+## Usage
+
+```tsx
+import { LiveTranscript } from '@brand-studio/ui';
+```
+
+```tsx
+<LiveTranscript text={finalText} interim={guess} listening={listening} />
+```
+
+Pass the settled words as `text` and speech recognition's current guess as `interim`. New settled words sharpen into full ink as they land. The guess stays faded after them, and a caret blinks while `listening`.
+
+## Accessibility
+
+- Screen readers hear each newly settled phrase once and never the guesses.
+- With reduced motion new words appear at once and the caret stays still.
+
+## API Reference
+
+<Props name="LiveTranscript" />

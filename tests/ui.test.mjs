@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -228,4 +228,106 @@ test('topic map is a named list of buttons, each tied to its closed detail, with
   assert.match(html, new RegExp(`<div id="${button[2]}" class="bs-topics__detail" role="region" aria-labelledby="${button[1]}" hidden="">`));
   assert.equal((html.match(/<line /g) ?? []).length, 1, 'links to unknown topics draw nothing');
   assert.match(html, /<svg class="bs-topics__lines" aria-hidden="true">/);
+});
+
+test('chat thread is a named log of messages, each an article named by its speaker', () => {
+  const html = render(h(ChatThread, { label: 'Brew assistant' }, h(ChatMessage, { from: 'user' }, 'Hi'), h(ChatMessage, { name: 'Brew', avatar: 'B' }, 'Hello')));
+  assert.match(html, /role="log" aria-label="Brew assistant" tabindex="0"/);
+  assert.match(html, /<article class="bs-msg " data-from="user" aria-label="You">/);
+  assert.match(html, /aria-label="Brew"><header class="bs-msg__head"><span class="bs-msg__avatar" aria-hidden="true">B<\/span>/);
+  assert.doesNotMatch(html, /Jump to latest/, 'the jump button waits until you scroll away');
+});
+
+test('composer labels its box, disables send while empty and swaps send for stop while busy', () => {
+  const empty = render(h(ChatComposer, { label: 'Ask' }));
+  assert.match(empty, /<label for="([^"]+)" class="bs-sr-only">Ask<\/label><textarea id="\1"/);
+  assert.match(empty, /type="submit" class="bs-composer__send" aria-label="Send" disabled=""/);
+  const typed = render(h(ChatComposer, { defaultValue: 'Grind?' }));
+  assert.doesNotMatch(typed, /disabled=""/);
+  const busy = render(h(ChatComposer, { busy: true }));
+  assert.match(busy, /aria-label="Stop"/);
+  assert.doesNotMatch(busy, /aria-label="Send"/);
+});
+
+test('prompt bar tells people about @ and / and keeps the list closed until they type', () => {
+  const html = render(h(PromptBar, { sources: [{ id: 'log', label: 'Roast log' }], commands: [{ id: 'sum', label: 'summarise' }], models: [{ value: 'fast', label: 'Fast' }] }));
+  const hint = html.match(/aria-describedby="([^"]+)"/);
+  assert.ok(hint, 'described textbox');
+  assert.match(html, new RegExp(`id="${hint[1]}" class="bs-sr-only">Type @ to add a source. Type / to run a command.`));
+  assert.doesNotMatch(html, /role="listbox"/);
+  assert.match(html, /aria-label="Model: Fast"/);
+});
+
+test('attachment names the file in its buttons and reports progress or error', () => {
+  const uploading = render(h(Attachment, { name: 'notes.pdf', progress: 42.4, onRemove() {} }));
+  assert.match(uploading, /role="progressbar" aria-label="Uploading notes.pdf" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42"/);
+  assert.match(uploading, /Uploading 42%/);
+  assert.match(uploading, /aria-label="Remove notes.pdf"/);
+  const failed = render(h(Attachment, { name: 'visit.mov', error: 'Too large', onRetry() {} }));
+  assert.match(failed, /role="alert">Too large</);
+  assert.match(failed, /aria-label="Retry visit.mov"/);
+  assert.doesNotMatch(failed, /progressbar/);
+  assert.match(render(h(Attachment, { name: 'log.csv', size: '18 KB' })), /data-state="done".*>csv<.*18 KB/);
+});
+
+test('suggestions are a named list of buttons numbered for the stagger', () => {
+  const html = render(h(SuggestionChips, { label: 'Follow-ups', suggestions: ['Why?', 'Save it'] }));
+  assert.match(html, /<ul class="bs-suggest " aria-label="Follow-ups"><li style="--i:0"><button type="button">Why\?<\/button><\/li><li style="--i:1">/);
+});
+
+test('message actions show only what is supported and report rating as pressed', () => {
+  const bare = render(h(MessageActions, {}));
+  assert.match(bare, /role="group" aria-label="Message actions"/);
+  assert.doesNotMatch(bare, /aria-label="(Copy|Retry|Edit)"/);
+  const full = render(h(MessageActions, { copyText: 'x', onRetry() {}, onEdit() {}, feedback: 'up' }));
+  for (const name of ['Copy', 'Retry', 'Edit']) assert.match(full, new RegExp(`aria-label="${name}"`));
+  assert.match(full, /aria-label="Good answer" aria-pressed="true"/);
+  assert.match(full, /aria-label="Bad answer" aria-pressed="false"/);
+});
+
+test('code block keeps every line in the HTML, focusable for scrolling, with a worded copy button', () => {
+  const html = render(h(CodeBlock, { code: 'a\n\nb\n', filename: 'brew.ts', language: 'TypeScript', reveal: true }));
+  assert.equal((html.match(/class="bs-code__line"/g) ?? []).length, 3);
+  assert.match(html, /<pre class="bs-code__pre" tabindex="0">/);
+  assert.match(html, /brew.ts<\/span><span class="bs-code__lang">TypeScript/);
+  assert.match(html, /<span>Copy code<\/span>/);
+  assert.match(html, /animation-delay:0.042s/);
+});
+
+test('source cards are a named ordered list, linked when they have an address', () => {
+  const html = render(h(SourceCards, { sources: [{ id: 'a', source: 'Notes', title: 'Cupping', href: '/cupping' }, { id: 'b', source: 'Prices', title: 'Spring list' }] }));
+  assert.match(html, /<ol class="bs-sources " aria-label="Sources">/);
+  assert.match(html, /<a class="bs-sources__card" href="\/cupping"><span class="bs-sources__origin"><span class="bs-sources__index">1<\/span>Notes/);
+  assert.match(html, /<div class="bs-sources__card"><span class="bs-sources__origin"><span class="bs-sources__index">2<\/span>/);
+});
+
+test('selection actions render the text alone until something is selected', () => {
+  const html = render(h(SelectionActions, { actions: [{ id: 'x', label: 'Explain' }] }, h('p', null, 'Long finish')));
+  assert.match(html, /<p>Long finish<\/p>/);
+  assert.doesNotMatch(html, /toolbar|Explain/);
+});
+
+test('recommendation card writes confidence in words and keeps alternatives closed', () => {
+  const html = render(h(RecommendationCard, { options: [{ id: 'a', title: 'Grind 18', confidence: 0.824 }, { id: 'b', title: 'Grind 17', confidence: 0.5 }] }));
+  const title = html.match(/aria-labelledby="([^"]+)"/)[1];
+  assert.match(html, new RegExp(`<h3 id="${title}" tabindex="-1">Grind 18</h3>`));
+  assert.match(html, /82% confident/);
+  const others = html.match(/aria-expanded="false" aria-controls="([^"]+)">See 1 alternative</);
+  assert.ok(others, 'alternatives toggle');
+  assert.match(html, new RegExp(`<ul id="${others[1]}" class="bs-rec__others" hidden="">`));
+  assert.match(html, /aria-label="Use Grind 17 instead"/);
+  assert.equal(render(h(RecommendationCard, { options: [] })), '');
+});
+
+test('voice pieces say their state in words and keep guesses away from screen readers', () => {
+  const orb = render(h(VoiceOrb, { state: 'speaking', level: 3 }));
+  assert.match(orb, /role="status"/);
+  assert.match(orb, /--level:1.000/);
+  assert.match(orb, /Speaking/);
+  const button = render(h(DictationButton, { mode: 'hold' }));
+  assert.match(button, /aria-pressed="false" aria-label="Hold to talk"/);
+  assert.match(button, /class="bs-dictate__note" role="status"><\/span>/);
+  const transcript = render(h(LiveTranscript, { text: 'Two bags', interim: 'of Huila', listening: true }));
+  assert.match(transcript, /<p class="bs-sr-only" aria-live="polite"><span>Two<\/span><span> <\/span><span>bags<\/span><\/p>/);
+  assert.match(transcript, /<p class="bs-transcript__text" aria-hidden="true">.*of Huila.*bs-transcript__caret/);
 });

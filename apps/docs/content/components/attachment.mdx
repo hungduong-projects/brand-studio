@@ -1,0 +1,32 @@
+---
+title: Attachment
+description: "A file or image going with a message, with upload progress, remove and retry."
+---
+
+<Preview name="attachment/default" />
+
+## Installation
+
+<Install name="Attachment" />
+
+## Usage
+
+```tsx
+import { Attachment } from '@brand-studio/ui';
+```
+
+```tsx
+<Attachment name="tasting-notes.pdf" size="240 KB" progress={progress} onRemove={remove} />
+<Attachment name="farm-visit.mov" error="Too large to upload" onRetry={retry} onRemove={remove} />
+```
+
+Pass `progress` from 0 to 100 while the file uploads; at 100 or unset, the size shows. `preview` takes an image URL for a thumbnail; otherwise the file type shows. An `error` replaces the size and, with `onRetry`, adds a retry button.
+
+## Accessibility
+
+- Remove and retry name the file: "Remove tasting-notes.pdf".
+- Upload progress is a labelled progress bar, and an error is announced when it appears.
+
+## API Reference
+
+<Props name="Attachment" />

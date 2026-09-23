@@ -1,0 +1,38 @@
+---
+title: Recommendation Card
+description: "The agent’s pick with how sure it is, why, and the alternatives you can promote."
+---
+
+<Preview name="recommendation-card/default" />
+
+## Installation
+
+<Install name="RecommendationCard" />
+
+## Usage
+
+```tsx
+import { RecommendationCard } from '@brand-studio/ui';
+```
+
+```tsx
+<RecommendationCard
+  options={[
+    { id: 'grind-18', title: 'Grind setting 18', confidence: 0.82, reason: 'One step finer should slow the pour.' },
+    { id: 'grind-17', title: 'Grind setting 17', confidence: 0.54 },
+  ]}
+  onConfirm={option => apply(option.id)}
+/>
+```
+
+The first option is the agent's pick. `confidence` runs from 0 to 1 and shows as a bar and a percentage. **See alternatives** opens the rest; **Use instead** moves one to the top. Confirming locks the choice in.
+
+## Accessibility
+
+- Confidence is written as a percentage, not only drawn as a bar.
+- The alternatives button reports whether the list is open. Each **Use instead** names its option, and focus moves to the new pick.
+- The outcome is announced when you confirm.
+
+## API Reference
+
+<Props name="RecommendationCard" />

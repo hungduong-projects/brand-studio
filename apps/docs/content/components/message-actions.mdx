@@ -1,0 +1,33 @@
+---
+title: Message Actions
+description: "Copy, retry, edit and rating for one message."
+---
+
+<Preview name="message-actions/default" />
+
+## Installation
+
+<Install name="MessageActions" />
+
+## Usage
+
+```tsx
+import { MessageActions } from '@brand-studio/ui';
+```
+
+```tsx
+<ChatMessage name="Brew assistant" actions={<MessageActions copyText={answer} onRetry={regenerate} onFeedback={rate} />}>
+  {answer}
+</ChatMessage>
+```
+
+Copy, retry and edit show only when you pass `copyText`, `onRetry` or `onEdit`. Rating is always there: pressing the same thumb again clears it. Inside a ChatMessage the bar shows on hover or focus, and stays visible on touch screens and once rated.
+
+## Accessibility
+
+- Each button has a label, and the thumbs report whether they are pressed.
+- "Copied", or "Copy failed", is announced after copying.
+
+## API Reference
+
+<Props name="MessageActions" />
