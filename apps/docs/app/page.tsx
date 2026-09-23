@@ -1,3 +1,4 @@
+import { AgentPromptButton } from '@/components/agent-prompt';
 import { DemoTheme } from '@/components/demo-brand';
 import { HeroSpecimens } from '@/components/hero-specimens';
 import { registry } from '@/demos/registry';
@@ -11,7 +12,10 @@ export default function Home() {
   return <main id="main" tabIndex={-1} className="home">
     <section className="hero">
       <div className="hero__copy">
-        <a className="hero__badge" href="https://www.npmjs.com/package/@brand-studio/ui"><span aria-hidden="true" />@brand-studio/ui on npm</a>
+        <div className="hero__badges">
+          <a className="hero__badge" href="https://www.npmjs.com/package/@brand-studio/ui"><span aria-hidden="true" />@brand-studio/ui on npm</a>
+          <AgentPromptButton />
+        </div>
         <h1>Components that wear your brand.</h1>
         <p className="hero__lead">React components for apps, AI agents and story pages. Each one reads its colours, type and corners from a brand contract, so one switch re-skins them all.</p>
         <div className="hero__actions">

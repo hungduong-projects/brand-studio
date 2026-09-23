@@ -41,7 +41,7 @@ export const catalog: Entry[] = [
   { slug: 'mobile-navigation', exports: ['MobileNavigation'], title: 'Mobile Navigation', category: 'Navigation', description: 'A menu button that opens the links in a full-screen panel.' },
   { slug: 'data-table', exports: ['DataTable'], title: 'Data Table', category: 'Data', description: 'A captioned table with sortable columns, loading rows and an empty message.' },
   { slug: 'stat-card', exports: ['StatCard'], title: 'Stat Card', category: 'Data', description: 'One key number with its change and a sparkline.' },
-  { slug: 'agent-thinking', exports: ['AgentThinking'], title: 'Agent Thinking', category: 'AI agents', description: 'A dot-matrix disc that shows whether an agent is idle, listening, thinking or speaking.' },
+  { slug: 'agent-thinking', exports: ['AgentThinking'], title: 'Agent Thinking', category: 'AI agents', description: 'A square dot matrix that shows whether an agent is idle, listening, thinking or speaking.' },
   { slug: 'thinking-trace', exports: ['ThinkingTrace'], title: 'Thinking Trace', category: 'AI agents', description: 'Collapsible reasoning steps with a live status for each.' },
   { slug: 'streaming-text', exports: ['StreamingText'], title: 'Streaming Text', category: 'AI agents', description: 'Text that arrives word by word, as a model writes it.' },
   { slug: 'tool-chips', exports: ['ToolChips'], title: 'Tool Chips', category: 'AI agents', description: 'Compact chips for the tools an agent calls, with running, done and failed states.' },
