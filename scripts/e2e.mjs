@@ -8,7 +8,9 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 
 const port = 4317;
-const base = `http://127.0.0.1:${port}`;
+const origin = `http://127.0.0.1:${port}`;
+// The build serves under /examples/, as it does on the docs site.
+const base = `${origin}/examples`;
 const shots = process.env.SHOTS_DIR ?? path.join(tmpdir(), 'brand-studio-e2e');
 mkdirSync(shots, { recursive: true });
 
@@ -17,7 +19,7 @@ const stop = () => server.kill();
 
 async function waitForServer() {
   for (let i = 0; i < 60; i++) {
-    try { if ((await fetch(base)).ok) return; } catch {}
+    try { if ((await fetch(`${base}/`)).ok) return; } catch {}
     await new Promise(resolve => setTimeout(resolve, 250));
   }
   throw new Error(`vite preview did not start on ${base}`);
@@ -47,7 +49,7 @@ try {
 
   await check('desktop: stage paints, each chapter goes live, copy works', async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
     const { page, errors } = await open(context, '/');
     await page.waitForTimeout(3500);
     assert.equal(await page.locator('h1').textContent(), 'The 0.2 Edition');

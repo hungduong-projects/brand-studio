@@ -7,6 +7,8 @@ const links = [
   { href: '/docs/', label: 'Docs', match: (path: string) => path.startsWith('/docs') && !path.startsWith('/docs/components') && !path.startsWith('/docs/theming') },
   { href: componentHref(catalog[0].slug), label: 'Components', match: (path: string) => path.startsWith('/docs/components') },
   { href: '/docs/theming/', label: 'Theming', match: (path: string) => path.startsWith('/docs/theming') },
+  // The examples are a separate app copied into /examples/, so this nav never renders on them.
+  { href: '/examples/', label: 'Examples', match: () => false },
 ];
 
 export function MainNav() {

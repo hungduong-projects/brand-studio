@@ -5,6 +5,7 @@ import '@fontsource-variable/geist';
 import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 import './deskhand.css';
+import { at } from './paths';
 
 /* One fictional ticket runs through the whole page: #2291, a cracked lamp, an $84 refund. */
 
@@ -339,7 +340,7 @@ const menus: Record<MenuKey, { label: string; items: { href: string; title: stri
   ] },
   resources: { label: 'Resources', items: [
     { href: '/', title: 'Brand Studio', line: 'The design system behind this page.', icon: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z' },
-    { href: '/coffee', title: 'Still. coffee study', line: 'Another page built with it.', icon: 'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h2a2 2 0 0 1 0 4h-2M9 3v3M12 3v3' },
+    { href: at('camera'), title: 'Halden camera study', line: 'Another page built with it.', icon: 'M4 8h4l2-2h4l2 2h4v11H4zM12 10.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6' },
   ] },
 };
 const Icon = ({ d }: { d: string }) => <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
@@ -409,7 +410,7 @@ export function DeskhandHeader() {
 
   return <header className="dh-header" data-scrolled={scrolled || undefined} data-tone={tone} data-open={open || undefined}>
     <div className="dh-header__bar">
-      <a className="dh-header__mark" href="/deskhand"><span className="dh-header__logo" aria-hidden="true" />Deskhand</a>
+      <a className="dh-header__mark" href={at("deskhand")}><span className="dh-header__logo" aria-hidden="true" />Deskhand</a>
       <nav className="dh-header__nav" aria-label="Main navigation" onPointerLeave={e => { if (e.pointerType === 'mouse') closeTimer.current = window.setTimeout(() => setOpen(null), 180); place('h', null); }}>
         <ul ref={nav}>
           {(['product', 'pricing', 'resources'] as const).map(key => key === 'pricing'

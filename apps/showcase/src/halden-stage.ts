@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { at } from './paths';
 
 export interface Pose {
   /** Turn around the vertical axis and tilt toward the viewer, in radians. */
@@ -56,7 +57,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
   scene.add(rim);
 
   const pmrem = new THREE.PMREMGenerator(renderer);
-  new HDRLoader().load('/models/studio.hdr', texture => {
+  new HDRLoader().load(at('models/studio.hdr'), texture => {
     scene.environment = pmrem.fromEquirectangular(texture).texture;
     texture.dispose();
   });
@@ -65,7 +66,7 @@ export function startHalden(canvas: HTMLCanvasElement, sections: HTMLElement[], 
   let ready = false;
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
-  loader.load('/models/camera.glb', gltf => {
+  loader.load(at('models/camera.glb'), gltf => {
     const model = gltf.scene;
     // Fit the camera into a box about two units wide. Centre the body and lens on the origin; the strap hangs where it falls.
     const box = new THREE.Box3().setFromObject(model);

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { rmSync } from 'node:fs';
+import { copyFileSync, mkdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 // public/local-ref holds git-ignored reference media for local study; keep it out of every build.
@@ -24,4 +24,14 @@ const liveUi: Plugin = {
   },
 };
 
-export default defineConfig({ plugins: [liveUi, react(), dropLocalRef] });
+// The docs site serves the build under /examples/. Each page gets its own index.html so a static host finds it without a rewrite rule.
+const pages = ['camera', 'deskhand'];
+const pageFolders = { name: 'page-folders', apply: 'build' as const, closeBundle() {
+  const index = new URL('dist/index.html', import.meta.url);
+  for (const page of pages) {
+    mkdirSync(new URL(`dist/${page}/`, import.meta.url), { recursive: true });
+    copyFileSync(index, new URL(`dist/${page}/index.html`, import.meta.url));
+  }
+} };
+
+export default defineConfig(({ command, isPreview }) => ({ base: command === 'build' || isPreview ? '/examples/' : '/', plugins: [liveUi, react(), dropLocalRef, pageFolders] }));

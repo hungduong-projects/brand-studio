@@ -93,4 +93,4 @@ npm run build:docs
 npx wrangler pages deploy apps/docs/out --project-name brand-studio --branch main
 ```
 
-Check the [live docs](https://brand-studio-c7e.pages.dev/docs/) after deployment.
+`build:docs` also builds the showcase and copies it to `apps/docs/out/examples/`, so the same deploy publishes the [live examples](https://brand-studio-c7e.pages.dev/examples/). Check the [live docs](https://brand-studio-c7e.pages.dev/docs/) and examples after deployment.
