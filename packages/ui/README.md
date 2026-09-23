@@ -1,6 +1,6 @@
 # Brand Studio UI
 
-54 typed React components for branded apps, AI agent interfaces, effects, visual storytelling and product pages.
+55 typed React components for branded apps, AI agent interfaces, effects, visual storytelling and product pages.
 
 ## Install
 

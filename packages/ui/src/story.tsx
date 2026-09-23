@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { CSSProperties, ElementType, PointerEvent, ReactNode } from 'react';
 import { BrandImage } from './core.js';
 import type { ImageAsset, StoryChapter } from './core.js';
@@ -108,8 +109,8 @@ export function ScrollTextReveal({ text, as: Tag = 'p', className = '' }: { text
 export interface StoryCoverChapter { label: ReactNode; href: string; marker?: ReactNode }
 
 /** The framed title card that opens a long page: kicker, title, one line of promise, the chapter list and actions. Made to sit over a picture. */
-export function StoryCover({ kicker, title, lead, chapters = [], actions, label = 'Chapters', className = '' }: { kicker?: ReactNode; title: ReactNode; lead?: ReactNode; chapters?: StoryCoverChapter[]; actions?: ReactNode; label?: string; className?: string }) {
-  return <div className={`bs-cover ${className}`}>
+export function StoryCover({ kicker, title, lead, chapters = [], actions, label = 'Chapters', id, className = '' }: { kicker?: ReactNode; title: ReactNode; lead?: ReactNode; chapters?: StoryCoverChapter[]; actions?: ReactNode; label?: string; id?: string; className?: string }) {
+  return <div id={id} className={`bs-cover ${className}`}>
     {kicker && <p className="bs-cover__kicker">{kicker}</p>}
     <h1 className="bs-cover__title">{title}</h1>
     {lead && <p className="bs-cover__lead">{lead}</p>}
@@ -118,4 +119,65 @@ export function StoryCover({ kicker, title, lead, chapters = [], actions, label 
     </ol></nav>}
     {actions && <div className="bs-cover__actions">{actions}</div>}
   </div>;
+}
+
+/**
+ * The chapter list that docks at the side of a wide screen once the reader scrolls past the Story Cover, and lights the
+ * chapter being read. It docks when the first chapter reaches the middle of the screen or a quarter of the cover has
+ * scrolled away. Pass the cover's id as `cover`: where the browser supports view transitions, the cover's list moves into
+ * the rail. The rail leaves once the last chapter ends. With `placement="inline"` it stays where you put it,
+ * such as a sticky side column, and only lights the current chapter.
+ */
+export function ChapterRail({ chapters, cover, title, placement = 'fixed', label = 'Chapters', className = '' }: { chapters: StoryCoverChapter[]; cover?: string; title?: ReactNode; placement?: 'fixed' | 'inline'; label?: string; className?: string }) {
+  const [show, setShow] = useState(false);
+  const [current, setCurrent] = useState('');
+  // Callers often build the list inline, so the effects key on the targets rather than the array.
+  const ids = chapters.map(chapter => chapter.href.slice(1)).join(' ');
+  useEffect(() => {
+    const targets = ids.split(' ').map(id => document.getElementById(id)).filter((target): target is HTMLElement => target !== null);
+    if (targets.length === 0) return;
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) setCurrent(entry.target.id); }), { rootMargin: '-45% 0px -50% 0px' });
+    targets.forEach(target => observer.observe(target));
+    return () => observer.disconnect();
+  }, [ids]);
+  useEffect(() => {
+    if (placement === 'inline' || !ids) return;
+    const list = ids.split(' ');
+    const first = document.getElementById(list[0]);
+    const last = document.getElementById(list[list.length - 1]);
+    const source = (cover && document.getElementById(cover)) || first;
+    if (!source || !first || !last) return;
+    const docking = source.classList.contains('bs-cover');
+    if (docking) source.dataset.bsDockSource = '';
+    let shown: boolean | undefined;
+    const update = () => {
+      // Dock once the first chapter reaches the middle of the screen, or once a quarter of the cover has scrolled away.
+      const past = first.getBoundingClientRect().top < innerHeight / 2 || (docking && source.getBoundingClientRect().top < -source.offsetHeight * 0.25);
+      const next = past && last.getBoundingClientRect().bottom > innerHeight / 2;
+      if (next === shown) return;
+      const initial = shown === undefined;
+      shown = next;
+      const dock = () => { if (docking) source.toggleAttribute('data-bs-docked', next); };
+      const move = !initial && docking && matchMedia('(min-width: 1100px) and (prefers-reduced-motion: no-preference)').matches;
+      // A newer transition skips an older one; its update still runs, so the rail and the cover stay in step.
+      if (move && document.startViewTransition) document.startViewTransition(() => { flushSync(() => setShow(next)); dock(); }).ready.catch(() => {});
+      else { setShow(next); dock(); }
+    };
+    update();
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
+    return () => {
+      removeEventListener('scroll', update);
+      removeEventListener('resize', update);
+      if (docking) { delete source.dataset.bsDockSource; source.removeAttribute('data-bs-docked'); }
+    };
+  }, [ids, cover, placement]);
+  return <nav className={`bs-rail ${className}`} aria-label={label} data-placement={placement} data-show={placement === 'inline' || show || undefined}>
+    {title && <p className="bs-rail__title">{title}</p>}
+    <ol className="bs-rail__list">
+      {chapters.map(chapter => <li key={chapter.href}><a href={chapter.href} aria-current={current === chapter.href.slice(1) ? 'true' : undefined}>
+        {chapter.marker && <span className="bs-rail__marker">{chapter.marker}</span>}<span className="bs-rail__label">{chapter.label}</span>
+      </a></li>)}
+    </ol>
+  </nav>;
 }

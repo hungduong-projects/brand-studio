@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import {
   ActionLink, AgentThinking, Alert, ApprovalCard, Badge, BorderBeam, Button, Card, Checkbox, ClickSpark, DataTable, Dialog, DialogClose,
   DropdownMenu, EmptyState, FlipText, Header, MagnetTabs, MetalButton, MobileNavigation, ParallaxGallery, ScrollTextReveal, Select, Sidebar,
-  StoryCover, StoryHeader,
+  ChapterRail, StoryCover, StoryHeader,
   Skeleton, Spinner, StatCard, StreamingText, Switch, Tabs, TaskRows, Textarea, TextField, ThinkingTrace, ToastProvider, ToolChips, useToast,
 } from '@brand-studio/ui';
 import type { ApprovalStatus, ImageAsset, TableColumn } from '@brand-studio/ui';
@@ -254,16 +254,14 @@ export function Release() {
         <div className="rl-stage" aria-hidden="true"><canvas ref={canvasRef} /></div>
 
         <section className="rl-hero" data-scene aria-label="The 0.2 Edition">
-          <StoryCover className="rl-hero__card" kicker="Brand Studio UI" title="The 0.2 Edition"
+          <StoryCover id="cover" className="rl-hero__card" kicker="Brand Studio UI" title="The 0.2 Edition"
             lead={`${catalog.length} React components that take their colours, type and corners from your brand. 12 are new in 0.2.`}
             chapters={chapters.map(c => ({ label: c.title, href: `#${c.id}`, marker: <span className="rl-numeral">{c.numeral}</span> }))}
             actions={<><ActionLink href={DOCS} shape="pill">Read the docs</ActionLink><ActionLink href="#notes" tone="inverse" shape="pill">See all {catalog.length}</ActionLink></>} />
           <CreditLine credit={hero} />
         </section>
 
-        <nav className="rl-rail" aria-label="Chapters" data-show={current !== '' || undefined}>
-          <ol>{chapters.map(c => <li key={c.id}><a href={`#${c.id}`} aria-current={current === c.id ? 'true' : undefined}><span className="rl-numeral">{c.numeral}</span><span className="rl-rail__word">{c.word}</span></a></li>)}</ol>
-        </nav>
+        <ChapterRail className="rl-rail" cover="cover" chapters={chapters.map(c => ({ label: c.word, href: `#${c.id}`, marker: <span className="rl-numeral">{c.numeral}</span> }))} />
 
         {chapters.map((c, i) => <Fragment key={c.id}>
           <section id={c.id} data-scene data-chapter={c.id} className={`rl-scene rl-scene--${c.side}`} aria-labelledby={`${c.id}-title`}>
