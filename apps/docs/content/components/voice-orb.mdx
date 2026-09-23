@@ -1,0 +1,32 @@
+---
+title: Voice Orb
+description: "The face of a voice agent: rings that swell with the voice, circle while thinking and ripple while speaking."
+---
+
+<Preview name="voice-orb/default" />
+
+## Installation
+
+<Install name="VoiceOrb" />
+
+## Usage
+
+```tsx
+import { VoiceOrb } from '@brand-studio/ui';
+```
+
+```tsx
+<VoiceOrb state="listening" level={level} size={140} />
+```
+
+`level` runs from 0 to 1. Feed it the microphone's loudness while listening (DictationButton's `onLevel` gives you this) or the agent's voice while speaking. Idle breathes slowly, thinking circles and speaking ripples outward.
+
+## Accessibility
+
+- The orb is a status that says its state in words: Ready, Listening, Thinking or Speaking. `label` shows your own words instead.
+- The drawing is hidden from screen readers.
+- With reduced motion the rings still follow the level but nothing loops.
+
+## API Reference
+
+<Props name="VoiceOrb" />

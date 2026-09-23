@@ -1,0 +1,37 @@
+/* Voice */
+.bs-orb { display: inline-grid; justify-items: center; gap: .9rem; color: var(--bs-accent); }
+.bs-orb__body { position: relative; display: grid; place-items: center; width: var(--bs-orb-size); height: var(--bs-orb-size); }
+.bs-orb__body > i { grid-area: 1 / 1; border-radius: 50%; }
+.bs-orb__core { width: 58%; height: 58%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--bs-accent) 30%, #fff) 0 8%, var(--bs-accent) 55%, color-mix(in srgb, var(--bs-accent) 65%, #000) 100%); box-shadow: 0 0 calc(var(--bs-orb-size) * (.12 + var(--level) * .25)) color-mix(in srgb, var(--bs-accent) 45%, transparent); scale: calc(1 + var(--level) * .1); transition: scale 90ms linear, box-shadow 90ms linear; }
+.bs-orb__ring { width: calc(62% + var(--n) * 15%); height: calc(62% + var(--n) * 15%); border: 1.5px solid currentColor; opacity: calc(.4 - var(--n) * .11); scale: calc(1 + var(--level) * (.12 + var(--n) * .1)); transition: scale 90ms linear; }
+.bs-orb__label { font: 500 .9rem/1.2 var(--bs-font); color: var(--bs-muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .bs-orb[data-state="idle"] .bs-orb__core { animation: bs-orb-breathe 3.6s var(--bs-ease-in-out) infinite; }
+  .bs-orb[data-state="thinking"] .bs-orb__ring { border-color: transparent; border-top-color: currentColor; opacity: calc(.75 - var(--n) * .2); animation: bs-spin calc(1.2s + var(--n) * .5s) linear infinite; }
+  .bs-orb[data-state="thinking"] .bs-orb__ring:nth-child(2) { animation-direction: reverse; }
+  .bs-orb[data-state="speaking"] .bs-orb__ring { animation: bs-orb-ripple 1.8s var(--bs-ease-out) calc(var(--n) * -.6s) infinite; }
+}
+@keyframes bs-orb-breathe { 50% { scale: 1.05; } }
+@keyframes bs-orb-ripple { from { scale: .8; opacity: .5; } to { scale: 1.25; opacity: 0; } }
+
+.bs-dictate { display: inline-flex; align-items: center; gap: .5rem; }
+.bs-dictate__button { position: relative; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--bs-muted); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; transition: background var(--bs-duration-fast), color var(--bs-duration-fast), scale 200ms var(--bs-ease-spring); }
+.bs-dictate__button > * { grid-area: 1 / 1; }
+.bs-dictate__button:hover { background: var(--bs-line-soft); color: var(--bs-ink); }
+.bs-dictate__button[aria-pressed="true"] { background: var(--bs-accent); color: var(--bs-on-accent); scale: 1.06; }
+.bs-dictate__bars { display: flex; align-items: center; gap: 2px; height: 14px; opacity: 0; }
+.bs-dictate__bars i { width: 2px; height: 100%; border-radius: 2px; background: currentColor; scale: 1 calc(.2 + var(--l, 0) * .8); transition: scale 80ms linear; }
+.bs-dictate__bars i:nth-child(1) { --l: var(--l0); } .bs-dictate__bars i:nth-child(2) { --l: var(--l1); } .bs-dictate__bars i:nth-child(3) { --l: var(--l2); } .bs-dictate__bars i:nth-child(4) { --l: var(--l3); } .bs-dictate__bars i:nth-child(5) { --l: var(--l4); }
+.bs-dictate[data-on] .bs-dictate__bars { opacity: 1; }
+.bs-dictate[data-on] .bs-dictate__mic { opacity: 0; }
+.bs-dictate__note { font-size: .8rem; font-weight: 500; color: var(--bs-ink); }
+.bs-dictate__note:empty { display: none; }
+
+.bs-transcript { max-width: 40rem; }
+.bs-transcript__text { margin: 0; font-size: clamp(1.1rem, 2.2vw, 1.5rem); line-height: 1.45; letter-spacing: -.01em; }
+.bs-transcript__word { animation: bs-transcript-settle var(--bs-duration) var(--bs-ease-out); }
+@keyframes bs-transcript-settle { from { color: var(--bs-muted); filter: blur(2px); } }
+.bs-transcript__interim { color: var(--bs-muted); }
+.bs-transcript__placeholder { color: var(--bs-muted); }
+.bs-transcript__caret { display: inline-block; width: 2px; height: 1.1em; margin-left: .15em; vertical-align: -.15em; border-radius: 2px; background: var(--bs-accent); animation: bs-caret 1s steps(1) infinite; }
+@keyframes bs-caret { 50% { opacity: 0; } }

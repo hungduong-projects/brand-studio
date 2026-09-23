@@ -1,0 +1,33 @@
+---
+title: Selection Actions
+description: "Select text and a bar of agent actions appears under it."
+---
+
+<Preview name="selection-actions/default" />
+
+## Installation
+
+<Install name="SelectionActions" />
+
+## Usage
+
+```tsx
+import { SelectionActions } from '@brand-studio/ui';
+```
+
+```tsx
+<SelectionActions actions={[{ id: 'explain', label: 'Explain' }, { id: 'shorten', label: 'Shorten' }]} onAction={(id, text) => ask(id, text)}>
+  <p>Washed Huila opens with red apple and panela…</p>
+</SelectionActions>
+```
+
+Select part of the wrapped text with the mouse, touch or Shift and the arrow keys, and a bar appears under the selection. Choosing an action calls `onAction` with its id and the selected text, then clears the selection. What happens next is up to you: answer beside it, or replace the text.
+
+## Accessibility
+
+- The bar is a toolbar that comes after the text in reading order, so Tab reaches it after a keyboard selection. Arrow keys move along it.
+- Escape dismisses the bar and clears the selection.
+
+## API Reference
+
+<Props name="SelectionActions" />

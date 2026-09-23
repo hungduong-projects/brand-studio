@@ -1,0 +1,35 @@
+---
+title: Suggestion Chips
+description: "Prompts to start from, or follow-up questions after an answer."
+---
+
+<Preview name="suggestion-chips/default" />
+
+## Installation
+
+<Install name="SuggestionChips" />
+
+## Usage
+
+```tsx
+import { SuggestionChips } from '@brand-studio/ui';
+```
+
+```tsx
+<SuggestionChips
+  label="Follow-up questions"
+  suggestions={['Why that grind size?', 'Save this recipe']}
+  onSelect={ask}
+/>
+```
+
+The chips arrive one after another. Change the component's `key` to play the entrance again for a new set.
+
+## Accessibility
+
+- The chips are a list of buttons named by `label`.
+- With reduced motion they show at once.
+
+## API Reference
+
+<Props name="SuggestionChips" />

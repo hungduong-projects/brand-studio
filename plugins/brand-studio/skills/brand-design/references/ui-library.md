@@ -66,6 +66,19 @@ Start from the job the person is doing on this screen, not from a component you 
 | See which tools the agent called and whether they worked | `ToolChips` | The person must allow the call first: use `ApprovalCard` |
 | Allow or deny an action before the agent takes it | `ApprovalCard` | The action is harmless and reversible: let it run and report it |
 | Read an answer as the model writes it | `StreamingText` | The text is complete: render it directly |
+| Read a conversation that follows the newest message | `ChatThread` with `ChatMessage` | There is one answer and no back-and-forth: show it in a `Card` |
+| Type a message, send it and stop a running answer | `ChatComposer` | The person adds sources or commands: use `PromptBar` |
+| Point the agent at sources, run a command or pick a model while typing | `PromptBar` | The people using it only chat: use `ChatComposer` |
+| See a file going with a message and whether it uploaded | `Attachment` | The file is already part of the answer: cite it with `SourceCards` |
+| Start a chat, or ask a likely follow-up, in one tap | `SuggestionChips` | The choices are settings, not questions: use `Select` or `Tabs` |
+| Copy, retry, edit or rate one message | `MessageActions` | The action affects the whole conversation: put it in the header |
+| Read or take code the agent wrote | `CodeBlock` | The text is prose with a few terms: use inline `code` |
+| Check where an answer came from | `SourceCards` | The agent retrieved nothing: leave them out rather than show an empty list |
+| Ask the agent about part of a text | `SelectionActions` | The action applies to the whole text: use a `Button` |
+| Accept the agent's pick, or promote an alternative | `RecommendationCard` | The agent is asking permission to act: use `ApprovalCard` |
+| See a voice agent listen, think and speak | `VoiceOrb` | The agent works in text: use `AgentThinking` |
+| Talk instead of typing | `DictationButton` | The page is not served over https: the browser blocks the microphone |
+| Watch spoken words appear as they are recognised | `LiveTranscript` | The words are the agent's typed answer: use `StreamingText` |
 
 ### Feel the brand
 

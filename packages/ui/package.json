@@ -1,6 +1,6 @@
 {
   "name": "@brand-studio/ui",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Brand-driven React components for apps, AI agents, effects and visual storytelling.",
   "type": "module",
   "license": "MIT",
