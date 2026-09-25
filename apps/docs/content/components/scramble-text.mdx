@@ -1,0 +1,32 @@
+---
+title: Scramble Text
+description: "Letters flicker through random characters, then settle left to right."
+---
+
+<Preview name="scramble-text/default" />
+
+## Installation
+
+<Install name="ScrambleText" />
+
+## Usage
+
+```tsx
+import { ScrambleText } from '@brand-studio/ui';
+```
+
+```tsx
+<ScrambleText as="p" text="LOT 27 · HUILA · WASHED" />
+```
+
+It plays once when it scrolls into view, and again when a mouse moves over it. `duration` sets how long, in milliseconds, it takes to settle.
+
+## Accessibility
+
+- Screen readers hear the plain text once; the flickering copy is hidden from them.
+- The server renders the final text, and reduced motion keeps it still.
+- Keep it to short labels: a long line that flickers is hard to read.
+
+## API Reference
+
+<Props name="ScrambleText" />

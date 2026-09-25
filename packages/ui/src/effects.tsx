@@ -3,7 +3,7 @@
 import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ElementType, HTMLAttributes, MouseEvent, PointerEvent, ReactNode } from 'react';
-import { BrandImage } from './core.js';
+import { BrandImage, Button } from './core.js';
 import type { ImageAsset } from './core.js';
 import { useEntrance } from './entrance.js';
 import { createStage, fit, toRgb } from './gl.js';
@@ -296,4 +296,115 @@ export function VelocityMarquee({ lines, speed = 40, className = '' }: { lines: 
       <div className="bs-marquee__track">{Array.from({ length: 8 }, (_, copy) => <span key={copy}>{line}</span>)}</div>
     </div>)}
   </div>;
+}
+
+/** Follows a mouse over the element as -1..1 offsets from its centre in `--mx` and `--my`, and marks it `data-active`. Touch, pen and reduced motion leave it still. */
+function usePointerOffset<T extends HTMLElement>(onMove?: (element: T, x: number, y: number) => void) {
+  const move = (event: PointerEvent<T>) => {
+    if (event.pointerType !== 'mouse' || reducedMotion()) return;
+    const element = event.currentTarget, box = element.getBoundingClientRect();
+    const x = ((event.clientX - box.left) / box.width) * 2 - 1, y = ((event.clientY - box.top) / box.height) * 2 - 1;
+    element.style.setProperty('--mx', x.toFixed(3));
+    element.style.setProperty('--my', y.toFixed(3));
+    element.dataset.active = '';
+    onMove?.(element, x, y);
+  };
+  const leave = (event: PointerEvent<T>) => {
+    const element = event.currentTarget;
+    element.style.setProperty('--mx', '0');
+    element.style.setProperty('--my', '0');
+    delete element.dataset.active;
+  };
+  return { onPointerMove: move, onPointerLeave: leave };
+}
+
+/** A button that leans toward the mouse and springs back when it leaves. Its label leans further, so it feels held by a magnet. Touch and keyboard get an ordinary button. */
+export function MagneticButton({ strength = 1, className = '', children, style, onPointerMove, onPointerLeave, ...props }: Parameters<typeof Button>[0] & { strength?: number }) {
+  const pointer = usePointerOffset<HTMLButtonElement>();
+  return <Button {...props} className={`bs-magnetic ${className}`} style={{ '--bs-magnetic-strength': strength, ...style } as CSSProperties}
+    onPointerMove={event => { pointer.onPointerMove(event); onPointerMove?.(event); }}
+    onPointerLeave={event => { pointer.onPointerLeave(event); onPointerLeave?.(event); }}>
+    <span className="bs-magnetic__label">{children}</span>
+  </Button>;
+}
+
+/**
+ * A soft dot that trails the mouse inside the wrapper and grows into a ring over links and buttons.
+ * An element with `data-cursor="View"` shows that word in the ring. The system cursor stays; touch screens and reduced motion get no dot.
+ */
+export function CustomCursor({ children, className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  const root = useRef<HTMLDivElement>(null);
+  const dot = useRef<HTMLSpanElement>(null);
+  const [label, setLabel] = useState('');
+  const target = useRef({ x: 0, y: 0, shown: false });
+  const at = useRef({ x: 0, y: 0 });
+  const wake = useVisibleLoop(root, () => {
+    const element = dot.current;
+    if (!element) return false;
+    const t = target.current, p = at.current;
+    p.x += (t.x - p.x) * .22; p.y += (t.y - p.y) * .22;
+    element.style.translate = `${p.x.toFixed(1)}px ${p.y.toFixed(1)}px`;
+    return Math.abs(t.x - p.x) + Math.abs(t.y - p.y) > .2;
+  });
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'mouse' || reducedMotion() || !root.current) return;
+    const box = root.current.getBoundingClientRect(), t = target.current;
+    t.x = event.clientX - box.left; t.y = event.clientY - box.top;
+    if (!t.shown) { at.current = { x: t.x, y: t.y }; t.shown = true; }
+    const over = (event.target as HTMLElement).closest<HTMLElement>('a, button, [data-cursor]');
+    root.current.dataset.cursor = over ? 'grow' : 'dot';
+    setLabel(over?.dataset.cursor ?? '');
+    wake.current();
+  };
+  const leave = () => { target.current.shown = false; if (root.current) delete root.current.dataset.cursor; };
+  return <div {...props} ref={root} className={`bs-cursor ${className}`} onPointerMove={move} onPointerLeave={leave}>
+    {children}
+    <span ref={dot} className="bs-cursor__dot" aria-hidden="true">{label && <span className="bs-cursor__label">{label}</span>}</span>
+  </div>;
+}
+
+/** A card that tilts toward the mouse in 3D, with a soft glare where the pointer is. Touch, keyboard and reduced motion see a flat card. */
+export function TiltCard({ max = 8, children, className = '', style, ...props }: HTMLAttributes<HTMLDivElement> & { max?: number }) {
+  const pointer = usePointerOffset<HTMLDivElement>();
+  return <div {...props} {...pointer} className={`bs-tilt ${className}`} style={{ '--bs-tilt-max': `${max}deg`, ...style } as CSSProperties}>
+    <div className="bs-tilt__face">{children}<span className="bs-tilt__glare" aria-hidden="true" /></div>
+  </div>;
+}
+
+/** A card whose border and surface light up around the mouse, like a torch passing over it. Keyboard focus inside lights the whole edge. */
+export function SpotlightCard({ children, className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  const pointer = usePointerOffset<HTMLDivElement>();
+  return <div {...props} {...pointer} className={`bs-spotlight ${className}`}>{children}</div>;
+}
+
+const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=';
+
+/** Text whose letters and digits flicker through random characters, then settle left to right; spaces and punctuation hold still. It plays when it scrolls into view and again on hover. Screen readers, and reduced motion, get the plain text. */
+export function ScrambleText({ text, as: Tag = 'span', duration = 900, className = '' }: { text: string; as?: ElementType; duration?: number; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const [shown, setShown] = useState(text);
+  const run = useRef(0);
+  const play = () => {
+    if (reducedMotion()) return;
+    cancelAnimationFrame(run.current);
+    const start = performance.now();
+    const step = (now: number) => {
+      const settled = Math.floor(((now - start) / duration) * text.length);
+      setShown([...text].map((letter, index) => index < settled || !/[a-z0-9]/i.test(letter) ? letter : glyphs[Math.floor(Math.random() * glyphs.length)]).join(''));
+      if (settled < text.length) run.current = requestAnimationFrame(step);
+    };
+    run.current = requestAnimationFrame(step);
+  };
+  useEffect(() => {
+    setShown(text);
+    const element = root.current;
+    if (!element || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) { observer.disconnect(); play(); } }, { threshold: .5 });
+    observer.observe(element);
+    return () => { observer.disconnect(); cancelAnimationFrame(run.current); };
+  }, [text]);
+  return <Tag ref={root} className={`bs-scramble ${className}`} onPointerEnter={(event: PointerEvent) => { if (event.pointerType === 'mouse') play(); }}>
+    <span className="bs-sr-only">{text}</span>
+    <span aria-hidden="true">{shown}</span>
+  </Tag>;
 }

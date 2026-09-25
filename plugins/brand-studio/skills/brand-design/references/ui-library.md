@@ -96,6 +96,11 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Land one headline with weight as it arrives | `KineticText` | The text is body copy or changes often |
 | Make one signature image answer the pointer | `DistortionImage` | The image carries detail people must read, or comes from another origin |
 | Carry a short brand line across the page with scroll energy | `VelocityMarquee` | The line holds a fact the person needs |
+| Make the one action on a launch page feel within reach | `MagneticButton` | The page has several actions of equal weight |
+| Give a gallery or journal page a signature pointer that names what a click does | `CustomCursor` | The area is a working app screen or touch is the main input |
+| Give one product card physical presence | `TiltCard` | Cards sit in a dense grid people scan quickly |
+| Let a row of plans or options glow as the pointer passes | `SpotlightCard` | The cards hold a form or many controls |
+| Draw attention to a short label, lot code or status line | `ScrambleText` | The text is longer than a line or must be read at once |
 
 ### Tell a story
 

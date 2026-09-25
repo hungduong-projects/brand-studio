@@ -1,0 +1,34 @@
+---
+title: Tilt Card
+description: "A card that tilts toward the mouse in 3D, with a soft glare where the pointer is."
+---
+
+<Preview name="tilt-card/default" />
+
+## Installation
+
+<Install name="TiltCard" />
+
+## Usage
+
+```tsx
+import { TiltCard } from '@brand-studio/ui';
+```
+
+```tsx
+<TiltCard max={8}>
+  <BrandImage asset={camera} />
+  <p>Halden R · £1,890</p>
+</TiltCard>
+```
+
+`max` sets the largest tilt in degrees.
+
+## Accessibility
+
+- The content inside is unchanged; the glare is hidden from screen readers.
+- Only a mouse tilts it. Touch, keyboard and reduced motion see a flat card.
+
+## API Reference
+
+<Props name="TiltCard" />
