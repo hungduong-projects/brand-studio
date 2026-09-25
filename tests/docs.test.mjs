@@ -63,3 +63,13 @@ test('brand-design skill links only to references and scripts that exist', () =>
     for (const [, script] of text.matchAll(/`(?:node |python3 )?(scripts\/[\w.-]+)/g)) assert.ok(existsSync(new URL(script, skill)), `${doc} names missing ${script}`);
   }
 });
+
+test('the Markdown docs handle every component a page places outside code', () => {
+  const handled = new Set(['Preview', 'Props', 'Install', 'AgentPrompt']);
+  const content = new URL('../apps/docs/content/', import.meta.url);
+  const files = readdirSync(content, { recursive: true }).filter((file) => file.endsWith('.mdx'));
+  for (const file of files) {
+    const prose = readFileSync(new URL(file, content), 'utf8').replace(/```[\s\S]*?```/g, '');
+    for (const [, name] of prose.matchAll(/^<([A-Z]\w*)/gm)) assert.ok(handled.has(name), `${file} uses <${name}>, which lib/markdown.ts does not convert`);
+  }
+});
