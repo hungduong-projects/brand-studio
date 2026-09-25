@@ -106,6 +106,7 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Mark a scroll cue, badge or seal with a turning ring of words | `CircularText` | The words carry information the person must read |
 | Give a technical or developer section a quiet, living texture | `DotGrid` | The section already has an image or pattern behind it |
 | Set a calm, atmospheric backdrop for a night, space or launch moment | `ParticleField` | The brand is quiet and flat, or text over it fails contrast |
+| Show where things come from or go, and how they connect | `DotGlobe` | Exact positions matter: use a real map |
 
 ### Tell a story
 
@@ -126,6 +127,10 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Show one object or set from every side, one at a time | `RingGallery` | There are fewer than five images or more than twelve |
 | Bring a set of images in with depth as the page scrolls | `StaggerGrid` | Each image needs a caption or the set is small |
 | Turn a scattered set into order as a moment of arrival | `ScrollFormation` | There are fewer than six images or more than twelve |
+| Step through a few large images with a signature change between them | `ImageTransition` | The images need captions or quick comparison |
+| Prove a change by letting people wipe between two versions of one view | `BeforeAfter` | The two images differ in framing or size |
+| Offer three to five equal paths, each with an image and a line | `ExpandingPanels` | Each path needs more than a sentence |
+| Let people sort a short set of options into yes and no | `SwipeDeck` | The choice needs comparison side by side: use `ModelCompare` |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
 
 ### Present a product

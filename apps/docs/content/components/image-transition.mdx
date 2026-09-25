@@ -1,0 +1,32 @@
+---
+title: Image Transition
+description: "A slideshow where each image dissolves into the next through drifting noise."
+---
+
+<Preview name="image-transition/default" />
+
+## Installation
+
+<Install name="ImageTransition" />
+
+## Usage
+
+```tsx
+import { ImageTransition } from '@brand-studio/ui';
+```
+
+```tsx
+<ImageTransition label="The morning ritual" images={[beans, pour, cup]} />
+```
+
+The images keep their focal points through the dissolve. Serve them from the same origin, or with CORS headers, for WebGL to read them.
+
+## Accessibility
+
+- It is a labelled carousel. Previous and next buttons, the arrow keys and a sideways swipe change the image, and the count is announced.
+- Each slide is a real picture with its alt text; hidden slides are hidden from screen readers.
+- Without WebGL, and under reduced motion, images swap at once.
+
+## API Reference
+
+<Props name="ImageTransition" />

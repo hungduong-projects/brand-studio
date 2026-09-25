@@ -29,3 +29,6 @@ export const cameraWides: ImageAsset[] = [
   ['side', 'The Halden R in profile, showing the grip.'],
   ['three', 'The Halden R from three quarters, lens forward.'],
 ].map(([name, alt]) => ({ src: `/images/halden/${name}.webp`, alt, width: 1600, height: 900 }));
+
+/** The pour image with contrast and colour pulled back, like a flat camera profile. Made from pour.webp for the Before After demo. */
+export const pourFlat: ImageAsset = { ...pour, src: '/images/pour-flat.webp', srcSet: '/images/pour-flat-768.webp 768w, /images/pour-flat.webp 1536w', alt: 'The same pour in a flat, low-contrast profile, before grading.' };

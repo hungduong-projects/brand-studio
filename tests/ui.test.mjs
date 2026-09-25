@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -442,4 +442,44 @@ test('proximity, video and circular text keep the words readable before scripts 
 test('dot grid and particle field put a hidden canvas behind the content', () => {
   assert.equal(render(h(DotGrid, { id: 'kit' }, 'Kit')), '<div id="kit" class="bs-dotgrid "><canvas class="bs-dotgrid__canvas" aria-hidden="true"></canvas><div class="bs-dotgrid__content">Kit</div></div>');
   assert.equal(render(h(ParticleField, null, 'Night')), '<div class="bs-particles "><canvas class="bs-particles__canvas" aria-hidden="true"></canvas><div class="bs-particles__content">Night</div></div>');
+});
+
+test('dot globe lists its markers for screen readers', () => {
+  const html = render(h(DotGlobe, { label: 'Origins', markers: [{ label: 'Huila', lat: 2.5, lng: -75.6 }, { label: 'London', lat: 51.5, lng: -0.1 }] }));
+  assert.match(html, /<canvas class="bs-globe__canvas" aria-hidden="true"><\/canvas><ul class="bs-sr-only" aria-label="Origins"><li>Huila<\/li><li>London<\/li><\/ul>/);
+});
+
+test('image transition shows the first slide and hides the rest before scripts run', () => {
+  const html = render(h(ImageTransition, { images: galleryImages, label: 'Ritual' }));
+  assert.match(html, /<section class="bs-imagefade " aria-roledescription="carousel" aria-label="Ritual">/);
+  assert.equal((html.match(/data-current="true"/g) ?? []).length, 1);
+  assert.equal((html.match(/aria-hidden="true" aria-roledescription="slide"/g) ?? []).length, galleryImages.length - 1);
+  assert.match(html, /<p class="bs-imagefade__count" aria-live="polite">1 \/ 5<\/p>/);
+});
+
+test('before after is a labelled range over both images', () => {
+  const html = render(h(BeforeAfter, { before: galleryImages[0], after: galleryImages[1], label: 'Compare grade', initial: 30 }));
+  assert.match(html, /style="--pos:30%"/);
+  assert.match(html, /<input class="bs-compare__range" type="range" min="0" max="100" step="1" aria-label="Compare grade" aria-valuetext="30% after" value="30"\/>/);
+  for (const image of galleryImages.slice(0, 2)) assert.ok(html.includes(`alt="${image.alt}"`));
+});
+
+test('expanding panels open the first panel and tie each button to its text', () => {
+  const panels = galleryImages.slice(0, 3).map((asset, at) => ({ id: `p${at}`, title: `Panel ${at}`, asset, body: h('p', null, `Body ${at}`) }));
+  const html = render(h(ExpandingPanels, { panels, label: 'Paths' }));
+  assert.equal((html.match(/aria-expanded="true"/g) ?? []).length, 1);
+  assert.equal((html.match(/aria-expanded="false"/g) ?? []).length, 2);
+  const [, controls] = html.match(/aria-controls="([^"]+)"/);
+  assert.ok(html.includes(`id="${controls}" class="bs-panels__body"><p>Body 0</p>`));
+  assert.equal((html.match(/class="bs-panels__body" hidden=""/g) ?? []).length, 2);
+});
+
+test('swipe deck renders the top three cards and labelled buttons for each swipe', () => {
+  const cards = galleryImages.map((asset, at) => ({ id: `c${at}`, title: `Lot ${at}`, asset }));
+  const html = render(h(SwipeDeck, { cards, label: 'Box', leftLabel: 'Skip', rightLabel: 'Add' }));
+  assert.equal((html.match(/class="bs-deck__card"/g) ?? []).length, 3);
+  assert.equal((html.match(/aria-hidden="true"><picture class="bs-picture/g) ?? []).length, 2);
+  assert.match(html, /<\/svg>Skip<\/button>/);
+  assert.match(html, /<\/svg>Add<\/button>/);
+  assert.match(html, /<p class="bs-sr-only" aria-live="polite">Lot 0<\/p>/);
 });

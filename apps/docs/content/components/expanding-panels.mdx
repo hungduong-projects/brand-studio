@@ -1,0 +1,35 @@
+---
+title: Expanding Panels
+description: "A row of image strips; the one you hover, focus or tap opens wide and shows its text."
+---
+
+<Preview name="expanding-panels/default" layout="full" />
+
+## Installation
+
+<Install name="ExpandingPanels" />
+
+## Usage
+
+```tsx
+import { ExpandingPanels } from '@brand-studio/ui';
+```
+
+```tsx
+<ExpandingPanels label="How we make a cup" panels={[
+  { id: 'bean', title: 'The bean', asset: beans, body: <p>Roasted every Monday.</p> },
+  { id: 'pour', title: 'The pour', asset: pour, body: <p>A thirty-second bloom.</p> },
+]} />
+```
+
+Three to five panels work best. On screens under 640px the strips stack and the open one grows taller.
+
+## Accessibility
+
+- Each strip's title is a button that reports whether its panel is open, and controls the text it reveals.
+- Keyboard focus opens a strip, so tabbing walks through them.
+- A mouse opens strips on hover; touch opens them on tap.
+
+## API Reference
+
+<Props name="ExpandingPanels" />
