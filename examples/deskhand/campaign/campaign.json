@@ -1,0 +1,31 @@
+{
+  "name": "Every reply shows its sources",
+  "note": "Deskhand is a fictional brand. The ticket, order and store policy are sample data.",
+  "message": {
+    "headline": "Every reply shows its sources.",
+    "support": "Deskhand drafts replies to customer tickets and links every claim to the order or help article it came from.",
+    "cta": "Start a 14-day trial",
+    "proof": {
+      "label": "Draft reply · ticket #2291",
+      "before": "Hi Priya, sorry the lamp arrived cracked.",
+      "claim": "Damaged items are refunded in full.",
+      "source": "Returns and refunds",
+      "sourceLine": "Items damaged in transit are refunded in full. No return is needed."
+    },
+    "disclosure": "Fictional brand. Sample ticket."
+  },
+  "trace": {
+    "headline": "deskhand.brand.json direction.concept",
+    "support": "deskhand.brand.json positioning, without the word fictional, which the disclosure carries",
+    "cta": "deskhand.brand.json primaryAction.label",
+    "proof": "deskhand.brand.json direction.invariants (sample ticket #2291, cracked lamp) and imagery.subject (the drafted reply and the sources it read); reply and help-article wording from the same sample ticket in apps/showcase/src/deskhand.tsx",
+    "disclosure": "deskhand.brand.json positioning (a fictional AI support agent) and imagery.invariants (fictional data, labelled)"
+  },
+  "formats": ["og", "feed", "story", "mrec", "leaderboard", "email-header", "poster-a3"],
+  "mark": "mark.svg",
+  "dataFont": "\"Geist Mono\", ui-monospace, monospace",
+  "fonts": [
+    { "family": "Geist Variable", "src": "../../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2", "weight": "100 900" },
+    { "family": "Geist Mono", "src": "../../../node_modules/@fontsource/geist-mono/files/geist-mono-latin-500-normal.woff2", "weight": "500" }
+  ]
+}
