@@ -1,0 +1,6 @@
+[
+  { "path": "/?insets&os=android", "caption": "Refunds over your limit wait for you" },
+  { "path": "/ticket/2291?insets&os=android", "caption": "Every claim in a reply shows its source" },
+  { "path": "/ticket/2291?insets&os=android", "caption": "Tap a highlight to read the exact line", "click": ["text=Damaged items are refunded in full,"], "wait": 2000 },
+  { "path": "/ticket/2291?insets&os=android", "caption": "Approve once and the refund starts", "click": ["text=Approve and send"], "wait": 2500 }
+]
