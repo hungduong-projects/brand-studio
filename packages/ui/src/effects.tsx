@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ElementType, HTMLAttributes, MouseEvent, PointerEvent, ReactNode } from 'react';
 import { BrandImage, Button } from './core.js';
 import type { ImageAsset } from './core.js';
@@ -407,4 +407,218 @@ export function ScrambleText({ text, as: Tag = 'span', duration = 900, className
     <span className="bs-sr-only">{text}</span>
     <span aria-hidden="true">{shown}</span>
   </Tag>;
+}
+
+/** Letters that grow bolder, and lean toward the accent, the closer the mouse comes. Best with a variable font. Screen readers hear the plain text; touch and reduced motion see it at rest. */
+export function ProximityText({ text, as: Tag = 'p', radius = 140, className = '' }: { text: string; as?: ElementType; radius?: number; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const mouse = useRef<{ x: number; y: number } | null>(null);
+  const wake = useVisibleLoop(root, () => {
+    const element = root.current;
+    if (!element) return false;
+    let moving = false;
+    element.querySelectorAll<HTMLElement>('.bs-proximity__letter').forEach(letter => {
+      const box = letter.getBoundingClientRect(), m = mouse.current;
+      const target = m ? Math.max(0, 1 - Math.hypot(box.left + box.width / 2 - m.x, box.top + box.height / 2 - m.y) / radius) : 0;
+      const current = Number(letter.style.getPropertyValue('--p') || 0), next = current + (target - current) * .25;
+      if (Math.abs(target - next) > .002) moving = true;
+      letter.style.setProperty('--p', (Math.abs(target - next) > .002 ? next : target).toFixed(3));
+    });
+    return moving;
+  });
+  const track = (event: PointerEvent, inside: boolean) => {
+    if (event.pointerType !== 'mouse' || reducedMotion()) return;
+    mouse.current = inside ? { x: event.clientX, y: event.clientY } : null;
+    wake.current();
+  };
+  const words = text.split(/(\s+)/);
+  return <Tag ref={root} className={`bs-proximity ${className}`} onPointerMove={(event: PointerEvent) => track(event, true)} onPointerLeave={(event: PointerEvent) => track(event, false)}>
+    <span className="bs-sr-only">{text}</span>
+    <span aria-hidden="true">{words.map((word, at) => /\s/.test(word) ? word : <span key={at} className="bs-proximity__word">{[...word].map((letter, position) => <span key={position} className="bs-proximity__letter">{letter}</span>)}</span>)}</span>
+  </Tag>;
+}
+
+/**
+ * A big headline with a video playing inside its letters. The text stays real: selectable, and read by screen readers.
+ * Until the video can draw, without JavaScript, and under reduced motion (which shows the first frame), it is ordinary type.
+ */
+export function VideoText({ text, src, as: Tag = 'h2', className = '' }: { text: string; src: string; as?: ElementType; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const draw = () => {
+    const element = root.current, surface = canvas.current, clip = video.current;
+    const context = surface?.getContext('2d');
+    if (!element || !surface || !clip || !context || clip.readyState < 2) return false;
+    const box = element.getBoundingClientRect(), scale = Math.min(devicePixelRatio || 1, 2);
+    const width = Math.round(box.width * scale), height = Math.round(box.height * scale);
+    if (surface.width !== width || surface.height !== height) { surface.width = width; surface.height = height; }
+    const style = getComputedStyle(element);
+    context.setTransform(scale, 0, 0, scale, 0, 0);
+    context.clearRect(0, 0, box.width, box.height);
+    context.globalCompositeOperation = 'source-over';
+    context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    context.letterSpacing = style.letterSpacing === 'normal' ? '0px' : style.letterSpacing;
+    context.textBaseline = 'alphabetic';
+    context.fillStyle = '#000';
+    // Paint each word where the browser laid it out, so wrapping, alignment and spacing match the real text.
+    const words = element.querySelector('.bs-videotext__text')!;
+    const range = document.createRange();
+    for (const node of words.childNodes) {
+      const content = node.textContent ?? '';
+      for (const match of content.matchAll(/\S+/g)) {
+        range.setStart(node, match.index!); range.setEnd(node, match.index! + match[0].length);
+        const rect = range.getClientRects()[0];
+        if (!rect) continue;
+        const metrics = context.measureText(match[0]);
+        context.fillText(match[0], rect.left - box.left, rect.top - box.top + (rect.height - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2 + metrics.fontBoundingBoxAscent);
+      }
+    }
+    context.globalCompositeOperation = 'source-in';
+    const ratio = Math.max(box.width / clip.videoWidth, box.height / clip.videoHeight);
+    context.drawImage(clip, (box.width - clip.videoWidth * ratio) / 2, (box.height - clip.videoHeight * ratio) / 2, clip.videoWidth * ratio, clip.videoHeight * ratio);
+    element.dataset.ready = '';
+    return !clip.paused;
+  };
+  const wake = useVisibleLoop(root, draw);
+  useEffect(() => {
+    const clip = video.current, element = root.current;
+    if (!clip || !element) return;
+    const still = reducedMotion();
+    const start = () => { if (still) draw(); else clip.play().then(() => wake.current(), () => draw()); };
+    const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) start(); else clip.pause(); });
+    clip.addEventListener('loadeddata', () => { if (still) draw(); }, { once: true });
+    const redraw = () => { if (clip.paused) draw(); };
+    window.addEventListener('resize', redraw);
+    document.fonts?.ready.then(redraw);
+    observer.observe(element);
+    return () => { observer.disconnect(); clip.pause(); window.removeEventListener('resize', redraw); };
+  }, [src]);
+  return <Tag ref={root} className={`bs-videotext ${className}`}>
+    <span className="bs-videotext__text">{text}</span>
+    <canvas ref={canvas} className="bs-videotext__canvas" aria-hidden="true" />
+    <video ref={video} src={src} muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} className="bs-videotext__video" />
+  </Tag>;
+}
+
+/** A line of text set around a circle that slowly turns, with anything you like in the middle. It stands still under reduced motion. */
+export function CircularText({ text, size = 128, duration = 18, children, className = '' }: { text: string; size?: number; duration?: number; children?: ReactNode; className?: string }) {
+  const id = `bs-circle${useId().replace(/[^a-z0-9]/gi, '')}`;
+  return <span className={`bs-circle ${className}`} style={{ '--bs-circle-size': `${size}px`, '--bs-circle-duration': `${duration}s` } as CSSProperties}>
+    <span className="bs-sr-only">{text}</span>
+    <svg className="bs-circle__ring" viewBox="0 0 100 100" aria-hidden="true">
+      <path id={id} d="M50 50m-38 0a38 38 0 1 1 76 0a38 38 0 1 1-76 0" fill="none" />
+      <text><textPath href={`#${id}`} textLength={2 * Math.PI * 38 - 2} lengthAdjust="spacing">{text}</textPath></text>
+    </svg>
+    {children && <span className="bs-circle__center">{children}</span>}
+  </span>;
+}
+
+/** Sizes a 2D canvas to its CSS box at up to 2x density and returns the context scaled to CSS pixels. */
+function fit2d(canvas: HTMLCanvasElement) {
+  const context = canvas.getContext('2d');
+  if (!context) return null;
+  const scale = Math.min(devicePixelRatio || 1, 2), width = canvas.clientWidth, height = canvas.clientHeight;
+  if (canvas.width !== Math.round(width * scale) || canvas.height !== Math.round(height * scale)) { canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale); }
+  context.setTransform(scale, 0, 0, scale, 0, 0);
+  return { context, width, height };
+}
+
+/** A field of dots behind your content. Near the mouse they swell, take the accent colour and lean away, then settle. Touch and reduced motion see a still pattern. */
+export function DotGrid({ gap = 22, radius = 130, className = '', children, ...props }: HTMLAttributes<HTMLDivElement> & { gap?: number; radius?: number }) {
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const mouse = useRef({ x: -1e4, y: -1e4, strength: 0, target: 0 });
+  const paint = () => {
+    const element = root.current, surface = canvas.current;
+    const fitted = surface && fit2d(surface);
+    if (!element || !fitted) return false;
+    const { context, width, height } = fitted, m = mouse.current, style = getComputedStyle(element);
+    m.strength += (m.target - m.strength) * .12;
+    context.clearRect(0, 0, width, height);
+    const ink = style.getPropertyValue('--bs-line').trim() || '#999', accent = style.getPropertyValue('--bs-accent').trim() || '#06f';
+    for (let y = gap / 2; y < height; y += gap) for (let x = gap / 2; x < width; x += gap) {
+      const dx = x - m.x, dy = y - m.y, distance = Math.hypot(dx, dy);
+      const near = Math.max(0, 1 - distance / radius) * m.strength;
+      const push = near * near * gap * .6 / (distance || 1);
+      context.fillStyle = near > .15 ? accent : ink;
+      context.globalAlpha = .55 + near * .45;
+      context.beginPath();
+      context.arc(x + dx * push, y + dy * push, 1.2 + near * 2.4, 0, Math.PI * 2);
+      context.fill();
+    }
+    context.globalAlpha = 1;
+    return Math.abs(m.target - m.strength) > .01;
+  };
+  const wake = useVisibleLoop(root, paint);
+  useEffect(() => {
+    const redraw = () => wake.current();
+    window.addEventListener('resize', redraw);
+    return () => window.removeEventListener('resize', redraw);
+  }, []);
+  const track = (event: PointerEvent<HTMLDivElement>, inside: boolean) => {
+    if (event.pointerType !== 'mouse' || reducedMotion()) return;
+    const box = event.currentTarget.getBoundingClientRect(), m = mouse.current;
+    if (inside) { m.x = event.clientX - box.left; m.y = event.clientY - box.top; }
+    m.target = inside ? 1 : 0;
+    wake.current();
+  };
+  return <div {...props} ref={root} className={`bs-dotgrid ${className}`} onPointerMove={event => track(event, true)} onPointerLeave={event => track(event, false)}>
+    <canvas ref={canvas} className="bs-dotgrid__canvas" aria-hidden="true" />
+    {children && <div className="bs-dotgrid__content">{children}</div>}
+  </div>;
+}
+
+interface Particle { x: number; y: number; vx: number; vy: number; size: number; accent: boolean }
+
+/** Specks that drift slowly behind your content and scatter from the mouse. Some take the accent colour. It pauses off screen, and reduced motion holds one still frame. */
+export function ParticleField({ count = 80, className = '', children, ...props }: HTMLAttributes<HTMLDivElement> & { count?: number }) {
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const particles = useRef<Particle[]>([]);
+  const mouse = useRef<{ x: number; y: number } | null>(null);
+  const last = useRef(0);
+  const colours = useRef({ ink: '', accent: '', read: 0 });
+  useVisibleLoop(root, time => {
+    const element = root.current, surface = canvas.current;
+    const fitted = surface && fit2d(surface);
+    if (!element || !fitted) return false;
+    const { context, width, height } = fitted, still = reducedMotion();
+    if (particles.current.length !== count) {
+      // A fixed stride instead of Math.random keeps the layout the same on every visit.
+      particles.current = Array.from({ length: count }, (_, i) => ({ x: ((i * 0.618034) % 1) * width, y: ((i * 0.381966 * 3.7) % 1) * height, vx: Math.cos(i * 2.4) * 8, vy: Math.sin(i * 2.4) * 8, size: 1 + ((i * 7) % 5) / 2.5, accent: i % 5 === 0 }));
+    }
+    if (time - colours.current.read > 1000) {
+      const style = getComputedStyle(element);
+      colours.current = { ink: style.getPropertyValue('--bs-ink').trim() || '#222', accent: style.getPropertyValue('--bs-accent').trim() || '#06f', read: time };
+    }
+    const delta = last.current ? Math.min(time - last.current, 50) / 1000 : 0;
+    last.current = time;
+    context.clearRect(0, 0, width, height);
+    for (const p of particles.current) {
+      const m = mouse.current;
+      if (m) {
+        const dx = p.x - m.x, dy = p.y - m.y, distance = Math.hypot(dx, dy) || 1;
+        if (distance < 120) { const push = (1 - distance / 120) * 900 * delta; p.vx += (dx / distance) * push; p.vy += (dy / distance) * push; }
+      }
+      p.vx += (Math.sign(p.vx || 1) * 8 - p.vx) * .02; p.vy += (Math.sign(p.vy || 1) * 8 - p.vy) * .02;
+      p.x = (p.x + p.vx * delta + width) % width; p.y = (p.y + p.vy * delta + height) % height;
+      context.globalAlpha = p.accent ? .9 : .35;
+      context.fillStyle = p.accent ? colours.current.accent : colours.current.ink;
+      context.beginPath();
+      context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      context.fill();
+    }
+    context.globalAlpha = 1;
+    return !still;
+  });
+  const track = (event: PointerEvent<HTMLDivElement>, inside: boolean) => {
+    if (event.pointerType !== 'mouse') return;
+    const box = event.currentTarget.getBoundingClientRect();
+    mouse.current = inside ? { x: event.clientX - box.left, y: event.clientY - box.top } : null;
+  };
+  return <div {...props} ref={root} className={`bs-particles ${className}`} onPointerMove={event => track(event, true)} onPointerLeave={event => track(event, false)}>
+    <canvas ref={canvas} className="bs-particles__canvas" aria-hidden="true" />
+    {children && <div className="bs-particles__content">{children}</div>}
+  </div>;
 }

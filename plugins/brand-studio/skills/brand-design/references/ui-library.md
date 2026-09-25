@@ -101,6 +101,11 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Give one product card physical presence | `TiltCard` | Cards sit in a dense grid people scan quickly |
 | Let a row of plans or options glow as the pointer passes | `SpotlightCard` | The cards hold a form or many controls |
 | Draw attention to a short label, lot code or status line | `ScrambleText` | The text is longer than a line or must be read at once |
+| Make a display headline answer the pointer | `ProximityText` | The brand font has no variable weight axis |
+| Fill a hero word with the product in motion | `VideoText` | The words are long or the video has no clear texture at that size |
+| Mark a scroll cue, badge or seal with a turning ring of words | `CircularText` | The words carry information the person must read |
+| Give a technical or developer section a quiet, living texture | `DotGrid` | The section already has an image or pattern behind it |
+| Set a calm, atmospheric backdrop for a night, space or launch moment | `ParticleField` | The brand is quiet and flat, or text over it fails contrast |
 
 ### Tell a story
 

@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -422,4 +422,24 @@ test('pointer effects render plain, usable markup before any pointer arrives', (
 test('scramble text renders the settled text, once for screen readers', () => {
   const html = render(h(ScrambleText, { as: 'p', text: 'LOT 27' }));
   assert.equal(html, '<p class="bs-scramble "><span class="bs-sr-only">LOT 27</span><span aria-hidden="true">LOT 27</span></p>');
+});
+
+test('proximity, video and circular text keep the words readable before scripts run', () => {
+  const proximity = render(h(ProximityText, { as: 'h2', text: 'Made to last' }));
+  assert.match(proximity, /<span class="bs-sr-only">Made to last<\/span><span aria-hidden="true">/);
+  assert.equal((proximity.match(/bs-proximity__letter/g) ?? []).length, 10);
+  const video = render(h(VideoText, { text: 'HALDEN R', src: '/macro.mp4' }));
+  assert.match(video, /^<h2 class="bs-videotext "><span class="bs-videotext__text">HALDEN R<\/span><canvas class="bs-videotext__canvas" aria-hidden="true">/);
+  assert.match(video, /<video src="\/macro.mp4" muted="" loop="" playsInline="" preload="auto" aria-hidden="true" tabindex="-1"/);
+  assert.ok(!video.includes('data-ready'));
+  const circle = render(h(CircularText, { text: 'Scroll · ' }, h('i', null, '↓')));
+  assert.match(circle, /<span class="bs-sr-only">Scroll · <\/span><svg class="bs-circle__ring" viewBox="0 0 100 100" aria-hidden="true">/);
+  const [, id] = circle.match(/<path id="([^"]+)"/);
+  assert.ok(circle.includes(`href="#${id}"`));
+  assert.match(circle, /<span class="bs-circle__center"><i>↓<\/i><\/span>/);
+});
+
+test('dot grid and particle field put a hidden canvas behind the content', () => {
+  assert.equal(render(h(DotGrid, { id: 'kit' }, 'Kit')), '<div id="kit" class="bs-dotgrid "><canvas class="bs-dotgrid__canvas" aria-hidden="true"></canvas><div class="bs-dotgrid__content">Kit</div></div>');
+  assert.equal(render(h(ParticleField, null, 'Night')), '<div class="bs-particles "><canvas class="bs-particles__canvas" aria-hidden="true"></canvas><div class="bs-particles__content">Night</div></div>');
 });

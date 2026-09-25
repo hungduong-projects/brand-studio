@@ -1,0 +1,36 @@
+---
+title: Circular Text
+description: "A line of text set around a slowly turning circle, with an icon or mark in the middle."
+---
+
+<Preview name="circular-text/default" />
+
+## Installation
+
+<Install name="CircularText" />
+
+## Usage
+
+```tsx
+import { CircularText } from '@brand-studio/ui';
+```
+
+```tsx
+<a href="#lots" aria-label="See this month’s lots">
+  <CircularText text="This month’s lot · Scroll to taste · " size={132}>
+    <ArrowDown aria-hidden="true" />
+  </CircularText>
+</a>
+```
+
+The text stretches to fill the circle, so end it with a separator to join the ends. `duration` is the seconds for one turn.
+
+## Accessibility
+
+- Screen readers hear the text once, in order; the ring is hidden from them.
+- As a link, give the link its own label: the ring text is decoration.
+- It stands still under reduced motion.
+
+## API Reference
+
+<Props name="CircularText" />

@@ -1,0 +1,33 @@
+---
+title: Dot Grid
+description: "A field of dots behind your content that swell and lean away from the mouse."
+---
+
+<Preview name="dot-grid/default" />
+
+## Installation
+
+<Install name="DotGrid" />
+
+## Usage
+
+```tsx
+import { DotGrid } from '@brand-studio/ui';
+```
+
+```tsx
+<DotGrid gap={22} radius={130}>
+  <h2>Every dial, open to your own code.</h2>
+</DotGrid>
+```
+
+Dots take the brand's line colour, and the accent near the mouse.
+
+## Accessibility
+
+- The dots are drawn on a canvas hidden from screen readers; your content sits above it.
+- Only a mouse moves them. Touch and reduced motion see a still pattern.
+
+## API Reference
+
+<Props name="DotGrid" />

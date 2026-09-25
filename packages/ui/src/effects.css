@@ -104,3 +104,23 @@
 .bs-spotlight:focus-within::after { background: var(--bs-accent); }
 
 .bs-scramble { font-variant-numeric: tabular-nums; }
+
+.bs-proximity__word { display: inline-block; white-space: nowrap; }
+.bs-proximity__letter { --p: 0; display: inline-block; font-weight: calc(300 + var(--p) * 500); color: color-mix(in srgb, var(--bs-accent) calc(var(--p) * 100%), currentColor); }
+
+.bs-videotext { position: relative; }
+.bs-videotext__canvas, .bs-videotext__video { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.bs-videotext__canvas { opacity: 0; transition: opacity var(--bs-duration-slow) var(--bs-ease-out); }
+.bs-videotext__video { opacity: 0; visibility: hidden; }
+.bs-videotext[data-ready] .bs-videotext__canvas { opacity: 1; }
+.bs-videotext[data-ready] .bs-videotext__text { color: transparent; transition: color var(--bs-duration-slow) var(--bs-ease-out); }
+
+.bs-circle { position: relative; display: inline-grid; place-items: center; width: var(--bs-circle-size); height: var(--bs-circle-size); flex: none; }
+.bs-circle__ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: currentColor; font: 600 9px/1 var(--bs-font); letter-spacing: .08em; text-transform: uppercase; }
+@media (prefers-reduced-motion: no-preference) { .bs-circle__ring { animation: bs-circle-turn var(--bs-circle-duration) linear infinite; } }
+@keyframes bs-circle-turn { to { rotate: 360deg; } }
+.bs-circle__center { position: relative; display: grid; place-items: center; }
+
+.bs-dotgrid, .bs-particles { position: relative; isolation: isolate; overflow: hidden; }
+.bs-dotgrid__canvas, .bs-particles__canvas { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; }
+.bs-dotgrid__content, .bs-particles__content { position: relative; }
