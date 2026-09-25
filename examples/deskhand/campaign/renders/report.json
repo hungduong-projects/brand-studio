@@ -1,0 +1,132 @@
+[
+  {
+    "id": "og",
+    "label": "Open Graph link preview",
+    "family": "wide",
+    "size": "1200x630",
+    "files": [
+      "og.png"
+    ],
+    "bytes": 64839,
+    "fonts": {
+      "wordmark": 34,
+      "headline": 91,
+      "proof": 35,
+      "disclosure": 34
+    },
+    "problems": []
+  },
+  {
+    "id": "feed",
+    "label": "Instagram and Facebook feed 4:5",
+    "family": "portrait",
+    "size": "1080x1350",
+    "files": [
+      "feed.png"
+    ],
+    "bytes": 133135,
+    "fonts": {
+      "wordmark": 37,
+      "headline": 80,
+      "support": 31,
+      "proof": 31,
+      "disclosure": 31,
+      "cta": 44.85
+    },
+    "problems": []
+  },
+  {
+    "id": "story",
+    "label": "Stories 9:16",
+    "family": "tall",
+    "size": "1080x1920",
+    "files": [
+      "story.png"
+    ],
+    "bytes": 168829,
+    "fonts": {
+      "wordmark": 39,
+      "headline": 113,
+      "support": 41,
+      "cta": 41,
+      "proof": 38,
+      "disclosure": 31
+    },
+    "problems": []
+  },
+  {
+    "id": "mrec",
+    "label": "IAB medium rectangle",
+    "family": "square",
+    "size": "300x250",
+    "files": [
+      "mrec.png"
+    ],
+    "bytes": 17472,
+    "maxBytes": 150000,
+    "fonts": {
+      "wordmark": 11,
+      "headline": 22,
+      "proof": 11,
+      "disclosure": 11,
+      "cta": 11
+    },
+    "problems": []
+  },
+  {
+    "id": "leaderboard",
+    "label": "IAB leaderboard",
+    "family": "strip",
+    "size": "728x90",
+    "files": [
+      "leaderboard.png"
+    ],
+    "bytes": 16791,
+    "maxBytes": 100000,
+    "fonts": {
+      "wordmark": 14,
+      "headline": 22,
+      "proof": 12,
+      "cta": 13,
+      "disclosure": 11
+    },
+    "problems": []
+  },
+  {
+    "id": "email-header",
+    "label": "Email header",
+    "family": "wide",
+    "size": "1200x600",
+    "files": [
+      "email-header.png"
+    ],
+    "bytes": 68917,
+    "fonts": {
+      "wordmark": 19,
+      "headline": 44,
+      "proof": 19,
+      "disclosure": 19
+    },
+    "problems": []
+  },
+  {
+    "id": "poster-a3",
+    "label": "A3 poster (297 x 420 mm)",
+    "family": "portrait",
+    "size": "1755x2480",
+    "files": [
+      "poster-a3.png",
+      "poster-a3.pdf"
+    ],
+    "bytes": 266241,
+    "fonts": {
+      "wordmark": 38,
+      "headline": 118,
+      "support": 40,
+      "proof": 38,
+      "disclosure": 31,
+      "cta": 46
+    },
+    "problems": []
+  }
+]

@@ -34,6 +34,7 @@ Read only the references required by the task:
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).
+- Campaign across formats (social, ads, email header, poster): [campaign.md](references/campaign.md).
 - Translating an agreed brand into implementation: [brand-application.md](references/brand-application.md).
 - Any user-visible copy: [copy.md](references/copy.md). This audit is required before presenting or shipping the copy.
 - Completion or design review: [quality.md](references/quality.md).
