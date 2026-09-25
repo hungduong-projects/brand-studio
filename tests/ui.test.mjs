@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -482,4 +482,31 @@ test('swipe deck renders the top three cards and labelled buttons for each swipe
   assert.match(html, /<\/svg>Skip<\/button>/);
   assert.match(html, /<\/svg>Add<\/button>/);
   assert.match(html, /<p class="bs-sr-only" aria-live="polite">Lot 0<\/p>/);
+});
+
+test('scroll video is an ordinary labelled video with controls before enhancement', () => {
+  const html = render(h(ScrollVideo, { src: '/turn.mp4', poster: '/turn.jpg', label: 'A turn', steps: [{ at: 0, text: 'One' }, { at: .5, text: 'Two' }] }));
+  assert.match(html, /^<section class="bs-scrollvideo " aria-label="A turn" style="--bs-scrollvideo-length:300vh">/);
+  assert.match(html, /<video class="bs-scrollvideo__video" src="\/turn.mp4" poster="\/turn.jpg" muted="" playsInline="" preload="auto" controls="" aria-label="A turn"><\/video>/);
+  assert.match(html, /<ol class="bs-scrollvideo__steps"><li>One<\/li><li>Two<\/li><\/ol>/);
+  assert.ok(!html.includes('data-enhanced'));
+});
+
+test('page transition names its area for view transitions', () => {
+  const html = render(h(PageTransition, { variant: 'fade' }, h('main', null, 'Lens')));
+  assert.match(html, /^<div class="bs-pagefx bs-pagefx--fade " style="view-transition-name:bs-page"><style>@view-transition \{ navigation: auto; \}/);
+  assert.match(html, /::view-transition-new\(bs-page\)/);
+  assert.match(html, /<main>Lens<\/main><\/div>$/);
+});
+
+test('pinned zoom, curtain reveal and scroll path read in order before enhancement', () => {
+  const zoom = render(h(PinnedZoom, { asset: galleryImages[0], title: 'First sip' }, h('p', null, 'Poured')));
+  assert.match(zoom, /<h2 class="bs-zoom__title">First sip<\/h2><div class="bs-zoom__frame"><picture/);
+  assert.match(zoom, /<div class="bs-zoom__caption"><p>Poured<\/p><\/div>/);
+  assert.ok(!zoom.includes('data-enhanced'));
+  const curtain = render(h(CurtainReveal, null, h('p', null, 'One'), h('p', null, 'Two')));
+  assert.equal(curtain, '<div class="bs-curtain "><section class="bs-curtain__panel" style="z-index:1"><p>One</p></section><section class="bs-curtain__panel" style="z-index:2"><p>Two</p></section></div>');
+  const path = render(h(ScrollPath, { label: 'Journey', steps: [{ title: 'Picked' }, { title: 'Roasted', body: h('p', null, 'Monday') }] }));
+  assert.match(path, /^<ol class="bs-path " aria-label="Journey"><li class="bs-path__step"><span class="bs-path__dot" aria-hidden="true"><\/span><h3>Picked<\/h3><\/li>/);
+  assert.match(path, /<h3>Roasted<\/h3><div class="bs-path__body"><p>Monday<\/p><\/div>/);
 });

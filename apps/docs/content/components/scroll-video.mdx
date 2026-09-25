@@ -1,0 +1,39 @@
+---
+title: Scroll Video
+description: "A video that plays frame by frame as you scroll through a pinned stage, with lines of copy that take turns over it."
+---
+
+<Preview name="scroll-video/default" layout="full" />
+
+## Installation
+
+<Install name="ScrollVideo" />
+
+## Usage
+
+```tsx
+import { ScrollVideo } from '@brand-studio/ui';
+```
+
+```tsx
+<ScrollVideo label="The Halden R turning, then coming apart" src="/turn.mp4" poster="/turn.jpg" length={320} steps={[
+  { at: 0, text: 'One body, milled from brass.' },
+  { at: .72, text: 'Seven parts. Every one replaceable.' },
+]} />
+```
+
+`length` is the scroll distance in viewport heights. Each step shows from its `at` point, between 0 and 1, until the next one. Encode the video with a keyframe on every frame so it seeks without stalling:
+
+```sh
+ffmpeg -i turn.mov -c:v libx264 -crf 27 -g 1 -movflags +faststart -an turn.mp4
+```
+
+## Accessibility
+
+- The section is labelled, and so is the video; describe what it shows in `label`.
+- Before scripts run, and under reduced motion, it is an ordinary muted video with controls and the steps as a list.
+- The steps are real text over the video; keep them short and check their contrast against every frame.
+
+## API Reference
+
+<Props name="ScrollVideo" />

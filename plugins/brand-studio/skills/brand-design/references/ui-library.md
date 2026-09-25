@@ -131,6 +131,11 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Prove a change by letting people wipe between two versions of one view | `BeforeAfter` | The two images differ in framing or size |
 | Offer three to five equal paths, each with an image and a line | `ExpandingPanels` | Each path needs more than a sentence |
 | Let people sort a short set of options into yes and no | `SwipeDeck` | The choice needs comparison side by side: use `ModelCompare` |
+| Let the reader drive a product film, such as a turn or a teardown, by scrolling | `ScrollVideo` | The video has sound or speech, or is longer than about ten seconds |
+| Carry the reader from one page or view to the next without a hard cut | `PageTransition` | The site is a working tool where speed matters more than feel |
+| Open a chapter by growing one image from a card to the full screen | `PinnedZoom` | The image is small, detailed or has text in it |
+| Hand over between big chapters, each a full screen | `CurtainReveal` | Panels hold long reading or forms |
+| Walk through a short process or history in order | `ScrollPath` | The steps branch or must be compared: use a table |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
 
 ### Present a product

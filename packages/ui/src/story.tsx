@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { Children, useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { CSSProperties, ElementType, PointerEvent, ReactNode } from 'react';
 import { BrandImage } from './core.js';
@@ -686,4 +686,143 @@ export function SwipeDeck({ cards, label = 'Cards', leftLabel = 'Skip', rightLab
     </div>
     <p className="bs-sr-only" aria-live="polite">{current ? current.title : ''}</p>
   </section>;
+}
+
+export interface ScrollVideoStep { at: number; text: ReactNode }
+
+/**
+ * A video that plays frame by frame as you scroll through a pinned stage, with lines of copy that take turns over it.
+ * Before scripts run, and under reduced motion, it is an ordinary video with controls and the copy as a list. Encode it with a keyframe on every frame so seeking stays smooth.
+ */
+export function ScrollVideo({ src, poster, label, steps = [], length = 300, className = '' }: { src: string; poster?: string; label: string; steps?: ScrollVideoStep[]; length?: number; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const [enhanced, setEnhanced] = useState(false);
+  const [step, setStep] = useState(-1);
+  const target = useRef(0);
+  useEffect(() => { setEnhanced(!matchMedia('(prefers-reduced-motion: reduce)').matches); }, []);
+  useScrollFrame(() => {
+    const section = root.current, clip = video.current;
+    if (!section || !clip) return;
+    const box = section.getBoundingClientRect();
+    const progress = clamp01(-box.top / Math.max(box.height - innerHeight, 1));
+    section.style.setProperty('--p', progress.toFixed(3));
+    target.current = progress;
+    if (clip.duration) clip.currentTime = Math.min(progress * clip.duration, clip.duration - .05);
+    let current = -1;
+    steps.forEach((item, index) => { if (progress >= item.at) current = index; });
+    setStep(current);
+  }, () => enhanced, [enhanced, steps]);
+  useEffect(() => {
+    const clip = video.current;
+    if (!enhanced || !clip) return;
+    const seek = () => { if (clip.duration) clip.currentTime = Math.min(target.current * clip.duration, clip.duration - .05); };
+    clip.addEventListener('loadedmetadata', seek);
+    return () => clip.removeEventListener('loadedmetadata', seek);
+  }, [enhanced]);
+  return <section ref={root} className={`bs-scrollvideo ${className}`} aria-label={label} data-enhanced={enhanced || undefined} style={{ '--bs-scrollvideo-length': `${length}vh` } as CSSProperties}>
+    <div className="bs-scrollvideo__stage">
+      <video ref={video} className="bs-scrollvideo__video" src={src} poster={poster} muted playsInline preload="auto" controls={!enhanced} aria-label={label} />
+      {steps.length > 0 && <ol className="bs-scrollvideo__steps">
+        {steps.map((item, index) => <li key={index} data-current={index === step || undefined}>{item.text}</li>)}
+      </ol>}
+    </div>
+  </section>;
+}
+
+/**
+ * Names the area that changes between pages so the browser can animate the change with a view transition: the old page slides and fades out as the new one arrives.
+ * It turns on cross-document transitions for multi-page sites; in an app, wrap each route or state change in `transitionTo`. Browsers without view transitions, and reduced motion, change at once.
+ */
+export function PageTransition({ variant = 'slide', name = 'bs-page', children, className = '' }: { variant?: 'slide' | 'fade'; name?: string; children?: ReactNode; className?: string }) {
+  return <div className={`bs-pagefx bs-pagefx--${variant} ${className}`} style={{ viewTransitionName: name } as CSSProperties}>
+    <style>{`@view-transition { navigation: auto; }
+::view-transition-old(${name}) { animation: var(--bs-pagefx-out, none); }
+::view-transition-new(${name}) { animation: var(--bs-pagefx-in, none); }`}</style>
+    {children}
+  </div>;
+}
+
+/** Runs a DOM update inside a view transition when the browser has them, so a `PageTransition` area animates; otherwise it just runs the update. */
+export function transitionTo(update: () => void) {
+  const start = (document as Document & { startViewTransition?: (callback: () => void) => unknown }).startViewTransition;
+  if (!start || matchMedia('(prefers-reduced-motion: reduce)').matches) { update(); return; }
+  start.call(document, () => flushSync(update));
+}
+
+/** A picture that starts as a framed card and grows to fill the screen as you scroll, while the title above it fades. Before scripts run, and under reduced motion, it is the title over a full image. */
+export function PinnedZoom({ asset, title, children, className = '' }: { asset: ImageAsset; title?: ReactNode; children?: ReactNode; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useScrollFrame(() => {
+    const section = root.current;
+    if (!section) return;
+    section.dataset.enhanced = '';
+    const box = section.getBoundingClientRect();
+    const progress = clamp01(-box.top / Math.max(box.height - innerHeight, 1));
+    section.style.setProperty('--p', (1 - (1 - progress) ** 2).toFixed(3));
+  }, moving, [asset]);
+  return <section ref={root} className={`bs-zoom ${className}`}>
+    <div className="bs-zoom__stage">
+      {title && <h2 className="bs-zoom__title">{title}</h2>}
+      <div className="bs-zoom__frame"><BrandImage asset={asset} sizes="100vw" /></div>
+      {children && <div className="bs-zoom__caption">{children}</div>}
+    </div>
+  </section>;
+}
+
+/** Full-screen panels that pin in turn; each new panel slides up over the last, which sinks back and dims. Without scripts, and under reduced motion, they still stack but nothing sinks. */
+export function CurtainReveal({ children, className = '' }: { children: ReactNode; className?: string }) {
+  const root = useRef<HTMLDivElement>(null);
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useScrollFrame(() => {
+    const panels = [...(root.current?.children ?? [])] as HTMLElement[];
+    panels.forEach((panel, index) => {
+      const next = panels[index + 1];
+      if (!next) return;
+      const covered = clamp01(1 - next.getBoundingClientRect().top / innerHeight);
+      panel.style.setProperty('--cover', covered.toFixed(3));
+    });
+  }, moving, [children]);
+  return <div ref={root} className={`bs-curtain ${className}`}>
+    {Children.map(children, (child, index) => <section className="bs-curtain__panel" style={{ zIndex: index + 1 }}>{child}</section>)}
+  </div>;
+}
+
+export interface PathStep { title: string; body?: ReactNode }
+
+/** A timeline whose line swings down the page as you scroll, lighting each step as it arrives. Without scripts, and under reduced motion, a straight line is already drawn. */
+export function ScrollPath({ steps, label = 'Steps', className = '' }: { steps: PathStep[]; label?: string; className?: string }) {
+  const root = useRef<HTMLOListElement>(null);
+  const [marks, setMarks] = useState<number[]>([]);
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useScrollFrame(() => {
+    const list = root.current;
+    if (!list) return;
+    list.dataset.enhanced = '';
+    const items = [...list.querySelectorAll<HTMLElement>('.bs-path__step')];
+    const next = [...items.map(item => item.offsetTop + 13), list.offsetHeight];
+    setMarks(current => current.join() === next.join() ? current : next);
+    const box = list.getBoundingClientRect();
+    const reach = clamp01((innerHeight * .6 - box.top) / Math.max(box.height, 1));
+    list.style.setProperty('--p', reach.toFixed(3));
+    items.forEach(item => { if (item.offsetTop + 13 <= reach * box.height + 1) item.dataset.reached = ''; else delete item.dataset.reached; });
+  }, moving, [steps]);
+  // The line passes through each dot and swings out between them, alternating sides.
+  const d = marks.reduce((path, y, index) => {
+    const from = index ? marks[index - 1]! : 0, x = index % 2 ? 4 : 28;
+    return `${path} C ${x} ${from + (y - from) / 3} ${x} ${from + ((y - from) * 2) / 3} 16 ${y}`;
+  }, 'M 16 0');
+  const height = marks[marks.length - 1] ?? 0;
+  return <ol ref={root} className={`bs-path ${className}`} aria-label={label}>
+    {height > 0 && <svg className="bs-path__line" viewBox={`0 0 32 ${height}`} preserveAspectRatio="none" aria-hidden="true">
+      <path className="bs-path__track" d={d} pathLength={1} />
+      <path className="bs-path__ink" d={d} pathLength={1} />
+    </svg>}
+    {steps.map((step, index) => <li key={index} className="bs-path__step">
+      <span className="bs-path__dot" aria-hidden="true" />
+      <h3>{step.title}</h3>
+      {step.body && <div className="bs-path__body">{step.body}</div>}
+    </li>)}
+  </ol>;
 }
