@@ -7,7 +7,7 @@ import { source } from './source';
 
 export const origin = 'https://brandstudio.js.org';
 
-const cell = (text: string) => text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+const cell = (text: string) => text.replace(/[\\|]/g, '\\$&').replace(/\n/g, ' ');
 
 const install = (name?: string) => [
   '```sh\nnpm install @brand-studio/ui\n```',
