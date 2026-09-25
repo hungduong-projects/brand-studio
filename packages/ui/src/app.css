@@ -36,7 +36,7 @@
 .bs-select__item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 36px; padding: .45rem .6rem; border-radius: calc(var(--bs-radius) / 2 + 2px); cursor: default; outline: 0; user-select: none; font-size: .925rem; }
 .bs-select__item[data-highlighted] { background: var(--bs-accent-soft); }
 .bs-select__item[data-disabled] { opacity: .45; }
-.bs-select__check { display: grid; flex: none; color: var(--bs-accent); }
+.bs-select__check { display: grid; flex: none; color: var(--bs-accent-text); }
 .bs-select__check svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .bs-tooltip__positioner { z-index: 120; }
@@ -111,12 +111,12 @@
 /* In a narrow container the action wraps under the text instead of squeezing it. */
 .bs-alert__body { flex: 1 1 14rem; min-width: 0; }
 .bs-alert__title { margin: 0; font-weight: 600; font-size: .95rem; }
-.bs-alert__text { margin-top: .15rem; color: var(--bs-muted); font-size: .9rem; }
+.bs-alert__text { margin-top: .15rem; color: color-mix(in srgb, var(--bs-muted) 60%, var(--bs-ink)); font-size: .9rem; }
 .bs-alert__text > :last-child { margin-bottom: 0; }
 .bs-alert__action { flex: none; align-self: center; }
 
 .bs-empty { display: grid; justify-items: center; gap: .4rem; padding: clamp(1.5rem, 5vw, 3rem) 1.25rem; border: 1px dashed var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); text-align: center; }
-.bs-empty__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: .6rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-elevated); color: var(--bs-accent); }
+.bs-empty__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: .6rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-elevated); color: var(--bs-accent-text); }
 .bs-empty__icon svg { width: 1.25rem; height: 1.25rem; }
 .bs-empty__title { margin: 0; font-size: 1.05rem; font-weight: 600; }
 .bs-empty__description { max-width: 34ch; margin: 0; color: var(--bs-muted); font-size: .925rem; text-wrap: pretty; }

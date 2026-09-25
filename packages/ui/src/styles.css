@@ -6,7 +6,7 @@
   /* Motion: ease-out for things arriving, in-out for things moving between places, spring for things that answer a tap. */
   --bs-ease-out: cubic-bezier(.2,.7,.2,1); --bs-ease-in-out: cubic-bezier(.41,.19,.13,.95); --bs-ease-spring: cubic-bezier(.34,1.56,.64,1);
   --bs-ease: var(--bs-ease-out); --bs-duration-fast: 150ms; --bs-duration: 420ms; --bs-duration-slow: 700ms; --bs-stagger: 60ms;
-  --bs-voice-font: var(--bs-light-voiceFont, var(--bs-font));
+  --bs-voice-font: var(--bs-light-voiceFont, var(--bs-font)); --bs-accent-text: var(--bs-light-accentText, var(--bs-accent));
   --bs-accent-soft: color-mix(in srgb, var(--bs-accent) 12%, transparent); --bs-line-soft: color-mix(in srgb, var(--bs-ink) 12%, transparent);
   color-scheme: light; color: var(--bs-ink); background: var(--bs-surface); font-family: var(--bs-font); line-height: 1.5;
 }
@@ -14,14 +14,14 @@
   --bs-surface: var(--bs-dark-surface); --bs-elevated: var(--bs-dark-elevated); --bs-ink: var(--bs-dark-ink);
   --bs-muted: var(--bs-dark-muted); --bs-accent: var(--bs-dark-accent); --bs-on-accent: var(--bs-dark-onAccent);
   --bs-line: var(--bs-dark-line); --bs-font: var(--bs-dark-font); --bs-radius: var(--bs-dark-radius); color-scheme: dark;
-  --bs-voice-font: var(--bs-dark-voiceFont, var(--bs-font));
+  --bs-voice-font: var(--bs-dark-voiceFont, var(--bs-font)); --bs-accent-text: var(--bs-dark-accentText, var(--bs-accent));
 }
 @media (prefers-color-scheme: dark) {
   .bs-theme[data-bs-theme="system"] {
     --bs-surface: var(--bs-dark-surface); --bs-elevated: var(--bs-dark-elevated); --bs-ink: var(--bs-dark-ink);
     --bs-muted: var(--bs-dark-muted); --bs-accent: var(--bs-dark-accent); --bs-on-accent: var(--bs-dark-onAccent);
     --bs-line: var(--bs-dark-line); --bs-font: var(--bs-dark-font); --bs-radius: var(--bs-dark-radius); color-scheme: dark;
-    --bs-voice-font: var(--bs-dark-voiceFont, var(--bs-font));
+    --bs-voice-font: var(--bs-dark-voiceFont, var(--bs-font)); --bs-accent-text: var(--bs-dark-accentText, var(--bs-accent));
   }
 }
 .bs-theme *, .bs-theme *::before, .bs-theme *::after { box-sizing: border-box; }
@@ -66,7 +66,7 @@
 .bs-hero--overlay .bs-eyebrow { color: rgb(255 255 255 / .86); }
 .bs-tail { color: var(--bs-muted); }
 .bs-hero--overlay .bs-tail { color: rgb(255 255 255 / .72); }
-.bs-story__chapter .bs-story__label { font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--bs-accent); margin-bottom: 1rem; }
+.bs-story__chapter .bs-story__label { font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--bs-accent-text); margin-bottom: 1rem; }
 .bs-editorial { padding-block: var(--bs-section); display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(2rem, 7vw, 7rem); }
 .bs-prose { max-width: 42ch; font-size: 1.1rem; color: var(--bs-muted); }
 .bs-editorial .bs-picture { aspect-ratio: 1; border-radius: var(--bs-radius); }

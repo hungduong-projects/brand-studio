@@ -50,7 +50,7 @@ export function HighlightsGallery({ title, items, interval = 6000, label = 'High
     onPointerEnter={() => setHeld(true)} onPointerLeave={() => setHeld(false)}
     onFocus={() => setHeld(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setHeld(false); }}>
     {title && <h2 className="bs-highlights__title">{title}</h2>}
-    <ul ref={track} className="bs-highlights__track">
+    <ul ref={track} className="bs-highlights__track" tabIndex={0}>
       {items.map((item, i) => <li key={i} className="bs-highlights__slide" aria-hidden={i !== index || undefined}>
         <div className="bs-highlights__media">{item.media}</div>
         <p className="bs-highlights__caption">{item.caption}</p>
