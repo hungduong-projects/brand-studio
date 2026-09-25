@@ -1,0 +1,76 @@
+{
+  "title": "Deskhand brand introduction",
+  "author": "Brand Studio",
+  "footer": "Deskhand  ·  Fictional product for a Brand Studio demo",
+  "fonts": { "mono": "Geist Mono" },
+  "slides": [
+    {
+      "layout": "cover",
+      "title": "Deskhand drafts replies to your support tickets",
+      "subtitle": "Each reply links every claim to the order or help article it came from.",
+      "highlight": "links every claim",
+      "context": "Brand introduction  ·  Fictional product for a Brand Studio demo",
+      "notes": "Deskhand is a fictional product. Everything in this deck comes from its brand contract and demo page."
+    },
+    {
+      "layout": "statement",
+      "title": "Support leads need to trust a reply before it goes out",
+      "body": "Deskhand is for online shops with one to ten support agents. Each draft shows the order or help article behind every fact.",
+      "highlight": "the order or help article behind every fact",
+      "source": "Deskhand brand contract: audience and positioning"
+    },
+    {
+      "layout": "section",
+      "title": "One ticket shows how a reply gets made",
+      "body": "Ticket #2291: a lamp arrived cracked, and the customer wants a refund."
+    },
+    {
+      "layout": "image",
+      "title": "Ticket #2291 gets a cited reply in one view",
+      "image": {
+        "path": "images/console.png",
+        "frame": true,
+        "alt": "Deskhand console, cropped to the open ticket. Ticket #2291 from Priya N. reads: The Orla lamp arrived with a cracked base. Can I get a refund? The draft reply offers an $84.00 refund for order #48213 and highlights three claims, numbered 1 to 3. Lines link each claim to its source: Returns and refunds, Order #48213, and Payments. The approval bar reads: Refund $84 is over your $50 limit, with an Approve and send button.",
+        "source": "Capture of the Deskhand demo page, Brand Studio showcase, 25 Sep 2026"
+      },
+      "caption": "The message, three sources, the cited draft and the approval bar on one screen.",
+      "notes": "Point at a highlighted claim, then follow its line to the source."
+    },
+    {
+      "layout": "process",
+      "title": "Deskhand reads three sources, then writes a cited reply",
+      "steps": [
+        { "title": "Reads the order", "text": "Checks what the customer bought and paid." },
+        { "title": "Reads the help article", "text": "Finds the policy that covers the ticket." },
+        { "title": "Reads the thread", "text": "Picks up what the customer already said." },
+        { "title": "Writes a cited reply", "text": "Numbers each claim and links it to its source." },
+        { "title": "Holds large refunds", "text": "A refund over your limit waits for you." }
+      ],
+      "source": "Deskhand brand contract: how chapter"
+    },
+    {
+      "layout": "data",
+      "title": "An $84 refund over your limit waits for your approval",
+      "metric": { "value": "$84", "label": "Refund drafted for ticket #2291, a lamp that arrived cracked" },
+      "body": "Deskhand writes the reply and holds it until you approve and send.",
+      "source": "Sample ticket from the Deskhand brand contract; the data is fictional"
+    },
+    {
+      "layout": "comparison",
+      "title": "You set the refund limit, and chargebacks always go to a person",
+      "basis": "Where a ticket goes, by refund amount and type",
+      "columns": [
+        { "heading": "Deskhand sends", "points": ["Replies with a refund at or under your limit", "Replies with no refund"] },
+        { "heading": "Waits for you", "mark": true, "points": ["Refunds over your limit", "Every chargeback"] }
+      ],
+      "source": "Deskhand brand contract: limits chapter"
+    },
+    {
+      "layout": "closing",
+      "title": "Next step: try Deskhand free for 14 days",
+      "body": "After the trial, you pay for each reply Deskhand sends.",
+      "contact": "Deskhand is fictional  ·  brandstudio.js.org",
+      "notes": "Pricing follows the contract: free for 14 days, then a price per reply Deskhand sends."
+    }
+  ]
+}

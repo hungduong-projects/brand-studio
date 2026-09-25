@@ -37,6 +37,7 @@ Read only the references required by the task:
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).
 - Campaign across formats (social, ads, email header, poster): [campaign.md](references/campaign.md).
 - Translating an agreed brand into implementation: [brand-application.md](references/brand-application.md).
+- Slides or pitch deck: [slides.md](references/slides.md).
 - Any user-visible copy: [copy.md](references/copy.md). This audit is required before presenting or shipping the copy.
 - Completion or design review: [quality.md](references/quality.md).
 
