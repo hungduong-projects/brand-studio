@@ -718,8 +718,15 @@ export function ScrollVideo({ src, poster, label, steps = [], length = 300, clas
     if (!enhanced || !clip) return;
     const seek = () => { if (clip.duration) clip.currentTime = Math.min(target.current * clip.duration, clip.duration - .05); };
     clip.addEventListener('loadedmetadata', seek);
-    return () => clip.removeEventListener('loadedmetadata', seek);
-  }, [enhanced]);
+    // Seeking needs byte ranges, which some static hosts ignore; a blob URL of the whole file always seeks.
+    let url = '', live = true;
+    fetch(src).then(response => response.ok ? response.blob() : null).then(blob => {
+      if (!blob || !live) return;
+      url = URL.createObjectURL(blob);
+      clip.src = url;
+    }).catch(() => {});
+    return () => { live = false; clip.removeEventListener('loadedmetadata', seek); if (url) URL.revokeObjectURL(url); };
+  }, [enhanced, src]);
   return <section ref={root} className={`bs-scrollvideo ${className}`} aria-label={label} data-enhanced={enhanced || undefined} style={{ '--bs-scrollvideo-length': `${length}vh` } as CSSProperties}>
     <div className="bs-scrollvideo__stage">
       <video ref={video} className="bs-scrollvideo__video" src={src} poster={poster} muted playsInline preload="auto" controls={!enhanced} aria-label={label} />
