@@ -1,0 +1,33 @@
+---
+title: Spotlight Card
+description: "A card whose border and surface light up around the mouse."
+---
+
+<Preview name="spotlight-card/default" />
+
+## Installation
+
+<Install name="SpotlightCard" />
+
+## Usage
+
+```tsx
+import { SpotlightCard } from '@brand-studio/ui';
+```
+
+```tsx
+<SpotlightCard>
+  <h3>Regular</h3>
+  <p>Two bags a month</p>
+</SpotlightCard>
+```
+
+## Accessibility
+
+- The light is drawn with CSS and adds nothing for screen readers.
+- Keyboard focus on anything inside lights the whole edge, so keyboard users see which card they are in.
+- Only a mouse moves the light; touch and reduced motion see a plain card.
+
+## API Reference
+
+<Props name="SpotlightCard" />

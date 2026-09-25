@@ -1,0 +1,33 @@
+---
+title: Custom Cursor
+description: "A soft dot that trails the mouse and grows into a labelled ring over links."
+---
+
+<Preview name="custom-cursor/default" />
+
+## Installation
+
+<Install name="CustomCursor" />
+
+## Usage
+
+```tsx
+import { CustomCursor } from '@brand-studio/ui';
+```
+
+```tsx
+<CustomCursor>
+  <a href="/journal/lens" data-cursor="Read">Built around one lens</a>
+</CustomCursor>
+```
+
+The dot appears only inside the wrapper. It grows over any link or button; add `data-cursor="Word"` to an element to show a word in the ring.
+
+## Accessibility
+
+- The system cursor stays visible; the dot is a decoration hidden from screen readers.
+- Touch screens and reduced motion get no dot.
+
+## API Reference
+
+<Props name="CustomCursor" />

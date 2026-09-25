@@ -1,0 +1,31 @@
+---
+title: Magnetic Button
+description: "A button that leans toward the mouse and springs back when it leaves."
+---
+
+<Preview name="magnetic-button/default" />
+
+## Installation
+
+<Install name="MagneticButton" />
+
+## Usage
+
+```tsx
+import { MagneticButton } from '@brand-studio/ui';
+```
+
+```tsx
+<MagneticButton shape="pill">Pre-order</MagneticButton>
+```
+
+It takes every `Button` prop. `strength` scales how far it leans; `1` moves the button up to 10 px.
+
+## Accessibility
+
+- It is an ordinary `button`, so keyboard and screen reader use is unchanged.
+- Only a mouse moves it. Touch, pen and reduced motion get a still button.
+
+## API Reference
+
+<Props name="MagneticButton" />

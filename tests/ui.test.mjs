@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -405,4 +405,21 @@ test('stagger grid and scroll formation render flat, labelled image lists before
   assert.match(formation, /<h2 class="bs-formation__title">In the box<\/h2>/);
   for (const image of galleryImages) assert.ok(formation.includes(`alt="${image.alt}"`), image.alt);
   assert.ok(!formation.includes('data-enhanced'));
+});
+
+test('pointer effects render plain, usable markup before any pointer arrives', () => {
+  const button = render(h(MagneticButton, { shape: 'pill' }, 'Pre-order'));
+  assert.match(button, /^<button style="--bs-magnetic-strength:1" type="button" class="bs-button bs-button--primary bs-button--pill bs-magnetic "/);
+  assert.match(button, /<span class="bs-magnetic__label">Pre-order<\/span>/);
+  const cursor = render(h(CustomCursor, null, h('a', { href: '/lens', 'data-cursor': 'Read' }, 'Lens')));
+  assert.match(cursor, /<a href="\/lens" data-cursor="Read">Lens<\/a><span class="bs-cursor__dot" aria-hidden="true"><\/span>/);
+  const tilt = render(h(TiltCard, { max: 6 }, 'Halden R'));
+  assert.match(tilt, /style="--bs-tilt-max:6deg"/);
+  assert.match(tilt, /<div class="bs-tilt__face">Halden R<span class="bs-tilt__glare" aria-hidden="true"><\/span><\/div>/);
+  assert.equal(render(h(SpotlightCard, { id: 'plan' }, 'Regular')), '<div id="plan" class="bs-spotlight ">Regular</div>');
+});
+
+test('scramble text renders the settled text, once for screen readers', () => {
+  const html = render(h(ScrambleText, { as: 'p', text: 'LOT 27' }));
+  assert.equal(html, '<p class="bs-scramble "><span class="bs-sr-only">LOT 27</span><span aria-hidden="true">LOT 27</span></p>');
 });
