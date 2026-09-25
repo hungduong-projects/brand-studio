@@ -154,6 +154,6 @@ Guessing a palette from adjectives produced a muddy dark page on Deskhand. Measu
 1. List 5-10 leaders in the category and 3 direct competitors.
 2. For each, load the page in Playwright, wait for it to settle, and collect `getComputedStyle` background colours weighted by element area over the first 2500px, text colours, the body font and the first filled button (its background and text colour).
 3. Note which are light or dark, where the brand colour appears (field, object, button only) and how many words the hero uses.
-4. Offer 3-4 palettes as AskUserQuestion previews: hex values with roles, plus a 4-line ASCII layout showing where the brand colour lands. Recommend the one that follows from the concept.
+4. Offer 3-4 palettes through the host's question tool (AskUserQuestion previews in Claude Code; a numbered list elsewhere): hex values with roles, plus a 4-line ASCII layout showing where the brand colour lands. Recommend the one that follows from the concept.
 
 2026 baseline (AI agents and SaaS, measured 2026-09-23): light off-white page, near-black ink, one saturated colour used big (Clay's forest field and lime CTA, Fin's orange object, Ramp's lime button). A thin accent on a dark page does not read as a brand. Record the measurements in the project's lessons file.

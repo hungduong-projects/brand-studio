@@ -304,7 +304,7 @@ export function Release() {
       <section className="rl-install" data-chapter="" aria-labelledby="install-title">
         <h2 id="install-title">Install</h2>
         <InstallBlock />
-        <p>Then import <code>@brand-studio/ui/styles.css</code> and wrap your app in <code>BrandTheme</code>. Or copy the agent prompt into Claude Code: it installs the package and the brand-design skill, then runs <code>/brand-studio:brand-design</code>.</p>
+        <p>Then import <code>@brand-studio/ui/styles.css</code> and wrap your app in <code>BrandTheme</code>. Or copy the agent prompt into Claude Code, Codex, Gemini CLI or another coding agent: it installs the package and the brand-design skill, then starts the brand workflow.</p>
         <ActionLink href={`${DOCS}installation/`} shape="pill">Read the setup guide</ActionLink>
       </section>
     </main>
