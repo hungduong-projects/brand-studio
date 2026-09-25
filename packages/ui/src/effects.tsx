@@ -218,7 +218,7 @@ void main() {
   gl_FragColor = vec4(texture2D(image, at + split).r, texture2D(image, at).g, texture2D(image, at - split).b, 1.);
 }`;
 
-/** An image that ripples and splits its colour around the pointer, then settles. The picture underneath stays a normal, described image; the effect needs same-origin images and is off under reduced motion. */
+/** An image that ripples and splits its colour around the pointer, then settles. The picture underneath stays a normal, described image; the effect answers a mouse only, needs same-origin images and is off under reduced motion. */
 export function DistortionImage({ asset, strength = 1, sizes, className = '' }: { asset: ImageAsset; strength?: number; sizes?: string; className?: string }) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -258,6 +258,7 @@ export function DistortionImage({ asset, strength = 1, sizes, className = '' }: 
     return () => image.removeEventListener('load', load);
   }, [asset]);
   const track = (event: PointerEvent<HTMLDivElement>, target: number) => {
+    if (event.pointerType !== 'mouse') return; // touch and pen keep the still image
     const box = event.currentTarget.getBoundingClientRect(), s = state.current;
     s.x = (event.clientX - box.left) / box.width; s.y = (event.clientY - box.top) / box.height;
     if (target && !s.target) s.start = performance.now();
