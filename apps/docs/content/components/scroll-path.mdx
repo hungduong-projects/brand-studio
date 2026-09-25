@@ -1,0 +1,32 @@
+---
+title: Scroll Path
+description: "A timeline whose line swings down the page as you scroll, lighting each step as it arrives."
+---
+
+<Preview name="scroll-path/default" />
+
+## Installation
+
+<Install name="ScrollPath" />
+
+## Usage
+
+```tsx
+import { ScrollPath } from '@brand-studio/ui';
+```
+
+```tsx
+<ScrollPath label="From farm to your door" steps={[
+  { title: 'Picked', body: <p>Ripe cherries only.</p> },
+  { title: 'Roasted on Monday', body: <p>Small batches.</p> },
+]} />
+```
+
+## Accessibility
+
+- It is a labelled ordered list of steps, each with a heading.
+- Without scripts, and under reduced motion, a straight line is already drawn and every step is at full strength.
+
+## API Reference
+
+<Props name="ScrollPath" />

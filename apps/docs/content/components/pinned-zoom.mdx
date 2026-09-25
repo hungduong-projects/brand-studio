@@ -1,0 +1,33 @@
+---
+title: Pinned Zoom
+description: "A picture that starts as a framed card and grows to fill the screen as you scroll."
+---
+
+<Preview name="pinned-zoom/default" layout="full" />
+
+## Installation
+
+<Install name="PinnedZoom" />
+
+## Usage
+
+```tsx
+import { PinnedZoom } from '@brand-studio/ui';
+```
+
+```tsx
+<PinnedZoom asset={cup} title="Make room for the first sip.">
+  <p>The Huila lot, poured at ninety-four degrees.</p>
+</PinnedZoom>
+```
+
+The title fades as the picture grows; the children appear over the full picture at the end.
+
+## Accessibility
+
+- The picture keeps its alt text, and the title is a real heading.
+- Before scripts run, and under reduced motion, it is the title over a full-width image.
+
+## API Reference
+
+<Props name="PinnedZoom" />

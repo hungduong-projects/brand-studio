@@ -1,0 +1,35 @@
+---
+title: Curtain Reveal
+description: "Full-screen panels that pin in turn; each new one slides up over the last, which sinks back and dims."
+---
+
+<Preview name="curtain-reveal/default" layout="full" />
+
+## Installation
+
+<Install name="CurtainReveal" />
+
+## Usage
+
+```tsx
+import { CurtainReveal } from '@brand-studio/ui';
+```
+
+```tsx
+<CurtainReveal>
+  <div>It starts with the bean.</div>
+  <div>Roasted every Monday.</div>
+  <div>Yours by Friday.</div>
+</CurtainReveal>
+```
+
+Each child becomes a panel at least one screen tall. Give each its own background so the one underneath is hidden.
+
+## Accessibility
+
+- Every panel is a section in reading order; nothing is hidden or reordered.
+- Without scripts, and under reduced motion, the panels still stack but nothing sinks or dims.
+
+## API Reference
+
+<Props name="CurtainReveal" />

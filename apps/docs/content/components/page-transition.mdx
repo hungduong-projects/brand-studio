@@ -1,0 +1,41 @@
+---
+title: Page Transition
+description: "The area that changes between pages slides and fades into the next, using the browser's view transitions."
+---
+
+<Preview name="page-transition/default" />
+
+## Installation
+
+<Install name="PageTransition" />
+
+## Usage
+
+```tsx
+import { PageTransition, transitionTo } from '@brand-studio/ui';
+```
+
+On a multi-page site, wrap the main area of every page. The browser animates each same-site link between pages:
+
+```tsx
+<PageTransition>
+  <main>{children}</main>
+</PageTransition>
+```
+
+In an app, run the route or state change through `transitionTo`:
+
+```tsx
+<button onClick={() => transitionTo(() => setPage('lens'))}>Lens</button>
+```
+
+`variant` is `'slide'` or `'fade'`. Use one `PageTransition` per page; give each its own `name` if you need two.
+
+## Accessibility
+
+- It changes nothing about focus or reading order; move focus to the new heading yourself when the page changes.
+- Browsers without view transitions, and reduced motion, change pages at once.
+
+## API Reference
+
+<Props name="PageTransition" />
