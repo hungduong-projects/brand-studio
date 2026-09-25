@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deskhand art family</title>
+<style>
+  :root {
+    --surface: #f6f6f3; --elevated: #ffffff; --ink: #101114; --muted: #5c5f66; --accent: #ffe14d; --line: #9a9ea6;
+    --dark: #101114; --dark-muted: #a6a9b0;
+    --font: "Geist Variable", "Geist", system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface); color: var(--ink); font: 16px/1.5 var(--font); }
+  main { max-width: 1200px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 12px; }
+  h2 { font-size: 1.5rem; letter-spacing: -.02em; margin: 72px 0 8px; }
+  p { margin: 0 0 12px; max-width: 62ch; }
+  .note { color: var(--muted); }
+  .mono { font-family: var(--mono); font-size: .85em; }
+  mark { background: var(--accent); color: var(--ink); padding: 0 .15em; }
+
+  .family { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
+  .family figure { margin: 0; background: var(--elevated); border: 1px solid color-mix(in srgb, var(--line) 40%, transparent); border-radius: 12px; overflow: hidden; }
+  .family figure:first-child { grid-column: 1 / -1; }
+  .family img { display: block; width: 100%; height: auto; }
+  .family .checker img { background: repeating-conic-gradient(#ececea 0 25%, #f6f6f3 0 50%) 0 0 / 20px 20px; max-height: 360px; object-fit: contain; }
+  .family figcaption { padding: 12px 16px 16px; font-size: .9rem; }
+  .family figcaption b { display: block; }
+  .family figcaption span { color: var(--muted); }
+
+  /* Application 1: social card, 1200 x 630, on the background derivative. */
+  .card { container-type: inline-size; position: relative; aspect-ratio: 1200 / 630; border-radius: 12px; overflow: hidden; background: var(--surface) url(derivatives/background-v1.png) center / cover; border: 1px solid color-mix(in srgb, var(--line) 40%, transparent); }
+  .card__in { position: absolute; inset: 6.5cqw 0 0 6.5cqw; width: 50cqw; }
+  .card__mark { display: flex; align-items: center; gap: 1.2cqw; font-weight: 600; font-size: 2.4cqw; }
+  .logo { width: 2.8cqw; height: 2.8cqw; border-radius: .9cqw; background: var(--accent); box-shadow: inset 0 0 0 .2cqw var(--ink); position: relative; }
+  .logo::after { content: ""; position: absolute; left: 22%; right: 22%; top: 45%; height: .25cqw; border-radius: 1px; background: var(--ink); }
+  .card h3 { font-size: 6.4cqw; line-height: 1; letter-spacing: -.04em; margin: 7cqw 0 2.4cqw; }
+  .card p { font-size: 2.2cqw; color: var(--muted); max-width: none; }
+
+  /* Application 2: email, 600 px wide, subject in the header and object beside the body. */
+  .mail { max-width: 600px; background: var(--elevated); border-radius: 12px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--line) 40%, transparent); }
+  .mail__head { background: var(--accent); padding: 28px 32px 0; height: 300px; overflow: hidden; position: relative; }
+  .mail__head .card__mark { font-size: 15px; gap: 8px; }
+  .mail__head .logo { width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .mail__head .logo::after { height: 2px; }
+  .mail__head img { position: absolute; width: 360px; left: 50%; top: 64px; transform: translateX(-50%); }
+  .mail__body { padding: 32px; }
+  .mail__body h3 { font-size: 1.6rem; letter-spacing: -.02em; line-height: 1.15; margin: 0 0 12px; }
+  .mail__source { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; margin: 24px 0; padding: 16px; background: var(--surface); border-radius: 12px; }
+  .mail__source img { width: 120px; height: auto; display: block; }
+  .mail__source p { margin: 0; font-size: .95rem; }
+  .btn { display: inline-block; background: var(--ink); color: var(--elevated); text-decoration: none; font-weight: 600; padding: 12px 22px; border-radius: 999px; }
+  .mail__foot { padding: 16px 32px 24px; font-size: .8rem; color: var(--muted); border-top: 1px solid color-mix(in srgb, var(--line) 40%, transparent); }
+
+  /* Application 3: landing page, master as the how-it-works figure, atmosphere behind the closing band. */
+  .land { border-radius: 12px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--line) 40%, transparent); }
+  .land__how { background: var(--surface); padding: 40px 32px 24px; }
+  .land__how img { display: block; width: 100%; height: auto; }
+  .land__band { background: var(--dark) url(derivatives/atmosphere-v1.png) center / cover; color: #f6f6f3; padding: 72px 32px; text-align: center; }
+  .land__band h3 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); letter-spacing: -.03em; margin: 0 0 12px; }
+  .land__band p { margin: 0 auto 24px; color: var(--dark-muted); }
+  .land__band .btn { background: var(--accent); color: var(--ink); }
+  footer { margin-top: 72px; color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Deskhand art family</h1>
+  <p>One master and four derivatives, drawn in code from the Deskhand brand tokens. Each derivative is a separate file with its own version; the master stays as approved. <span class="mono">asset-bible.json</span> records the rules, provenance and uses, and <span class="mono">render.mjs</span> redraws the set.</p>
+
+  <section class="family" aria-label="The family">
+    <figure><img src="master/exploded-reply.png" width="2400" height="1500" alt="A drafted support reply with three highlighted claims, each joined by a thin line to the highlighted line it came from in a help article, an order and a payments page.">
+      <figcaption><b>Master: exploded reply</b><span class="mono">master/exploded-reply.png</span></figcaption></figure>
+    <figure><img src="derivatives/background-v1.png" width="2400" height="1260" alt="">
+      <figcaption><b>Background v1</b><span>Social card field, copy space on the left</span></figcaption></figure>
+    <figure class="checker"><img src="derivatives/subject-v1.png" width="920" height="1120" alt="A drafted reply with three highlighted claims and an approve button.">
+      <figcaption><b>Subject v1</b><span>Reply sheet on transparency</span></figcaption></figure>
+    <figure class="checker"><img src="derivatives/object-v1.png" width="680" height="780" alt="An order summary with its total line highlighted.">
+      <figcaption><b>Object v1</b><span>Order document on transparency</span></figcaption></figure>
+    <figure><img src="derivatives/atmosphere-v1.png" width="2400" height="1200" alt="">
+      <figcaption><b>Atmosphere v1</b><span>Dark field of source lines</span></figcaption></figure>
+  </section>
+
+  <h2>Social card</h2>
+  <p class="note">1200 x 630. Background v1 with live text on top.</p>
+  <div class="card" role="img" aria-label="Social card: Deskhand. Every reply shows its sources.">
+    <div class="card__in">
+      <div class="card__mark"><span class="logo"></span>Deskhand</div>
+      <h3>Every reply shows its sources.</h3>
+      <p>Drafts replies to support tickets and links each claim to the order or help article it came from.</p>
+    </div>
+  </div>
+
+  <h2>Email</h2>
+  <p class="note">600 px wide. Subject v1 in the header, object v1 next to the body copy.</p>
+  <article class="mail">
+    <div class="mail__head"><div class="card__mark"><span class="logo"></span>Deskhand</div><img src="derivatives/subject-v1.png" alt="A drafted reply with three highlighted claims and an approve button."></div>
+    <div class="mail__body">
+      <h3>Your 14-day trial has started</h3>
+      <p>Deskhand now drafts a reply for each new ticket. Each claim in a draft is <mark>highlighted and linked</mark> to the order or help article it came from.</p>
+      <div class="mail__source"><img src="derivatives/object-v1.png" alt="An order summary with its total line highlighted."><p>Refunds over your limit wait for you. Open a draft to see the order line behind the amount.</p></div>
+      <a class="btn" href="#">Open your first draft</a>
+    </div>
+    <p class="mail__foot">Fictional product for a Brand Studio demo. Nothing is sent.</p>
+  </article>
+
+  <h2>Landing page</h2>
+  <p class="note">The master as the how-it-works figure; atmosphere v1 behind the closing band.</p>
+  <div class="land">
+    <div class="land__how"><img src="master/exploded-reply.png" width="2400" height="1500" alt="A drafted support reply with three highlighted claims, each joined by a thin line to the highlighted line it came from in a help article, an order and a payments page."></div>
+    <div class="land__band"><h3>Every reply shows its sources.</h3><p>Free for 14 days, then a price per reply Deskhand sends.</p><a class="btn" href="#">Start a 14-day trial</a></div>
+  </div>
+
+  <footer>Deskhand is fictional. All art on this page is drawn by <span class="mono">render.mjs</span> from the brand tokens; no photography, stock or model output.</footer>
+</main>
+</body>
+</html>

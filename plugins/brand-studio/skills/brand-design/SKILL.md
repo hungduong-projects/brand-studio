@@ -31,6 +31,7 @@ Read only the references required by the task:
 - Contract creation or schema changes: [contract.md](references/contract.md).
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
+- Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).

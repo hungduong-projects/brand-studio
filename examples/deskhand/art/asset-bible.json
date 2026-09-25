@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "name": "Deskhand art family",
+  "brand": "../../../apps/showcase/src/deskhand.brand.json",
+  "subject": "Paper documents from one support ticket: a reply sheet 760 x 940 px at master scale with three highlighted claims, and source documents 480 px wide (help article, order, payments). Sheets have 24 px corners, a hairline edge and a white top-edge highlight. Text is greeked as rounded ink bars; cited words are dark bars under a highlighter stroke. A source line is a cubic curve from an open ring at the reply edge to a filled dot at the source line.",
+  "palette": [
+    { "role": "paper field", "hex": "#f6f6f3" },
+    { "role": "sheet", "hex": "#ffffff" },
+    { "role": "ink, bars and source lines", "hex": "#101114" },
+    { "role": "secondary bars", "hex": "#5c5f66" },
+    { "role": "highlighter", "hex": "#ffe14d" },
+    { "role": "hairlines", "hex": "#9a9ea6" },
+    { "role": "dark field", "hex": "#101114" },
+    { "role": "dark source lines", "hex": "#4a4d55" },
+    { "role": "dark lit source lines", "hex": "#a6a9b0" }
+  ],
+  "lighting": "No photography. One soft light from above: each sheet casts a 2 px contact shadow and a 28 px ambient shadow at ink 9 to 11 percent, and carries a white top-edge highlight.",
+  "materials": "Matte white paper, hairline rules, flat untextured fields, and highlighter strokes with chisel ends and slightly uneven long edges, multiplied over the paper.",
+  "illustration": "Flat editorial view, straight on. Sheets tilt between -4 and 4 degrees; the reply sheet stays nearly level. Highlighter covers whole words, never half a word. Every highlight in a reply has one source line to one source document. Keep at least 40 percent of a background free of marks for copy.",
+  "exclusions": [
+    "Readable text, logos or numbers inside the art; headlines and data stay as live text",
+    "Robot, chat-bubble or face mascots",
+    "Purple gradients, glowing orbs and generic abstract blobs",
+    "Invented metrics, customer logos or people",
+    "Decorative images that carry no information in a place where content images belong",
+    "Stock photography"
+  ],
+  "assets": [
+    {
+      "id": "exploded-reply",
+      "role": "master",
+      "version": 1,
+      "file": "master/exploded-reply.png",
+      "sha256": "90aa8fddca8426cd2486fa9be6cc83c2edd70ece375b693be989e76f5b217130",
+      "size": "2400x1500",
+      "status": "approved",
+      "alt": "A drafted support reply with three highlighted claims, each joined by a thin line to the highlighted line it came from in a help article, an order and a payments page.",
+      "uses": ["landing page"],
+      "source": {
+        "type": "code",
+        "script": "render.mjs",
+        "entry": "master()",
+        "digitalSourceType": "algorithmicMedia",
+        "author": "Brand Studio",
+        "date": "2026-09-25",
+        "inputs": ["apps/showcase/src/deskhand.brand.json tokens.light and tokens.dark"],
+        "brief": "The end state of Deskhand's exploded reply: the reply sheet in the centre, its three sources pulled out around it, a source line from each citation."
+      }
+    },
+    {
+      "id": "paper-band",
+      "role": "background",
+      "version": 1,
+      "file": "derivatives/background-v1.png",
+      "sha256": "dc44eb7ccc2bfe58ee5de640521bfba1046604b6b0225ea3c3e45bfde3f45a1a",
+      "size": "2400x1260",
+      "status": "approved",
+      "derivedFrom": "exploded-reply",
+      "changes": ["Recomposed at 1.91:1 for social cards", "Kept the paper field and the order document at 4 degrees", "Grew one highlighter stroke into a band across the lower right", "Moved the source line's ring into the empty copy side"],
+      "alt": "",
+      "uses": ["social card"],
+      "source": { "type": "code", "script": "render.mjs", "entry": "background()", "digitalSourceType": "algorithmicMedia", "author": "Brand Studio", "date": "2026-09-25" }
+    },
+    {
+      "id": "reply-sheet",
+      "role": "subject",
+      "version": 1,
+      "file": "derivatives/subject-v1.png",
+      "sha256": "bebd653e2b5c8c306da28f710cf3a9d55559e4eacd8084f598e44e0d41634207",
+      "size": "920x1120",
+      "status": "approved",
+      "derivedFrom": "exploded-reply",
+      "changes": ["Isolated the reply sheet on transparency", "Levelled it from -1.2 to 0 degrees", "Dropped source documents and source lines"],
+      "alt": "A drafted reply with three highlighted claims and an approve button.",
+      "uses": ["email"],
+      "source": { "type": "code", "script": "render.mjs", "entry": "subject()", "digitalSourceType": "algorithmicMedia", "author": "Brand Studio", "date": "2026-09-25" }
+    },
+    {
+      "id": "order-document",
+      "role": "object",
+      "version": 1,
+      "file": "derivatives/object-v1.png",
+      "sha256": "c107c815b7691f35a6a7d5035088718a80ad264e2c76292d40df5385c2101e71",
+      "size": "680x780",
+      "status": "approved",
+      "derivedFrom": "exploded-reply",
+      "changes": ["Isolated the order document on transparency at its master angle of 3 degrees"],
+      "alt": "An order summary with its total line highlighted.",
+      "uses": ["email"],
+      "source": { "type": "code", "script": "render.mjs", "entry": "object()", "digitalSourceType": "algorithmicMedia", "author": "Brand Studio", "date": "2026-09-25" }
+    },
+    {
+      "id": "source-lines-dark",
+      "role": "atmosphere",
+      "version": 1,
+      "file": "derivatives/atmosphere-v1.png",
+      "sha256": "a0466fbedd9cb5bed92655ab23700f54a8c8d980a9b1d4a213d9ca6644b83d08",
+      "size": "2400x1200",
+      "status": "approved",
+      "derivedFrom": "exploded-reply",
+      "changes": ["Kept only the source-line device, repeated eleven times left to right", "Moved to the dark tokens; two lines land on highlighter dots"],
+      "alt": "",
+      "uses": ["landing page"],
+      "source": { "type": "code", "script": "render.mjs", "entry": "atmosphere()", "digitalSourceType": "algorithmicMedia", "author": "Brand Studio", "date": "2026-09-25" }
+    }
+  ]
+}
