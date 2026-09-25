@@ -37,6 +37,7 @@
       "ink": "#101114",
       "muted": "#5c5f66",
       "accent": "#ffe14d",
+      "accentText": "#735f00",
       "onAccent": "#101114",
       "line": "#9a9ea6",
       "font": "\"Geist Variable\", system-ui, sans-serif",

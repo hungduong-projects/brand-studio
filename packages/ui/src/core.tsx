@@ -9,6 +9,8 @@ export interface BrandTokens {
   font: string; radius: string;
   /** Optional second family for the voice role (a promise line under display type). */
   voiceFont?: string;
+  /** Optional accent for text and small marks, for an accent too light to read as text, such as yellow. Defaults to `accent`. */
+  accentText?: string;
 }
 export interface BrandPalette { light: BrandTokens; dark: BrandTokens }
 export interface ImageAsset {

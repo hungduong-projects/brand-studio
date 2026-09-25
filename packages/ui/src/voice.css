@@ -1,5 +1,5 @@
 /* Voice */
-.bs-orb { display: inline-grid; justify-items: center; gap: .9rem; color: var(--bs-accent); }
+.bs-orb { display: inline-grid; justify-items: center; gap: .9rem; color: var(--bs-accent-text); }
 .bs-orb__body { position: relative; display: grid; place-items: center; width: var(--bs-orb-size); height: var(--bs-orb-size); }
 .bs-orb__body > i { grid-area: 1 / 1; border-radius: 50%; }
 .bs-orb__core { width: 58%; height: 58%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--bs-accent) 30%, #fff) 0 8%, var(--bs-accent) 55%, color-mix(in srgb, var(--bs-accent) 65%, #000) 100%); box-shadow: 0 0 calc(var(--bs-orb-size) * (.12 + var(--level) * .25)) color-mix(in srgb, var(--bs-accent) 45%, transparent); scale: calc(1 + var(--level) * .1); transition: scale 90ms linear, box-shadow 90ms linear; }

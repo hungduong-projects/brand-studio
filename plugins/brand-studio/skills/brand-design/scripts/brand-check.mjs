@@ -30,8 +30,9 @@ export function validateBrand(brand) {
     for (const key of colorKeys) if (!hex(tokens?.[key])) errors.push(`tokens.${mode}.${key} must be a six-digit hex color`);
     if (!isString(tokens?.font) || !/^[a-z0-9 ,"'-]+$/i.test(tokens.font)) errors.push(`tokens.${mode}.font must be a plain CSS font-family`);
     if (tokens?.voiceFont !== undefined && (!isString(tokens.voiceFont) || !/^[a-z0-9 ,"'-]+$/i.test(tokens.voiceFont))) errors.push(`tokens.${mode}.voiceFont must be a plain CSS font-family`);
+    if (tokens?.accentText !== undefined && !hex(tokens.accentText)) errors.push(`tokens.${mode}.accentText must be a six-digit hex color`);
     if (!isString(tokens?.radius) || !/^(?:\d+(?:\.\d+)?)(?:px|rem)$/.test(tokens.radius)) errors.push(`tokens.${mode}.radius must be a nonnegative px/rem dimension`);
-    for (const [fg,bg] of [['ink','surface'],['muted','surface'],['ink','elevated'],['muted','elevated'],['onAccent','accent']]) {
+    for (const [fg,bg] of [['ink','surface'],['muted','surface'],['ink','elevated'],['muted','elevated'],['onAccent','accent'],['accentText','surface'],['accentText','elevated']]) {
       if (hex(tokens?.[fg]) && hex(tokens?.[bg]) && contrast(tokens[fg],tokens[bg]) < 4.5) errors.push(`tokens.${mode}: ${fg}/${bg} contrast is ${contrast(tokens[fg],tokens[bg]).toFixed(2)}:1, below 4.5:1`);
     }
   }
@@ -61,7 +62,7 @@ export function brandCSS(brand) {
   const errors = validateBrand(brand);
   if (errors.length) throw new Error(errors.join('\n'));
   const slug = brand.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'brand';
-  const declarations = mode => [...colorKeys,'font','radius',...(brand.tokens[mode].voiceFont ? ['voiceFont'] : [])].map(key => `  --brand-${key.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())}: ${brand.tokens[mode][key]};`).join('\n');
+  const declarations = mode => [...colorKeys,'font','radius',...['voiceFont','accentText'].filter(key => brand.tokens[mode][key])].map(key => `  --brand-${key.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())}: ${brand.tokens[mode][key]};`).join('\n');
   return `/* Scope: data-brand="${slug}"; set data-theme="light" or "dark" on the same element, otherwise follow system. */\n[data-brand="${slug}"] {\n${declarations('light')}\n  color-scheme: light;\n}\n[data-brand="${slug}"][data-theme="dark"] {\n${declarations('dark')}\n  color-scheme: dark;\n}\n@media (prefers-color-scheme: dark) {\n[data-brand="${slug}"]:not([data-theme="light"]) {\n${declarations('dark')}\n  color-scheme: dark;\n}\n}\n`;
 }
 

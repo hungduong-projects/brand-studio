@@ -14,7 +14,7 @@ export default function ChapterRailDemo() {
       </div>
       <div style={{ display: 'grid', gap: 48 }}>
         {chapters.map(c => <section key={c.id} id={c.id} style={{ minHeight: 280 }}>
-          <p style={{ margin: 0, opacity: .6 }}>{c.marker}</p>
+          <p style={{ margin: 0, color: 'var(--bs-muted)' }}>{c.marker}</p>
           <h3 style={{ margin: '4px 0 8px', fontSize: 28 }}>{c.title}</h3>
           <p style={{ margin: 0, maxWidth: '40ch', opacity: .8 }}>{c.body}</p>
         </section>)}

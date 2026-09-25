@@ -24,7 +24,7 @@
 .bs-stat__top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
 .bs-stat__label { margin: 0; color: var(--bs-muted); font-size: .875rem; font-weight: 500; }
 .bs-stat__change { display: inline-flex; align-items: center; gap: .3rem; margin: 0; padding: .1rem .5rem; border-radius: 999px; background: var(--bs-line-soft); font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.bs-stat__change[data-trend="up"] { background: var(--bs-accent-soft); color: var(--bs-accent); }
+.bs-stat__change[data-trend="up"] { background: var(--bs-accent-soft); color: color-mix(in srgb, var(--bs-accent-text) 80%, var(--bs-ink)); }
 .bs-stat__arrow { width: .5rem; height: .5rem; background: currentColor; clip-path: polygon(0 40%, 100% 40%, 100% 60%, 0 60%); }
 [data-trend="up"] > .bs-stat__arrow { clip-path: polygon(50% 0, 100% 70%, 0 70%); }
 [data-trend="down"] > .bs-stat__arrow { clip-path: polygon(0 30%, 100% 30%, 50% 100%); }
