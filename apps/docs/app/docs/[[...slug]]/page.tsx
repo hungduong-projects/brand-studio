@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { mdxComponents } from '@/components/mdx';
 import { Pager, PagerArrows } from '@/components/pager';
 import { Toc } from '@/components/toc';
+import { markdownHref } from '@/lib/markdown';
 import { source } from '@/lib/source';
 
 export const dynamicParams = false;
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug?: st
   return page ? {
     title: page.data.title,
     description: page.data.description,
-    alternates: { canonical: `${page.url.replace(/\/$/, '')}/` },
+    alternates: { canonical: `${page.url.replace(/\/$/, '')}/`, types: { 'text/markdown': markdownHref(page.url) } },
   } : {};
 }
 
