@@ -1,0 +1,39 @@
+{
+  "name": "deskhand-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@expo-google-fonts/geist": "^0.4.2",
+    "@expo-google-fonts/geist-mono": "^0.4.3",
+    "@expo/metro-runtime": "~57.0.16",
+    "expo": "~57.0.25",
+    "expo-constants": "~57.0.19",
+    "expo-font": "~57.0.4",
+    "expo-linking": "~57.0.11",
+    "expo-router": "~57.0.23",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "sync-brand": "node scripts/sync-brand.mjs",
+    "start": "npm run sync-brand && expo start",
+    "ios": "npm run sync-brand && expo start --ios",
+    "android": "npm run sync-brand && expo start --android",
+    "web": "npm run sync-brand && EXPO_UNSTABLE_WEB_MODAL=1 expo start --web",
+    "export:web": "npm run sync-brand && EXPO_UNSTABLE_WEB_MODAL=1 expo export --platform web",
+    "typecheck": "tsc --noEmit",
+    "verify": "node verify.mjs",
+    "store-shots": "node scripts/store-shots.mjs"
+  },
+  "private": true
+}

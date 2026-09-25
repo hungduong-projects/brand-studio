@@ -34,6 +34,7 @@ Read only the references required by the task:
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
+- Mobile app for iOS and Android: [mobile-app.md](references/mobile-app.md).
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).
 - Campaign across formats (social, ads, email header, poster): [campaign.md](references/campaign.md).
 - Translating an agreed brand into implementation: [brand-application.md](references/brand-application.md).
