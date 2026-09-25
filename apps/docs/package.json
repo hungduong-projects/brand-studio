@@ -12,7 +12,7 @@
     "postinstall": "node scripts/registry.mjs && fumadocs-mdx"
   },
   "dependencies": {
-    "@brand-studio/ui": "0.12.1",
+    "@brand-studio/ui": "0.13.0",
     "@fontsource-variable/geist": "5.3.0",
     "@fontsource-variable/newsreader": "5.3.0",
     "@fontsource/geist-mono": "5.3.0",
