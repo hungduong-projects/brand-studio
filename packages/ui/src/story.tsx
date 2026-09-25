@@ -355,10 +355,10 @@ export function InfiniteCanvas({ images, label = 'Gallery', className = '' }: { 
 }
 
 /**
- * A grid of thumbnails. Choosing one grows it into a full-screen view you can step through with buttons, arrow keys or a
+ * A grid of thumbnails, or a masonry of them at their own shapes. Choosing one grows it into a full-screen view you can step through with buttons, arrow keys or a
  * swipe. Escape, the close button or a click outside shrinks it back into its place and returns focus there.
  */
-export function Lightbox({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+export function Lightbox({ images, label = 'Gallery', layout = 'grid', className = '' }: { images: ImageAsset[]; label?: string; layout?: 'grid' | 'masonry'; className?: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const grid = useRef<HTMLUListElement>(null);
   const swipe = useRef<number | null>(null);
@@ -397,7 +397,7 @@ export function Lightbox({ images, label = 'Gallery', className = '' }: { images
   const step = (by: number) => setIndex(current => (current + by + images.length) % images.length);
   const current = images[index];
   if (!current) return null;
-  return <div className={`bs-lightbox ${className}`}>
+  return <div className={`bs-lightbox${layout === 'masonry' ? ' bs-lightbox--masonry' : ''} ${className}`}>
     <ul ref={grid} className="bs-lightbox__grid" aria-label={label}>
       {images.map((item, at) => <li key={item.src + at}>
         <button type="button" className="bs-lightbox__thumb" aria-haspopup="dialog" onClick={() => open(at)}>
@@ -510,5 +510,77 @@ export function RingGallery({ images, label = 'Gallery', className = '' }: { ima
       <p className="bs-ring__count" aria-live="polite">{front + 1} / {count}</p>
       <button type="button" aria-label="Next image" onClick={() => turn.current(1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></button>
     </div>}
+  </section>;
+}
+
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+
+/** Tracks scroll on the window with one frame per change, and on resize. */
+function useScrollFrame(update: () => void, enabled: () => boolean, deps: unknown[]) {
+  useEffect(() => {
+    if (!enabled()) return;
+    let frame = 0;
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); }); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
+  }, deps);
+}
+
+/**
+ * A grid of images that rise out of depth, tilting up to face you column by column as each row scrolls in.
+ * Before scripts run, and under reduced motion, it is a flat grid.
+ */
+export function StaggerGrid({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+  const root = useRef<HTMLUListElement>(null);
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useScrollFrame(() => {
+    const list = root.current;
+    if (!list) return;
+    list.dataset.enhanced = '';
+    const items = [...list.children] as HTMLElement[];
+    const columns = [...new Set(items.map(item => item.offsetLeft))].sort((a, b) => a - b);
+    for (const item of items) {
+      const column = columns.indexOf(item.offsetLeft);
+      const top = item.getBoundingClientRect().top;
+      item.style.setProperty('--p', clamp01((innerHeight - top) / (innerHeight * .3) - column * .12).toFixed(3));
+    }
+  }, moving, [images]);
+  return <ul ref={root} className={`bs-stagger ${className}`} aria-label={label}>
+    {images.map((image, at) => <li key={image.src + at} className="bs-stagger__item"><BrandImage asset={image} sizes="(min-width: 768px) 25vw, 50vw" /></li>)}
+  </ul>;
+}
+
+/**
+ * A pinned stage where scattered, tilted images drift into a tidy grid as you scroll, while the title fades back.
+ * Before scripts run, and under reduced motion, the title sits over an ordinary grid.
+ */
+export function ScrollFormation({ images, title, label = 'Gallery', className = '' }: { images: ImageAsset[]; title?: ReactNode; label?: string; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const moving = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useScrollFrame(() => {
+    const section = root.current;
+    if (!section) return;
+    section.dataset.enhanced = '';
+    const box = section.getBoundingClientRect();
+    const progress = clamp01(-box.top / Math.max(box.height - innerHeight, 1));
+    section.style.setProperty('--e', (1 - (1 - progress) ** 3).toFixed(3));
+  }, moving, [images]);
+  const columns = Math.ceil(Math.sqrt(images.length * 1.5));
+  const rows = Math.ceil(images.length / columns);
+  return <section ref={root} className={`bs-formation ${className}`} aria-label={label} style={{ '--cols': columns, '--rows': rows } as CSSProperties}>
+    <div className="bs-formation__stage">
+      {title && <h2 className="bs-formation__title">{title}</h2>}
+      <ul className="bs-formation__grid">
+        {images.map((image, at) => {
+          // Golden-angle scatter: deterministic, so server and client agree, and no two images start in the same place.
+          const angle = at * 2.39996, reach = 30 + ((at * 37) % 25);
+          return <li key={image.src + at} style={{ '--sx': `${(Math.cos(angle) * reach).toFixed(1)}vw`, '--sy': `${(Math.sin(angle) * reach * .7).toFixed(1)}vh`, '--sr': `${((at * 53) % 40) - 20}deg` } as CSSProperties}>
+            <BrandImage asset={image} sizes="(min-width: 768px) 20vw, 33vw" />
+          </li>;
+        })}
+      </ul>
+    </div>
   </section>;
 }

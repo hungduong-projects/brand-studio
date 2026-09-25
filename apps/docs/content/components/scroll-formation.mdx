@@ -1,0 +1,31 @@
+---
+title: Scroll Formation
+description: "A pinned stage where scattered images drift into a tidy grid as you scroll, while the title fades back."
+---
+
+<Preview name="scroll-formation/default" layout="full" />
+
+## Installation
+
+<Install name="ScrollFormation" />
+
+## Usage
+
+```tsx
+import { ScrollFormation } from '@brand-studio/ui';
+```
+
+```tsx
+<ScrollFormation label="The kit" title="Everything in the box." images={images} />
+```
+
+Six to twelve images read best. The section is about two and a half screens tall while it pins.
+
+## Accessibility
+
+- The section is labelled and the images keep their alt text in reading order.
+- Before scripts run, and under reduced motion, the title sits over an ordinary grid with no pinning.
+
+## API Reference
+
+<Props name="ScrollFormation" />

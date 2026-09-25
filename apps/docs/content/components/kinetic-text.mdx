@@ -1,0 +1,30 @@
+---
+title: Kinetic Text
+description: "A headline whose words or letters rise out of a mask, one after another, as it scrolls into view."
+---
+
+<Preview name="kinetic-text/default" />
+
+## Installation
+
+<Install name="KineticText" />
+
+## Usage
+
+```tsx
+import { KineticText } from '@brand-studio/ui';
+```
+
+```tsx
+<KineticText as="h1" by="letter" text="Roasted on Monday." />
+```
+
+## Accessibility
+
+- Screen readers hear the whole text once; the moving pieces are hidden from them.
+- A headline already on screen plays at once; one further down waits until it scrolls in.
+- Without JavaScript or with reduced motion the text shows in place.
+
+## API Reference
+
+<Props name="KineticText" />
