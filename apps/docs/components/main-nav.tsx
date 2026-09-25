@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { catalog, componentHref } from '@/lib/catalog';
 
@@ -14,6 +15,10 @@ const links = [
 export function MainNav() {
   const path = usePathname();
   return <nav aria-label="Main" className="main-nav">
-    {links.map((link) => <a key={link.label} href={link.href} aria-current={link.match(path) ? 'page' : undefined}>{link.label}</a>)}
+    {links.map((link) => {
+      const props = { href: link.href, 'aria-current': link.match(path) ? 'page' as const : undefined, children: link.label };
+      // /examples/ is a separate app, so it needs a full page load.
+      return link.href.startsWith('/examples') ? <a key={link.label} {...props} /> : <Link key={link.label} {...props} />;
+    })}
   </nav>;
 }
