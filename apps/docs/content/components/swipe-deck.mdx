@@ -1,0 +1,33 @@
+---
+title: Swipe Deck
+description: "A stack of cards you flick left or right; buttons and arrow keys do the same."
+---
+
+<Preview name="swipe-deck/default" />
+
+## Installation
+
+<Install name="SwipeDeck" />
+
+## Usage
+
+```tsx
+import { SwipeDeck } from '@brand-studio/ui';
+```
+
+```tsx
+<SwipeDeck label="Build this month’s box" cards={lots} leftLabel="Skip" rightLabel="Add to box"
+  onSwipe={(card, direction) => direction === 'right' && add(card)} />
+```
+
+Swiped cards go to the back of the deck, so it never runs out. `onSwipe` receives the card and `'left'` or `'right'`.
+
+## Accessibility
+
+- Every swipe has a matching button with a visible label, and the arrow keys work once focus is in the deck.
+- The title of the card on top is announced after each choice.
+- Cards under the top one are hidden from screen readers. Reduced motion skips the throw.
+
+## API Reference
+
+<Props name="SwipeDeck" />

@@ -124,3 +124,23 @@
 .bs-dotgrid, .bs-particles { position: relative; isolation: isolate; overflow: hidden; }
 .bs-dotgrid__canvas, .bs-particles__canvas { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; }
 .bs-dotgrid__content, .bs-particles__content { position: relative; }
+
+.bs-globe { position: relative; aspect-ratio: 1; width: 100%; max-width: 36rem; touch-action: pan-y; cursor: grab; user-select: none; }
+.bs-globe:active { cursor: grabbing; }
+.bs-globe__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.bs-imagefade { display: grid; gap: 1rem; justify-items: center; }
+.bs-imagefade__stage { position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; border-radius: calc(var(--bs-radius) + 4px); background: var(--bs-line-soft); touch-action: pan-y; }
+.bs-imagefade__slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity var(--bs-duration) var(--bs-ease-out); }
+.bs-imagefade__slide[data-current] { opacity: 1; }
+.bs-imagefade__slide .bs-picture { width: 100%; height: 100%; }
+.bs-imagefade__canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+.bs-imagefade[data-transitioning] .bs-imagefade__canvas { opacity: 1; }
+.bs-imagefade[data-transitioning] .bs-imagefade__slide { transition: none; }
+.bs-imagefade__nav { display: flex; align-items: center; gap: 1rem; }
+.bs-imagefade__nav button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--bs-line); border-radius: 999px; background: var(--bs-surface); color: var(--bs-ink); cursor: pointer; }
+.bs-imagefade__nav button:hover { background: var(--bs-line-soft); }
+.bs-imagefade__nav button:focus-visible { outline: 3px solid var(--bs-accent); outline-offset: 2px; }
+.bs-imagefade__nav svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bs-imagefade__count { margin: 0; min-width: 4.5ch; text-align: center; font-size: .9rem; font-variant-numeric: tabular-nums; color: var(--bs-muted); }
+@media (prefers-reduced-motion: reduce) { .bs-imagefade__slide { transition: none; } }

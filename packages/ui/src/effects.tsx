@@ -622,3 +622,196 @@ export function ParticleField({ count = 80, className = '', children, ...props }
     {children && <div className="bs-particles__content">{children}</div>}
   </div>;
 }
+
+export interface GlobeMarker { label: string; lat: number; lng: number }
+
+const toVector = (lat: number, lng: number): [number, number, number] => {
+  const a = (lat * Math.PI) / 180, b = (lng * Math.PI) / 180;
+  return [Math.cos(a) * Math.sin(b), Math.sin(a), Math.cos(a) * Math.cos(b)];
+};
+
+/**
+ * A turning globe of dots with glowing markers and arcs that join them in order. Drag sideways to spin it.
+ * Screen readers get the markers as a list; reduced motion holds it still until dragged.
+ */
+export function DotGlobe({ markers = [], label = 'Locations', speed = 1, className = '' }: { markers?: GlobeMarker[]; label?: string; speed?: number; className?: string }) {
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const spin = useRef({ angle: markers[0] ? -(markers[0].lng * Math.PI) / 180 : 0, velocity: 0, dragging: false, lastX: 0, last: 0 });
+  const points = useRef<[number, number, number][]>([]);
+  if (!points.current.length) {
+    // Fibonacci lattice: even spacing with no seams at the poles.
+    const count = 1400;
+    points.current = Array.from({ length: count }, (_, i) => {
+      const y = 1 - (i / (count - 1)) * 2, r = Math.sqrt(1 - y * y), theta = i * 2.39996323;
+      return [Math.cos(theta) * r, y, Math.sin(theta) * r] as [number, number, number];
+    });
+  }
+  const wake = useVisibleLoop(root, time => {
+    const element = root.current, surface = canvas.current;
+    const fitted = surface && fit2d(surface);
+    if (!element || !fitted) return false;
+    const { context, width, height } = fitted, s = spin.current, still = reducedMotion();
+    const delta = s.last ? Math.min(time - s.last, 50) / 1000 : 0;
+    s.last = time;
+    if (!s.dragging) { s.angle += (still ? 0 : .12 * speed) * delta + s.velocity * delta; s.velocity *= .94; }
+    const style = getComputedStyle(element), ink = style.getPropertyValue('--bs-ink').trim() || '#222', accent = style.getPropertyValue('--bs-accent').trim() || '#06f';
+    const radius = Math.min(width, height) * .46, cx = width / 2, cy = height / 2, tilt = .38;
+    const cosA = Math.cos(s.angle), sinA = Math.sin(s.angle), cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+    const project = ([x, y, z]: [number, number, number]) => {
+      const x1 = x * cosA + z * sinA, z1 = -x * sinA + z * cosA;
+      const y2 = y * cosT - z1 * sinT, z2 = y * sinT + z1 * cosT;
+      return [cx + x1 * radius, cy - y2 * radius, z2] as const;
+    };
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = ink;
+    for (const point of points.current) {
+      const [x, y, z] = project(point);
+      if (z < -.05) continue;
+      context.globalAlpha = .12 + z * .45;
+      context.fillRect(x - .9, y - .9, 1.8, 1.8);
+    }
+    const places = markers.map(marker => toVector(marker.lat, marker.lng));
+    context.strokeStyle = accent; context.lineWidth = 1.5;
+    places.slice(1).forEach((to, index) => {
+      const from = places[index]!;
+      context.beginPath();
+      let drawing = false;
+      for (let step = 0; step <= 40; step++) {
+        const t = step / 40, lift = 1 + Math.sin(t * Math.PI) * .18;
+        const mix = from.map((value, axis) => value * (1 - t) + to[axis]! * t);
+        const length = Math.hypot(...mix) || 1;
+        const [x, y, z] = project(mix.map(value => (value / length) * lift) as [number, number, number]);
+        context.globalAlpha = z < 0 ? .12 : .85;
+        if (drawing) context.lineTo(x, y); else { context.moveTo(x, y); drawing = true; }
+      }
+      context.stroke();
+    });
+    places.forEach(place => {
+      const [x, y, z] = project(place);
+      if (z < 0) return;
+      const pulse = still ? 0 : (time / 1600) % 1;
+      context.globalAlpha = (1 - pulse) * .5;
+      context.fillStyle = accent;
+      context.beginPath(); context.arc(x, y, 4 + pulse * 12, 0, Math.PI * 2); context.fill();
+      context.globalAlpha = 1;
+      context.beginPath(); context.arc(x, y, 3.5, 0, Math.PI * 2); context.fill();
+    });
+    context.globalAlpha = 1;
+    return !still || s.dragging || Math.abs(s.velocity) > .01;
+  });
+  const down = (event: PointerEvent<HTMLDivElement>) => {
+    const s = spin.current;
+    s.dragging = true; s.lastX = event.clientX; s.velocity = 0;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    wake.current();
+  };
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    const s = spin.current;
+    if (!s.dragging) return;
+    const change = (event.clientX - s.lastX) / 180;
+    s.angle += change; s.velocity = change * 40; s.lastX = event.clientX;
+  };
+  const up = () => { spin.current.dragging = false; wake.current(); };
+  return <div ref={root} className={`bs-globe ${className}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+    <canvas ref={canvas} className="bs-globe__canvas" aria-hidden="true" />
+    {markers.length > 0 && <ul className="bs-sr-only" aria-label={label}>{markers.map(marker => <li key={marker.label}>{marker.label}</li>)}</ul>}
+  </div>;
+}
+
+const dissolveShader = `uniform sampler2D from; uniform sampler2D to; uniform float progress; uniform vec2 coverFrom; uniform vec2 coverTo; uniform vec2 focusFrom; uniform vec2 focusTo;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(hash(i), hash(i + vec2(1., 0.)), f.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), f.x), f.y); }
+void main() {
+  vec2 p = vec2(uv.x, 1. - uv.y);
+  float n = noise(p * 6.) * .65 + noise(p * 18.) * .35;
+  float edge = smoothstep(progress - .12, progress + .12, n * .8 + p.x * .2);
+  vec2 push = vec2(.04, 0.) * (1. - edge) * progress;
+  vec4 a = texture2D(from, (p + push) * coverFrom + (1. - coverFrom) * focusFrom);
+  vec4 b = texture2D(to, (p - push * .5) * coverTo + (1. - coverTo) * focusTo);
+  gl_FragColor = mix(b, a, edge);
+}`;
+
+/**
+ * A slideshow where each image dissolves into the next through drifting noise. Previous and next buttons, arrow keys and swipes change the image.
+ * Each image stays a real picture; without WebGL, or under reduced motion, images swap at once.
+ */
+export function ImageTransition({ images, label = 'Gallery', className = '' }: { images: ImageAsset[]; label?: string; className?: string }) {
+  const root = useRef<HTMLElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [index, setIndex] = useState(0);
+  const stage = useRef<{ stage: NonNullable<ReturnType<typeof createStage>>; textures: WebGLTexture[] } | null>(null);
+  const run = useRef({ from: 0, to: 0, start: 0, active: false });
+  const swipe = useRef<number | null>(null);
+  const cover = (asset: ImageAsset, box: DOMRect): [number, number] => {
+    const boxRatio = box.width / Math.max(box.height, 1), imageRatio = asset.width / asset.height;
+    return boxRatio > imageRatio ? [1, imageRatio / boxRatio] : [boxRatio / imageRatio, 1];
+  };
+  const focus = (asset: ImageAsset): [number, number] => {
+    const [x = 50, y = 50] = (asset.focalPoint ?? '50% 50%').split(/\s+/).map(parseFloat);
+    return [x / 100, y / 100];
+  };
+  const wake = useVisibleLoop(root, time => {
+    const current = stage.current, element = canvas.current, r = run.current;
+    if (!current || !element || !r.active) return false;
+    const { gl, uniform } = current.stage;
+    const progress = Math.min((time - r.start) / 1100, 1);
+    fit(element, gl);
+    const box = element.getBoundingClientRect();
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, current.textures[r.from]!);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, current.textures[r.to]!);
+    gl.uniform1i(uniform('from'), 0); gl.uniform1i(uniform('to'), 1);
+    gl.uniform2f(uniform('coverFrom'), ...cover(images[r.from]!, box));
+    gl.uniform2f(uniform('coverTo'), ...cover(images[r.to]!, box));
+    gl.uniform2f(uniform('focusFrom'), ...focus(images[r.from]!));
+    gl.uniform2f(uniform('focusTo'), ...focus(images[r.to]!));
+    // Eased, and stretched past 0..1 so the noise threshold fully covers both images at the ends.
+    gl.uniform1f(uniform('progress'), (1 - (1 - progress) ** 3) * 1.3 - .15);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    root.current!.dataset.transitioning = '';
+    if (progress >= 1) { r.active = false; delete root.current!.dataset.transitioning; return false; }
+    return true;
+  });
+  useEffect(() => {
+    const element = canvas.current, section = root.current;
+    if (!element || !section || reducedMotion()) return;
+    const pictures = [...section.querySelectorAll<HTMLImageElement>('.bs-imagefade__slide img')];
+    Promise.all(pictures.map(image => image.decode().catch(() => undefined))).then(() => {
+      const created = createStage(element, dissolveShader);
+      if (!created) return;
+      const { gl } = created;
+      try {
+        const textures = pictures.map(image => {
+          const texture = gl.createTexture()!;
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          for (const [key, value] of [[gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE], [gl.TEXTURE_MIN_FILTER, gl.LINEAR]] as const) gl.texParameteri(gl.TEXTURE_2D, key, value);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+          return texture;
+        });
+        stage.current = { stage: created, textures };
+      } catch { /* cross-origin images: keep the instant swap */ }
+    });
+  }, [images]);
+  const go = (step: number) => {
+    if (images.length < 2) return;
+    const to = (index + step + images.length) % images.length;
+    if (stage.current) { run.current = { from: index, to, start: performance.now(), active: true }; root.current!.dataset.transitioning = ''; wake.current(); }
+    setIndex(to);
+  };
+  return <section ref={root} className={`bs-imagefade ${className}`} aria-roledescription="carousel" aria-label={label}
+    onKeyDown={event => { if (event.key === 'ArrowRight') go(1); if (event.key === 'ArrowLeft') go(-1); }}>
+    <div className="bs-imagefade__stage" onPointerDown={event => { swipe.current = event.clientX; }}
+      onPointerUp={event => { if (swipe.current !== null && Math.abs(event.clientX - swipe.current) > 40) go(event.clientX < swipe.current ? 1 : -1); swipe.current = null; }}>
+      {images.map((image, at) => <figure key={image.src + at} className="bs-imagefade__slide" data-current={at === index || undefined} aria-hidden={at !== index} aria-roledescription="slide" aria-label={`${at + 1} of ${images.length}`}>
+        <BrandImage asset={image} sizes="(min-width: 768px) 70vw, 100vw" priority={at === 0} />
+      </figure>)}
+      <canvas ref={canvas} className="bs-imagefade__canvas" aria-hidden="true" />
+    </div>
+    {images.length > 1 && <div className="bs-imagefade__nav">
+      <button type="button" aria-label="Previous image" onClick={() => go(-1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5" /></svg></button>
+      <p className="bs-imagefade__count" aria-live="polite">{index + 1} / {images.length}</p>
+      <button type="button" aria-label="Next image" onClick={() => go(1)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></button>
+    </div>}
+  </section>;
+}

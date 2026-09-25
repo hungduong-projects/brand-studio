@@ -584,3 +584,106 @@ export function ScrollFormation({ images, title, label = 'Gallery', className = 
     </div>
   </section>;
 }
+
+/** Two pictures of the same view, one over the other. Drag the handle, or use the arrow keys, to wipe between them. */
+export function BeforeAfter({ before, after, label = 'Compare images', beforeLabel = 'Before', afterLabel = 'After', initial = 50, className = '' }: {
+  before: ImageAsset; after: ImageAsset; label?: string; beforeLabel?: string; afterLabel?: string; initial?: number; className?: string;
+}) {
+  const [position, setPosition] = useState(initial);
+  return <div className={`bs-compare ${className}`} style={{ '--pos': `${position}%` } as CSSProperties}>
+    <BrandImage asset={before} className="bs-compare__before" sizes="(min-width: 768px) 60vw, 100vw" />
+    <BrandImage asset={after} className="bs-compare__after" sizes="(min-width: 768px) 60vw, 100vw" />
+    <span className="bs-compare__tag bs-compare__tag--before" aria-hidden="true">{beforeLabel}</span>
+    <span className="bs-compare__tag bs-compare__tag--after" aria-hidden="true">{afterLabel}</span>
+    <span className="bs-compare__handle" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m6 4-4 4 4 4M10 4l4 4-4 4" /></svg></span>
+    <input className="bs-compare__range" type="range" min={0} max={100} step={1} value={position} aria-label={label} aria-valuetext={`${position}% ${afterLabel.toLowerCase()}`}
+      onChange={event => setPosition(Number(event.currentTarget.value))} />
+  </div>;
+}
+
+export interface Panel { id: string; title: string; body?: ReactNode; asset: ImageAsset }
+
+/** A row of image strips; the one you hover, focus or tap opens wide and shows its text. On narrow screens the strips stack. */
+export function ExpandingPanels({ panels, label = 'Panels', className = '' }: { panels: Panel[]; label?: string; className?: string }) {
+  const [open, setOpen] = useState(panels[0]?.id);
+  const id = useId();
+  return <ul className={`bs-panels ${className}`} aria-label={label}>
+    {panels.map(panel => {
+      const active = panel.id === open;
+      return <li key={panel.id} className="bs-panels__item" data-open={active || undefined} onPointerEnter={event => { if (event.pointerType === 'mouse') setOpen(panel.id); }}>
+        <BrandImage asset={panel.asset} sizes="(min-width: 768px) 50vw, 100vw" />
+        <button type="button" className="bs-panels__toggle" aria-expanded={active} aria-controls={`${id}-${panel.id}`} onClick={() => setOpen(panel.id)} onFocus={() => setOpen(panel.id)}>
+          <span className="bs-panels__title">{panel.title}</span>
+        </button>
+        <div id={`${id}-${panel.id}`} className="bs-panels__body" hidden={!active}>{panel.body}</div>
+      </li>;
+    })}
+  </ul>;
+}
+
+export interface DeckCard { id: string; title: string; body?: ReactNode; asset: ImageAsset }
+
+/**
+ * A stack of cards you flick left or right. The top card follows a finger or mouse and flies off past a threshold; buttons and the arrow keys do the same.
+ * Swiped cards go to the back, so the deck never runs out. `onSwipe` reports each choice.
+ */
+export function SwipeDeck({ cards, label = 'Cards', leftLabel = 'Skip', rightLabel = 'Keep', onSwipe, className = '' }: {
+  cards: DeckCard[]; label?: string; leftLabel?: string; rightLabel?: string; onSwipe?: (card: DeckCard, direction: 'left' | 'right') => void; className?: string;
+}) {
+  const [order, setOrder] = useState(() => cards.map((_, index) => index));
+  const [leaving, setLeaving] = useState<'left' | 'right' | null>(null);
+  const top = useRef<HTMLLIElement>(null);
+  const drag = useRef<{ x: number; y: number; dx: number; id: number } | null>(null);
+  useEffect(() => setOrder(cards.map((_, index) => index)), [cards]);
+  const decide = (direction: 'left' | 'right') => {
+    const first = order[0];
+    if (first === undefined || leaving) return;
+    onSwipe?.(cards[first]!, direction);
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finish = () => { setLeaving(null); setOrder(current => [...current.slice(1), current[0]!]); if (top.current) { top.current.style.removeProperty('--dx'); top.current.style.removeProperty('--rot'); } };
+    if (still) { finish(); return; }
+    setLeaving(direction);
+    window.setTimeout(finish, 320);
+  };
+  const down = (event: PointerEvent<HTMLLIElement>) => {
+    if (leaving) return;
+    drag.current = { x: event.clientX, y: event.clientY, dx: 0, id: event.pointerId };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.dataset.dragging = '';
+  };
+  const move = (event: PointerEvent<HTMLLIElement>) => {
+    const d = drag.current;
+    if (!d || d.id !== event.pointerId) return;
+    d.dx = event.clientX - d.x;
+    event.currentTarget.style.setProperty('--dx', `${d.dx}px`);
+    event.currentTarget.style.setProperty('--rot', `${d.dx / 18}deg`);
+  };
+  const up = (event: PointerEvent<HTMLLIElement>) => {
+    const d = drag.current;
+    drag.current = null;
+    delete event.currentTarget.dataset.dragging;
+    if (!d) return;
+    if (Math.abs(d.dx) > event.currentTarget.offsetWidth * .3) decide(d.dx > 0 ? 'right' : 'left');
+    else { event.currentTarget.style.removeProperty('--dx'); event.currentTarget.style.removeProperty('--rot'); }
+  };
+  const current = order[0] === undefined ? undefined : cards[order[0]];
+  return <section className={`bs-deck ${className}`} aria-label={label} tabIndex={-1}
+    onKeyDown={event => { if (event.key === 'ArrowLeft') decide('left'); if (event.key === 'ArrowRight') decide('right'); }}>
+    <ol className="bs-deck__stack">
+      {order.slice(0, 3).map((cardIndex, depth) => {
+        const card = cards[cardIndex]!;
+        return <li key={card.id} ref={depth === 0 ? top : undefined} className="bs-deck__card" style={{ '--depth': depth, zIndex: 3 - depth } as CSSProperties}
+          data-leaving={depth === 0 && leaving ? leaving : undefined} aria-hidden={depth > 0 || undefined}
+          onPointerDown={depth === 0 ? down : undefined} onPointerMove={depth === 0 ? move : undefined} onPointerUp={depth === 0 ? up : undefined} onPointerCancel={depth === 0 ? up : undefined}>
+          <BrandImage asset={card.asset} sizes="(min-width: 768px) 360px, 80vw" />
+          <div className="bs-deck__copy"><h3>{card.title}</h3>{card.body && <div className="bs-deck__body">{card.body}</div>}</div>
+        </li>;
+      })}
+    </ol>
+    <div className="bs-deck__actions">
+      <button type="button" onClick={() => decide('left')}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>{leftLabel}</button>
+      <button type="button" onClick={() => decide('right')}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8.5 3 3 7-7" /></svg>{rightLabel}</button>
+    </div>
+    <p className="bs-sr-only" aria-live="polite">{current ? current.title : ''}</p>
+  </section>;
+}

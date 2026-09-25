@@ -1,0 +1,32 @@
+---
+title: Before After
+description: "Two pictures of the same view, one over the other, with a handle to wipe between them."
+---
+
+<Preview name="before-after/default" />
+
+## Installation
+
+<Install name="BeforeAfter" />
+
+## Usage
+
+```tsx
+import { BeforeAfter } from '@brand-studio/ui';
+```
+
+```tsx
+<BeforeAfter label="Compare the flat profile with Halden colour" before={flat} after={graded} beforeLabel="Flat" afterLabel="Halden colour" />
+```
+
+Use two images of the same size and framing. `initial` sets where the handle starts, from 0 to 100.
+
+## Accessibility
+
+- The handle is a native range input: arrow keys, Page Up and Page Down, Home and End all move it, and screen readers announce the position.
+- Both images keep their alt text.
+- A sideways drag moves the handle on touch; vertical swipes still scroll the page.
+
+## API Reference
+
+<Props name="BeforeAfter" />

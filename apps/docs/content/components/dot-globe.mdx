@@ -1,0 +1,35 @@
+---
+title: Dot Globe
+description: "A turning globe of dots with glowing markers and arcs that join them in order."
+---
+
+<Preview name="dot-globe/default" />
+
+## Installation
+
+<Install name="DotGlobe" />
+
+## Usage
+
+```tsx
+import { DotGlobe } from '@brand-studio/ui';
+```
+
+```tsx
+<DotGlobe label="Origins" markers={[
+  { label: 'Huila, Colombia', lat: 2.5, lng: -75.6 },
+  { label: 'The roastery, London', lat: 51.5, lng: -0.1 },
+]} />
+```
+
+Arcs join the markers in the order you list them. The globe starts facing the first marker. It fills its width up to 36rem and stays square.
+
+## Accessibility
+
+- Screen readers get the markers as a labelled list; the canvas is hidden from them.
+- Dragging sideways spins it; vertical swipes still scroll the page.
+- Under reduced motion it holds still until someone drags it.
+
+## API Reference
+
+<Props name="DotGlobe" />
