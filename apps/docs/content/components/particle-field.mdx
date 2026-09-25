@@ -1,0 +1,33 @@
+---
+title: Particle Field
+description: "Specks that drift slowly behind your content and scatter from the mouse."
+---
+
+<Preview name="particle-field/default" />
+
+## Installation
+
+<Install name="ParticleField" />
+
+## Usage
+
+```tsx
+import { ParticleField } from '@brand-studio/ui';
+```
+
+```tsx
+<ParticleField count={80}>
+  <h2>Shoot by starlight.</h2>
+</ParticleField>
+```
+
+Specks take the ink colour, and one in five the accent. Keep `count` under about 150 on a large section.
+
+## Accessibility
+
+- The specks are drawn on a canvas hidden from screen readers; your content sits above it.
+- It pauses off screen, and reduced motion holds one still frame.
+
+## API Reference
+
+<Props name="ParticleField" />

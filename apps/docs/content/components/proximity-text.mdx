@@ -1,0 +1,31 @@
+---
+title: Proximity Text
+description: "Letters grow bolder, and lean toward the accent, the closer the mouse comes."
+---
+
+<Preview name="proximity-text/default" />
+
+## Installation
+
+<Install name="ProximityText" />
+
+## Usage
+
+```tsx
+import { ProximityText } from '@brand-studio/ui';
+```
+
+```tsx
+<ProximityText as="h2" text="Made to be carried, not kept." radius={140} />
+```
+
+The weight runs from 300 to 800, so use it with a variable font; a font with fixed weights jumps between them. `radius` is how far, in pixels, the mouse reaches.
+
+## Accessibility
+
+- Screen readers hear the plain text once; the letter pieces are hidden from them.
+- Only a mouse changes it. Touch and reduced motion see the text at rest.
+
+## API Reference
+
+<Props name="ProximityText" />

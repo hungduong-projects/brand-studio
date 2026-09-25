@@ -1,0 +1,32 @@
+---
+title: Video Text
+description: "A big headline with a video playing inside its letters."
+---
+
+<Preview name="video-text/default" />
+
+## Installation
+
+<Install name="VideoText" />
+
+## Usage
+
+```tsx
+import { VideoText } from '@brand-studio/ui';
+```
+
+```tsx
+<VideoText as="h1" text="HALDEN R" src="/videos/macro.mp4" />
+```
+
+Set the size and weight with CSS; heavy weights show more of the video. The video is muted, loops, and plays only while the headline is on screen. Serve it from the same origin, or with CORS headers, so the page can draw it.
+
+## Accessibility
+
+- The heading stays real text: screen readers read it and people can select it.
+- Until the video can draw, without JavaScript, and when the video fails, it is ordinary type.
+- Under reduced motion it shows the first frame without playing.
+
+## API Reference
+
+<Props name="VideoText" />

@@ -38,3 +38,15 @@ python3 source-3d/stills-to-webp.py
 The raw PNGs in `source-3d/stills/` stay out of Git.
 
 Halden is a fictional brand. The page takes its section structure from Apple product pages but uses no Apple media, copy, fonts, icons or code.
+
+## Videos
+
+The demo videos in `apps/docs/public/videos/` are frame sequences of the cleaned model. With the dev server on port 5188, run from the repository root:
+
+```sh
+node apps/showcase/source-3d/render-video.mjs macro turn
+sh apps/showcase/source-3d/frames-to-video.sh macro
+sh apps/showcase/source-3d/frames-to-video.sh turn
+```
+
+The raw frames in `source-3d/stills/<name>/` stay out of Git. The second script needs `ffmpeg`.
