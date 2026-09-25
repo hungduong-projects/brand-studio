@@ -9,9 +9,27 @@ description: Add the package, import the styles and wrap your app in a theme.
 
 ## Set up with an agent
 
-Paste this prompt into Claude Code or another coding agent. It installs the package, adds the brand-design skill and starts the brand workflow.
+Paste this prompt into Claude Code, Codex, Gemini CLI, Cursor or another coding agent. It installs the package, adds the brand-design skill and starts the brand workflow.
 
 <AgentPrompt />
+
+To add only the skill, run the command for your agent:
+
+```sh
+# Any agent that reads Agent Skills
+npx skills add hungduong-projects/brand-studio --skill brand-design
+
+# Claude Code plugin
+claude plugin marketplace add hungduong-projects/brand-studio
+claude plugin install brand-studio@brand-studio-local
+
+# Codex plugin
+codex plugin marketplace add hungduong-projects/brand-studio
+codex plugin add brand-studio@brand-studio-local
+
+# Gemini CLI
+gemini skills install https://github.com/hungduong-projects/brand-studio.git --path plugins/brand-studio/skills/brand-design
+```
 
 ## Add a brand palette
 

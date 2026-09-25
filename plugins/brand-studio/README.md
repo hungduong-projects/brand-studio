@@ -1,6 +1,6 @@
 # Brand Studio plugin
 
-A shared brand-design skill for Codex and Claude Code. It produces a brand contract, visual storyboard, consistent-image direction, implementation guidance and a verification record.
+A shared brand-design skill for Claude Code, Codex, Gemini CLI and other agents that read Agent Skills. It produces a brand contract, visual storyboard, consistent-image direction, implementation guidance and a verification record.
 
 ## Contents
 
@@ -11,6 +11,15 @@ A shared brand-design skill for Codex and Claude Code. It produces a brand contr
 - `skills/brand-design/assets/still.brand.json`: fictional coffee example.
 
 It bundles no hooks, MCP servers, credentials, upstream skills, auto-running executables or image-generation service. Image generation and browser verification depend on tools present in the assistant host.
+
+## Install in any agent
+
+```sh
+npx skills add hungduong-projects/brand-studio --skill brand-design
+gemini skills install https://github.com/hungduong-projects/brand-studio.git --path plugins/brand-studio/skills/brand-design
+```
+
+The first command installs to `.agents/skills` and links the skill for each agent it detects.
 
 ## Install locally in Codex and Claude Code
 
