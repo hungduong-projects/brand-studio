@@ -1,0 +1,30 @@
+---
+title: Velocity Marquee
+description: "Big lines of type that slide sideways without end, speeding up and leaning as you scroll."
+---
+
+<Preview name="velocity-marquee/default" layout="full" />
+
+## Installation
+
+<Install name="VelocityMarquee" />
+
+## Usage
+
+```tsx
+import { VelocityMarquee } from '@brand-studio/ui';
+```
+
+```tsx
+<VelocityMarquee lines={['Single origin', 'Roasted every Monday']} speed={40} />
+```
+
+## Accessibility
+
+- Screen readers hear each line once as a list; the repeating copies are hidden from them.
+- It pauses off screen, and the lines stand still under reduced motion.
+- Keep the lines short and decorative; never put the only copy of a fact in a marquee.
+
+## API Reference
+
+<Props name="VelocityMarquee" />

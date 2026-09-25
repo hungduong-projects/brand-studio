@@ -2,9 +2,11 @@
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { useEffect, useRef, useState } from 'react';
-import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, MouseEvent, PointerEvent, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, ElementType, HTMLAttributes, MouseEvent, PointerEvent, ReactNode } from 'react';
 import { BrandImage } from './core.js';
 import type { ImageAsset } from './core.js';
+import { useEntrance } from './entrance.js';
+import { createStage, fit, toRgb } from './gl.js';
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -117,5 +119,180 @@ export function ClickSpark({ children, sparks = 8, className = '', onClick, ...p
     {bursts.map(burst => <span key={burst.id} className="bs-spark__burst" style={{ left: burst.x, top: burst.y }} aria-hidden="true">
       {Array.from({ length: sparks }, (_, index) => <i key={index} style={{ '--bs-spark-angle': `${(360 / sparks) * index}deg` } as CSSProperties} />)}
     </span>)}
+  </div>;
+}
+
+/** Runs `frame` on every animation frame while the element is on screen; `frame` returns false to stop until the next `wake`. */
+function useVisibleLoop(element: { current: Element | null }, frame: (time: number) => boolean | void) {
+  const step = useRef(frame);
+  step.current = frame;
+  const wake = useRef(() => {});
+  useEffect(() => {
+    const target = element.current;
+    if (!target) return;
+    let id = 0, visible = false;
+    const tick = (time: number) => { id = step.current(time) === false || !visible ? 0 : requestAnimationFrame(tick); };
+    wake.current = () => { if (visible && !id) id = requestAnimationFrame(tick); };
+    const observer = new IntersectionObserver(([entry]) => { visible = !!entry?.isIntersecting; if (visible) wake.current(); else { cancelAnimationFrame(id); id = 0; } });
+    observer.observe(target);
+    return () => { observer.disconnect(); cancelAnimationFrame(id); };
+  }, [element]);
+  return wake;
+}
+
+const flowShader = `uniform float t; uniform vec2 res; uniform vec3 c0; uniform vec3 c1; uniform vec3 c2;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(hash(i), hash(i + vec2(1., 0.)), f.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), f.x), f.y); }
+float fbm(vec2 p) { float v = 0., a = .5; for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.02; a *= .5; } return v; }
+void main() {
+  vec2 p = uv * vec2(res.x / res.y, 1.) * 1.1;
+  vec2 q = vec2(fbm(p + t * .04), fbm(p + vec2(5.2, 1.3) - t * .03));
+  float f = fbm(p + 1.6 * q + t * .02);
+  vec3 color = mix(c0, c1, smoothstep(.3, .75, f));
+  color = mix(color, c2, smoothstep(.7, 1.2, length(q)) * .25);
+  color += (hash(uv * res + fract(t)) - .5) * .03;
+  gl_FragColor = vec4(color, 1.);
+}`;
+
+/** A slow, living gradient drawn by a shader in the brand's surface, accent and ink. Content sits on top. It holds still under reduced motion and pauses off screen; without WebGL a static gradient stands in. */
+export function ShaderBackground({ colors, speed = 1, className = '', children, ...props }: HTMLAttributes<HTMLDivElement> & { colors?: [string, string, string]; speed?: number }) {
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const stage = useRef<ReturnType<typeof createStage>>(null);
+  const read = useRef(0);
+  const still = useRef(false);
+  const paint = (time: number) => {
+    const current = stage.current, element = root.current;
+    if (!current || !element || !canvas.current) return false;
+    const { gl, uniform } = current;
+    // Colours are read once a second so a light/dark switch reaches the shader without an observer.
+    if (time - read.current > 1000 || !read.current) {
+      read.current = time || 1;
+      const style = getComputedStyle(element);
+      const [c0, c1, c2] = colors ?? [style.getPropertyValue('--bs-surface'), style.getPropertyValue('--bs-accent'), style.getPropertyValue('--bs-ink')];
+      gl.uniform3fv(uniform('c0'), toRgb(c0)); gl.uniform3fv(uniform('c1'), toRgb(c1)); gl.uniform3fv(uniform('c2'), toRgb(c2));
+    }
+    fit(canvas.current, gl);
+    gl.uniform2f(uniform('res'), canvas.current.width, canvas.current.height);
+    gl.uniform1f(uniform('t'), still.current ? 12 : (time / 1000) * speed);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (!element.dataset.ready) element.dataset.ready = '';
+    return !still.current;
+  };
+  useVisibleLoop(root, paint);
+  useEffect(() => {
+    if (!canvas.current) return;
+    still.current = reducedMotion();
+    stage.current = createStage(canvas.current, flowShader);
+  }, []);
+  return <div {...props} ref={root} className={`bs-shader ${className}`}>
+    <canvas ref={canvas} className="bs-shader__canvas" aria-hidden="true" />
+    {children && <div className="bs-shader__content">{children}</div>}
+  </div>;
+}
+
+/** A headline whose words, or letters, rise out of a mask one after another as it scrolls into view. Screen readers hear the plain text. */
+export function KineticText({ text, as: Tag = 'h2', by = 'word', stagger = 45, className = '' }: { text: string; as?: ElementType; by?: 'word' | 'letter'; stagger?: number; className?: string }) {
+  const root = useEntrance<HTMLElement>();
+  let index = 0;
+  const piece = (content: string, key: number) => <span key={key} className="bs-kinetic__mask"><span className="bs-kinetic__piece" style={{ '--i': index++ } as CSSProperties}>{content}</span></span>;
+  const words = text.split(/\s+/).filter(Boolean);
+  return <Tag ref={root} className={`bs-kinetic ${className}`} style={{ '--bs-kinetic-stagger': `${stagger}ms` } as CSSProperties}>
+    <span className="bs-sr-only">{text}</span>
+    <span aria-hidden="true">{words.map((word, at) => <span key={at} className="bs-kinetic__word">
+      {by === 'word' ? piece(word, 0) : [...word].map((letter, position) => piece(letter, position))}
+      {at < words.length - 1 && ' '}
+    </span>)}</span>
+  </Tag>;
+}
+
+const rippleShader = `uniform sampler2D image; uniform vec2 mouse; uniform float strength; uniform float t; uniform vec2 cover; uniform vec2 focus;
+void main() {
+  vec2 p = vec2(uv.x, 1. - uv.y);
+  vec2 d = p - mouse;
+  float wave = sin(length(d) * 38. - t * 5.) * exp(-length(d) * 7.) * strength * .018;
+  vec2 shift = normalize(d + 1e-4) * wave;
+  vec2 at = (p + shift) * cover + (1. - cover) * focus;
+  vec2 split = shift * cover * 1.6;
+  gl_FragColor = vec4(texture2D(image, at + split).r, texture2D(image, at).g, texture2D(image, at - split).b, 1.);
+}`;
+
+/** An image that ripples and splits its colour around the pointer, then settles. The picture underneath stays a normal, described image; the effect needs same-origin images and is off under reduced motion. */
+export function DistortionImage({ asset, strength = 1, sizes, className = '' }: { asset: ImageAsset; strength?: number; sizes?: string; className?: string }) {
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const stage = useRef<ReturnType<typeof createStage>>(null);
+  const state = useRef({ x: .5, y: .5, target: 0, amount: 0, start: 0 });
+  const wake = useVisibleLoop(root, time => {
+    const current = stage.current, element = canvas.current;
+    if (!current || !element) return false;
+    const { gl, uniform } = current, s = state.current;
+    s.amount += (s.target - s.amount) * .08;
+    fit(element, gl);
+    const box = root.current!.getBoundingClientRect();
+    const boxRatio = box.width / Math.max(box.height, 1), imageRatio = asset.width / asset.height;
+    gl.uniform2f(uniform('cover'), boxRatio > imageRatio ? 1 : boxRatio / imageRatio, boxRatio > imageRatio ? imageRatio / boxRatio : 1);
+    gl.uniform2f(uniform('mouse'), s.x, s.y);
+    gl.uniform1f(uniform('strength'), s.amount * strength);
+    gl.uniform1f(uniform('t'), (time - s.start) / 1000);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    return s.target > 0 || s.amount > .002;
+  });
+  useEffect(() => {
+    const element = canvas.current, image = root.current?.querySelector('img');
+    if (!element || !image || reducedMotion()) return;
+    const load = () => {
+      const current = createStage(element, rippleShader);
+      if (!current) return;
+      const { gl, uniform } = current;
+      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+      for (const [key, value] of [[gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE], [gl.TEXTURE_MIN_FILTER, gl.LINEAR]] as const) gl.texParameteri(gl.TEXTURE_2D, key, value);
+      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image); } catch { return; } // cross-origin image: keep the plain picture
+      const [fx = 50, fy = 50] = (asset.focalPoint ?? '50% 50%').split(/\s+/).map(parseFloat);
+      gl.uniform2f(uniform('focus'), fx / 100, fy / 100);
+      stage.current = current;
+      root.current!.dataset.ready = '';
+    };
+    if (image.complete && image.naturalWidth) load(); else image.addEventListener('load', load, { once: true });
+    return () => image.removeEventListener('load', load);
+  }, [asset]);
+  const track = (event: PointerEvent<HTMLDivElement>, target: number) => {
+    const box = event.currentTarget.getBoundingClientRect(), s = state.current;
+    s.x = (event.clientX - box.left) / box.width; s.y = (event.clientY - box.top) / box.height;
+    if (target && !s.target) s.start = performance.now();
+    s.target = target;
+    wake.current();
+  };
+  return <div ref={root} className={`bs-distort ${className}`} onPointerEnter={event => track(event, 1)} onPointerMove={event => track(event, 1)} onPointerLeave={event => track(event, 0)}>
+    <BrandImage asset={asset} sizes={sizes} />
+    <canvas ref={canvas} className="bs-distort__canvas" aria-hidden="true" />
+  </div>;
+}
+
+/** Big lines of type that slide sideways without end, speeding up and leaning with the speed you scroll. Screen readers hear each line once; under reduced motion the lines stand still. */
+export function VelocityMarquee({ lines, speed = 40, className = '' }: { lines: string[]; speed?: number; className?: string }) {
+  const root = useRef<HTMLDivElement>(null);
+  const motion = useRef({ offset: 0, boost: 0, last: 0, scroll: 0 });
+  useVisibleLoop(root, time => {
+    const element = root.current, m = motion.current;
+    if (!element || reducedMotion()) return false;
+    const delta = m.last ? Math.min(time - m.last, 64) / 1000 : 0;
+    m.last = time;
+    const scrolled = window.scrollY - m.scroll;
+    m.scroll = window.scrollY;
+    m.boost += ((delta ? scrolled / delta / 40 : 0) - m.boost) * .1;
+    m.offset += (speed + Math.abs(m.boost) * 8) * delta;
+    element.querySelectorAll<HTMLElement>('.bs-marquee__track').forEach((track, row) => {
+      const width = track.scrollWidth / 2 || 1;
+      const x = (m.offset * (1 + row * .15)) % width;
+      track.style.transform = `translateX(${row % 2 ? x - width : -x}px) skewX(${Math.max(-12, Math.min(12, -m.boost * .6))}deg)`;
+    });
+  });
+  return <div ref={root} className={`bs-marquee ${className}`}>
+    <ul className="bs-sr-only">{lines.map((line, at) => <li key={at}>{line}</li>)}</ul>
+    {lines.map((line, at) => <div key={at} className="bs-marquee__row" aria-hidden="true">
+      <div className="bs-marquee__track">{Array.from({ length: 8 }, (_, copy) => <span key={copy}>{line}</span>)}</div>
+    </div>)}
   </div>;
 }

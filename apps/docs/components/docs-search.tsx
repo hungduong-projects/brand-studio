@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { catalog, componentHref, guideHref, guides } from '@/lib/catalog';
+import { Search } from 'lucide-react';
 
 const pages: { title: string; group: string; href: string; description?: string }[] = [
   ...guides.map((guide) => ({ title: guide.title, group: 'Getting Started', href: guideHref(guide.slug) })),
@@ -24,7 +25,7 @@ export function DocsSearch() {
 
   return <>
     <button type="button" className="search-trigger" onClick={() => dialog.current?.showModal()}>
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <Search aria-hidden="true" size={16} />
       <span>Search docs…</span>
       <kbd>⌘ K</kbd>
     </button>

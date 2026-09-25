@@ -22,3 +22,10 @@ export const cameraViews: ImageAsset[] = [
   ['top', 'The Halden R from above, showing the shutter dial.'],
   ['apart', 'The Halden R taken apart into its body, lens and battery.'],
 ].map(([name, alt]) => ({ src: `/images/halden/${name}-square.webp`, alt, width: 800, height: 800 }));
+
+/** Wide Halden renders, for layouts that mix shapes. */
+export const cameraWides: ImageAsset[] = [
+  ['front', 'The Halden R from the front, its lens centred.'],
+  ['side', 'The Halden R in profile, showing the grip.'],
+  ['three', 'The Halden R from three quarters, lens forward.'],
+].map(([name, alt]) => ({ src: `/images/halden/${name}.webp`, alt, width: 1600, height: 900 }));

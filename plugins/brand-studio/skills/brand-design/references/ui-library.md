@@ -92,6 +92,10 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Rotate a short list of words in a headline | `FlipText` | The words carry facts the person needs |
 | Reward a click with a small burst | `ClickSpark` | The click is frequent or serious |
 | Pile up cards as the page scrolls | `ScrollStack` | The cards must be compared side by side |
+| Give a hero or offer a living backdrop in the brand's colours | `ShaderBackground` | Text over it fails contrast somewhere in the gradient |
+| Land one headline with weight as it arrives | `KineticText` | The text is body copy or changes often |
+| Make one signature image answer the pointer | `DistortionImage` | The image carries detail people must read, or comes from another origin |
+| Carry a short brand line across the page with scroll energy | `VelocityMarquee` | The line holds a fact the person needs |
 
 ### Tell a story
 
@@ -108,8 +112,10 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Show many images with depth | `ParallaxGallery` | Each image needs a caption |
 | Leave images behind the pointer | `ImageTrail` | Touch is the main input |
 | Invite wandering through a large set of images | `InfiniteCanvas` | The order matters or each image needs a caption |
-| Let people open any image full screen and step through the set | `Lightbox` | There are one or two images: show them large |
+| Let people open any image full screen and step through the set; `layout="masonry"` keeps mixed shapes | `Lightbox` | There are one or two images: show them large |
 | Show one object or set from every side, one at a time | `RingGallery` | There are fewer than five images or more than twelve |
+| Bring a set of images in with depth as the page scrolls | `StaggerGrid` | Each image needs a caption or the set is small |
+| Turn a scattered set into order as a moment of arrival | `ScrollFormation` | There are fewer than six images or more than twelve |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
 
 ### Present a product

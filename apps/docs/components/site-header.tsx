@@ -1,8 +1,10 @@
 import { catalog, categories, componentHref, guideHref, guides } from '@/lib/catalog';
+import { GroupHeading } from './category-icon';
 import { BrandPicker, ModeToggle } from './demo-brand';
 import { DocsSearch } from './docs-search';
 import { MainNav } from './main-nav';
 import pkg from '../../../packages/ui/package.json';
+import { Menu } from 'lucide-react';
 
 export function SiteHeader() {
   return <header className="site-header">
@@ -18,13 +20,13 @@ export function SiteHeader() {
         <ModeToggle />
       </div>
       <details className="mobile-menu">
-        <summary className="icon-button icon-button--framed"><span className="sr-only">Menu</span><svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg></summary>
+        <summary className="icon-button icon-button--framed"><span className="sr-only">Menu</span><Menu aria-hidden="true" size={18} /></summary>
         <nav aria-label="Docs" className="mobile-menu__panel">
-          <h2>Getting Started</h2>
+          <GroupHeading name="Getting Started" />
           <ul>{guides.map((guide) => <li key={guide.slug}><a href={guideHref(guide.slug)}>{guide.title}</a></li>)}</ul>
           <h2>Examples</h2>
           <ul><li><a href="/examples/">Editions release</a></li><li><a href="/examples/camera/">Halden camera</a></li><li><a href="/examples/deskhand/">Deskhand support</a></li></ul>
-          {categories.map((category) => <div key={category}><h2>{category}</h2><ul>{catalog.filter((entry) => entry.category === category).map((entry) => <li key={entry.slug}><a href={componentHref(entry.slug)}>{entry.title}</a></li>)}</ul></div>)}
+          {categories.map((category) => <div key={category}><GroupHeading name={category} /><ul>{catalog.filter((entry) => entry.category === category).map((entry) => <li key={entry.slug}><a href={componentHref(entry.slug)}>{entry.title}</a></li>)}</ul></div>)}
         </nav>
       </details>
     </div>

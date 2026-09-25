@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -362,4 +362,47 @@ test('ring gallery exposes only the image facing the viewer', () => {
   assert.equal((html.match(/aria-hidden="true" data-front|<li[^>]*aria-hidden="true"/g) ?? []).length, 4);
   assert.match(html, /aria-label="Previous image"/);
   assert.ok(!render(h(RingGallery, { images: galleryImages.slice(0, 1) })).includes('bs-ring__nav'), 'one image needs no controls');
+});
+
+test('lightbox masonry keeps the same thumbnails and dialog in a masonry list', () => {
+  const html = render(h(Lightbox, { images: galleryImages, layout: 'masonry' }));
+  assert.match(html, /class="bs-lightbox bs-lightbox--masonry /);
+  assert.equal((html.match(/aria-haspopup="dialog"/g) ?? []).length, 5);
+});
+
+test('shader background hides its canvas and keeps content as plain markup', () => {
+  const html = render(h(ShaderBackground, null, h('h2', null, 'Autumn lot')));
+  assert.match(html, /<canvas class="bs-shader__canvas" aria-hidden="true">/);
+  assert.match(html, /<div class="bs-shader__content"><h2>Autumn lot<\/h2><\/div>/);
+});
+
+test('kinetic text reads once to screen readers and splits pieces for the eye', () => {
+  const words = render(h(KineticText, { text: 'In your cup', as: 'h1' }));
+  assert.match(words, /^<h1 class="bs-kinetic /);
+  assert.match(words, /<span class="bs-sr-only">In your cup<\/span><span aria-hidden="true">/);
+  assert.equal((words.match(/bs-kinetic__piece/g) ?? []).length, 3);
+  assert.equal((render(h(KineticText, { text: 'Cup', by: 'letter' })).match(/bs-kinetic__piece/g) ?? []).length, 3);
+});
+
+test('distortion image keeps a described picture under a hidden canvas', () => {
+  const html = render(h(DistortionImage, { asset: galleryImages[0] }));
+  assert.match(html, /alt="Photo a"/);
+  assert.match(html, /<canvas class="bs-distort__canvas" aria-hidden="true">/);
+});
+
+test('velocity marquee names each line once and hides the repeats', () => {
+  const html = render(h(VelocityMarquee, { lines: ['Single origin', 'Shipped Friday'] }));
+  assert.match(html, /<ul class="bs-sr-only"><li>Single origin<\/li><li>Shipped Friday<\/li><\/ul>/);
+  assert.equal((html.match(/class="bs-marquee__row" aria-hidden="true"/g) ?? []).length, 2);
+});
+
+test('stagger grid and scroll formation render flat, labelled image lists before enhancement', () => {
+  const grid = render(h(StaggerGrid, { images: galleryImages, label: 'Notes' }));
+  assert.match(grid, /<ul class="bs-stagger " aria-label="Notes">/);
+  assert.ok(!grid.includes('data-enhanced'));
+  const formation = render(h(ScrollFormation, { images: galleryImages, title: 'In the box', label: 'Kit' }));
+  assert.match(formation, /<section class="bs-formation " aria-label="Kit" style="--cols:3;--rows:2">/);
+  assert.match(formation, /<h2 class="bs-formation__title">In the box<\/h2>/);
+  for (const image of galleryImages) assert.ok(formation.includes(`alt="${image.alt}"`), image.alt);
+  assert.ok(!formation.includes('data-enhanced'));
 });

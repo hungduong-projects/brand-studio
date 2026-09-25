@@ -1,0 +1,32 @@
+---
+title: Shader Background
+description: "A slow, living gradient in the brand's colours, drawn by a shader behind your content."
+---
+
+<Preview name="shader-background/default" />
+
+## Installation
+
+<Install name="ShaderBackground" />
+
+## Usage
+
+```tsx
+import { ShaderBackground } from '@brand-studio/ui';
+```
+
+```tsx
+<ShaderBackground style={{ padding: 48 }}>…</ShaderBackground>
+```
+
+It reads `--bs-surface`, `--bs-accent` and `--bs-ink` from the theme. Pass `colors` to use three other colours.
+
+## Accessibility
+
+- Decorative only: the canvas is hidden from screen readers and the content sits on top as normal markup.
+- Check contrast against the lightest and darkest parts of the gradient.
+- It holds one still frame under reduced motion, pauses off screen and falls back to a static gradient without WebGL.
+
+## API Reference
+
+<Props name="ShaderBackground" />
