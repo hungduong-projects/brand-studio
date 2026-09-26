@@ -67,6 +67,7 @@ await page.evaluate(next => window.setFrames(next), frames);
 const shot = async (t, options = {}) => { await page.evaluate(time => window.seek(time), t); return page.screenshot(options); };
 await shot(0);
 await page.evaluate(() => Promise.all(['16px "Geist Variable"', '600 16px "Geist Variable"', '16px "Geist Mono"'].map(font => document.fonts.load(font))));
+await page.evaluate(() => window.aim());
 
 mkdirSync(out, { recursive: true });
 if (stills) {

@@ -46,9 +46,13 @@ export interface Shot { at: number; x: number; y: number; zoom: number }
  * the way a screen recorder's auto-zoom follows the action.
  */
 export function Camera({ t, shots, children }: { t: number; shots: Shot[]; children: ReactNode }) {
+  const { x, y, zoom } = cameraAt(t, shots);
+  return <div className="fk-camera" style={{ transform: `translate(576px, 324px) scale(${zoom}) translate(${-x}px, ${-y}px)` }}>{children}</div>;
+}
+/** Where the camera points at `t`. */
+export function cameraAt(t: number, shots: Shot[]) {
   const pick = (key: 'x' | 'y' | 'zoom') => keys(t, shots.map(s => [s.at, s[key]] as [number, number]));
-  const zoom = pick('zoom');
-  return <div className="fk-camera" style={{ transform: `translate(576px, 324px) scale(${zoom}) translate(${-pick('x')}px, ${-pick('y')}px)` }}>{children}</div>;
+  return { x: pick('x'), y: pick('y'), zoom: pick('zoom') };
 }
 
 /** An app window with traffic lights. */
@@ -85,11 +89,16 @@ export function Terminal({ t, lines, style, prompt = '$' }: { t: number; lines: 
   </section>;
 }
 
-export interface CursorPoint { at: number; x: number; y: number; click?: boolean }
+/**
+ * A cursor stop. Give `target` (a CSS selector) and `aim` measures where that element sits at `at`, so the pointer lands on
+ * it; `offset` moves the stop that many world pixels from the target's centre. With only an `offset`, the stop sits that far from
+ * the stop before it, for moves after a click takes the target away. Otherwise `x` and `y` are used as is.
+ */
+export interface CursorPoint { at: number; x?: number; y?: number; target?: string; offset?: [number, number]; click?: boolean }
 /** A pointer that glides between points and ripples on each click. Points are in world coordinates. */
 export function Cursor({ t, path }: { t: number; path: CursorPoint[] }) {
-  const x = keys(t, path.map(p => [p.at, p.x] as [number, number]));
-  const y = keys(t, path.map(p => [p.at, p.y] as [number, number]));
+  const x = keys(t, path.map(p => [p.at, p.x ?? 0] as [number, number]));
+  const y = keys(t, path.map(p => [p.at, p.y ?? 0] as [number, number]));
   const click = path.filter(p => p.click && t >= p.at && t < p.at + .6).at(-1);
   const press = click ? 1 - .12 * Math.sin(Math.min(1, (t - click.at) / .2) * Math.PI) : 1;
   const visible = Math.min(ease(t, path[0].at - .3, .3), 1 - ease(t, path.at(-1)!.at + .4, .3));
@@ -97,6 +106,29 @@ export function Cursor({ t, path }: { t: number; path: CursorPoint[] }) {
     {click && <span className="fk-ripple" style={{ scale: `${.4 + ease(t, click.at, .6) * 1.6}`, opacity: 1 - ease(t, click.at, .6, curves.inOut) }} />}
     <svg viewBox="0 0 24 24" width="24" height="24" style={{ scale: `${press}` }} aria-hidden="true"><path d="M5 3l14 8-6.2 1.6L10 19z" fill="#0a0a0a" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" /></svg>
   </div>;
+}
+
+/** Resolves every targeted cursor stop to world coordinates by drawing the film at that stop's moment and measuring the target. */
+export async function aim(paths: CursorPoint[][], shots: Shot[], seek: (t: number) => Promise<void>) {
+  for (const path of paths) for (const [i, point] of path.entries()) {
+    if (!point.target) {
+      if (point.x === undefined && point.offset && i > 0) { point.x = path[i - 1].x! + point.offset[0]; point.y = path[i - 1].y! + point.offset[1]; }
+      continue;
+    }
+    await seek(point.at);
+    const element = document.querySelector(point.target);
+    if (!element) throw new Error(`cursor target ${point.target} is not on screen at ${point.at}s`);
+    const box = element.getBoundingClientRect(), camera = cameraAt(point.at, shots);
+    point.x = (box.left + box.width / 2 - 576) / camera.zoom + camera.x + (point.offset?.[0] ?? 0);
+    point.y = (box.top + box.height / 2 - 324) / camera.zoom + camera.y + (point.offset?.[1] ?? 0);
+  }
+}
+/** Marks each click target as hovered from just before the click until just after, since a drawn cursor sets off no :hover. */
+export function hover(t: number, paths: CursorPoint[][]) {
+  for (const point of paths.flat()) {
+    if (!point.click || !point.target) continue;
+    document.querySelector(point.target)?.classList.toggle('fk-hover', t >= point.at - .2 && t < point.at + .15);
+  }
 }
 
 /** A large caption that sits in the lower third. */

@@ -6,9 +6,10 @@ import '@brand-studio/ui/styles.css';
 import './film.css';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { AgentThinking, ApprovalCard, BrandTheme, ChatComposer, ChatMessage, ChatThread, TaskRows, ToolChips } from '@brand-studio/ui';
+import { AgentThinking, ApprovalCard, BrandTheme, ChatComposer, ChatMessage, ChatThread, TaskRows, ThinkingTrace, ToolChips } from '@brand-studio/ui';
 import type { BrandPalette, TaskRow, ToolCall } from '@brand-studio/ui';
-import { AppWindow, BrowserWindow, Camera, Caption, Cursor, Stage, Terminal, curves, ease, rise, typed } from '../film-kit/kit';
+import { AppWindow, BrowserWindow, Camera, Caption, Cursor, Stage, Terminal, aim, curves, ease, hover, rise, typed } from '../film-kit/kit';
+import type { CursorPoint } from '../film-kit/kit';
 import halden from '../../apps/showcase/src/halden.brand.json';
 
 export const SECONDS = 40;
@@ -27,21 +28,38 @@ const plain = { surface: '#ffffff', elevated: '#ffffff', ink: '#18181b', muted: 
 const palette = { light: plain, dark: plain } as unknown as BrandPalette;
 
 const ask = 'Make a launch page for Halden, my camera brand.';
+const answer = "I'll set up Brand Studio first, then build Halden's page.";
+const plan = ['Install the components and the brand-design skill', "Write Halden's brand contract", 'Build the page and check it at 390 and 1440'];
+const install = [
+  { command: 'npm install @brand-studio/ui', at: 7.6, result: '✓ @brand-studio/ui installed' },
+  { command: 'npx skills add hungduong-projects/brand-studio --skill brand-design -y', at: 9.5, result: '✓ brand-design skill added' },
+];
+/** The words of `text` streamed by `t`, like an agent's reply arriving. */
+const streamed = (text: string, t: number, start: number, perSecond = 12) => text.split(' ').slice(0, Math.max(0, Math.floor((t - start) * perSecond))).join(' ');
 
 function ChatScene({ t }: { t: number }) {
   if (t > 13.4) return null;
   const sent = t >= 3.9;
+  const thought = t >= 5;
   const enter = ease(t, .1, .55);
   const leave = ease(t, 6.8, .6, curves.inOut);
   const exit = ease(t, 12.8, .5, curves.in);
+  const ran = (at: number, command: string) => t >= at + command.length / 30 + .5;
   return <AppWindow title="Agent" className="chat" style={{ opacity: enter * (1 - exit), translate: `${-230 * leave}px ${24 * (1 - enter)}px`, scale: `${1 - .1 * leave}`, filter: `saturate(${1 - .5 * leave})` }}>
     <BrandTheme palette={palette} mode="light" className="chat__theme">
       <ChatThread label="Conversation">
-        <ChatMessage from="agent" name="Agent"><p style={rise(t, .4)}>What should we make today?</p></ChatMessage>
+        {!sent && <p className="chat__empty" style={rise(t, .4, 3.9)}>What should we build?</p>}
         {sent && <ChatMessage from="user"><p style={rise(t, 3.95, Infinity, 8)}>{ask}</p></ChatMessage>}
-        {t >= 4.5 && <ChatMessage from="agent" name="Agent"><div style={rise(t, 4.5)}><AgentThinking size={18} label="Setting up Brand Studio" /><p className="chat__reply">First I'll install the components and the brand-design skill.</p></div></ChatMessage>}
+        {t >= 4.3 && <ChatMessage from="agent" name="Agent">
+          <div className="chat__reply" style={rise(t, 4.3, Infinity, 8)}>
+            <ThinkingTrace title={thought ? 'Thought for 1s' : 'Thinking'} steps={[{ id: 'read', title: 'Read the request', status: thought ? 'done' : 'active' }]} />
+            {thought && <p>{streamed(answer, t, 5.05)}</p>}
+            {t >= 5.8 && <ol className="chat__plan">{plan.map((item, i) => t >= 5.8 + i * .22 && <li key={item} style={rise(t, 5.8 + i * .22, Infinity, 6)}>{item}</li>)}</ol>}
+            {t >= 6.6 && <div style={rise(t, 6.6, Infinity, 6)}><ToolChips tools={install.filter(line => t >= line.at - .6 || line === install[0]).map(line => ({ id: line.command, name: line.command.split(' ').slice(0, 3).join(' '), status: ran(line.at, line.command) ? 'done' : 'running' }))} /></div>}
+          </div>
+        </ChatMessage>}
       </ChatThread>
-      <ChatComposer value={sent ? '' : typed(ask, t, 1.3)} placeholder="Ask anything" busy={t >= 4.5} />
+      <ChatComposer value={sent ? '' : typed(ask, t, 1.3)} placeholder="Ask anything" busy={t >= 4.3 && !ran(install[1].at, install[1].command)} />
     </BrandTheme>
   </AppWindow>;
 }
@@ -50,10 +68,7 @@ function InstallScene({ t }: { t: number }) {
   if (t < 6.7 || t > 13.4) return null;
   const enter = ease(t, 6.9, .6);
   const leave = ease(t, 12.8, .5, curves.in);
-  return <Terminal t={t} style={{ left: 470, top: 150, width: 620, height: 320, opacity: enter * (1 - leave), translate: `${(1 - enter) * 140}px 0`, scale: `${1 - .08 * leave}` }} lines={[
-    { command: 'npm install @brand-studio/ui', at: 7.6, result: '✓ @brand-studio/ui installed' },
-    { command: 'npx skills add hungduong-projects/brand-studio --skill brand-design -y', at: 9.5, result: '✓ brand-design skill added' },
-  ]} />;
+  return <Terminal t={t} style={{ left: 470, top: 150, width: 620, height: 320, opacity: enter * (1 - leave), translate: `${(1 - enter) * 140}px 0`, scale: `${1 - .08 * leave}` }} lines={install} />;
 }
 
 const steps = [
@@ -64,6 +79,7 @@ const steps = [
   { label: 'Check 390 and 1440 wide', at: 22.8, thinking: 'Checking contrast and layout' },
 ];
 const allDone = 24.4;
+const swatches = [['accent', halden.tokens.light.accent], ['surface', halden.tokens.light.surface], ['ink', halden.tokens.light.ink]] as const;
 const contract = [`"concept": "${halden.direction.concept}"`, `"accent": "${halden.tokens.light.accent}"`, `"surface": "${halden.tokens.light.surface}"`, `"ink": "${halden.tokens.light.ink}"`, `"radius": "${halden.tokens.light.radius}"`];
 
 function AgentScene({ t }: { t: number }) {
@@ -95,7 +111,8 @@ function AgentScene({ t }: { t: number }) {
           })}
         </div>
         {t >= 19.3 && <div style={rise(t, 19.3, Infinity, 12)}>
-          <ApprovalCard title="Use this palette?" description="Brass accent on warm paper, from the Halden contract." status={t >= 20.7 ? 'approved' : 'pending'} approveLabel="Allow" />
+          <ApprovalCard title="Use this palette?" description="Brass accent on warm paper, from the Halden contract." status={t >= 20.7 ? 'approved' : 'pending'} approveLabel="Allow"
+            detail={<span className="swatches">{swatches.map(([role, colour]) => <span key={role} className="swatch"><i style={{ background: colour }} />{role} {colour}</span>)}</span>} />
         </div>}
       </div>
     </BrandTheme>
@@ -145,8 +162,14 @@ const shots = [
   { at: 21.7, x: 576, y: 324, zoom: 1.02 }, { at: 22.8, x: 576, y: 324, zoom: 1.02 }, { at: 23.4, x: 700, y: 200, zoom: 1.5 }, { at: 24.4, x: 700, y: 200, zoom: 1.5 },
   { at: 25, x: 576, y: 324, zoom: 1 }, { at: 30, x: 576, y: 324, zoom: 1.05 }, { at: 30.4, x: 576, y: 324, zoom: 1 }, { at: 40, x: 576, y: 324, zoom: 1 },
 ];
-const chatCursor = [{ at: .6, x: 820, y: 400 }, { at: 1.1, x: 420, y: 486, click: true }, { at: 3.4, x: 640, y: 470 }, { at: 3.85, x: 912, y: 510, click: true }, { at: 4.6, x: 930, y: 540 }];
-const approveCursor = [{ at: 19.8, x: 1000, y: 600 }, { at: 20.6, x: 952, y: 516, click: true }, { at: 21.2, x: 990, y: 560 }];
+// render.mjs calls window.aim, which measures each target, so the pointer lands on the real field and buttons.
+const input = '.chat .bs-composer__input', send = '.chat .bs-composer__send', allow = '.agent .bs-approval .bs-button--primary';
+const chatCursor: CursorPoint[] = [
+  { at: .6, target: input, offset: [260, 90] }, { at: 1.1, target: input, offset: [-250, 0], click: true }, { at: 1.7, offset: [330, 34] }, { at: 3.1, offset: [0, 0] },
+  { at: 3.85, target: send, click: true }, { at: 4.6, offset: [34, 46] },
+];
+const approveCursor: CursorPoint[] = [{ at: 19.8, target: allow, offset: [90, 110] }, { at: 20.6, target: allow, click: true }, { at: 21.2, offset: [36, 48] }];
+const cursors = [chatCursor, approveCursor];
 
 function Film({ t }: { t: number }) {
   return <Stage>
@@ -167,13 +190,15 @@ function Film({ t }: { t: number }) {
 }
 
 const root = createRoot(document.getElementById('film')!);
-declare global { interface Window { seek: (t: number) => Promise<void>; setFrames: (next: Record<string, string[]>) => void; film: { seconds: number; posterAt: number; pages: typeof pages } } }
+declare global { interface Window { seek: (t: number) => Promise<void>; aim: () => Promise<void>; setFrames: (next: Record<string, string[]>) => void; film: { seconds: number; posterAt: number; pages: typeof pages } } }
 window.film = { seconds: SECONDS, posterAt: POSTER_AT, pages };
 window.setFrames = next => { frames = next; };
 /** Draws the film at `t` seconds, parks every CSS animation at the same moment and waits for page images to decode. */
 window.seek = async t => {
   flushSync(() => root.render(<Film t={t} />));
+  hover(t, cursors);
   for (const animation of document.getAnimations()) { animation.pause(); animation.currentTime = t * 1000; }
   await Promise.all([...document.images].map(image => image.decode().catch(() => undefined)));
   await document.fonts.ready;
 };
+window.aim = () => aim(cursors, shots, window.seek);

@@ -29,4 +29,6 @@
 .fk-cursor svg { position: absolute; left: -5px; top: -3px; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .3)); transform-origin: 5px 3px; }
 .fk-ripple { position: absolute; left: -18px; top: -18px; width: 36px; height: 36px; border-radius: 50%; background: rgb(124 92 255 / .35); }
 
+.fk-hover { box-shadow: 0 0 0 4px rgb(124 92 255 / .28) !important; filter: brightness(1.18); }
+
 .fk-caption { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 20; width: fit-content; margin-inline: auto !important; padding: 10px 22px; border-radius: 999px; background: rgb(255 255 255 / .92); box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 12px 30px -10px rgb(20 16 40 / .35); text-align: center; font-size: 28px; font-weight: 600; letter-spacing: -.03em; color: #0a0a0a; }
