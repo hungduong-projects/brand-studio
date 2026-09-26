@@ -50,3 +50,30 @@ sh apps/showcase/source-3d/frames-to-video.sh turn
 ```
 
 The raw frames in `source-3d/stills/<name>/` stay out of Git. The second script needs `ffmpeg`.
+
+# 3D source for the Nuvelo sneaker page
+
+| File | Source | Author | Licence |
+|---|---|---|---|
+| `public/models/shoe.glb` | [Materials Variants Shoe](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/MaterialsVariantsShoe), Khronos glTF sample assets | Shopify, 2021 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+
+CC BY 4.0 requires credit, so the page footer names the model, Shopify, the licence and the changes.
+
+## Changes to the shoe
+
+`clean-shoe.py` makes these edits before building `shoe.glb`:
+
+- Logo on the tongue label: filled with the label's own colour.
+- "FOAM" lettering embossed on the sole, visible only in the normal map: patched from plain foam on the same strip.
+- Small print on the insole: patched from plain insole.
+- Only the pink "Beach" colourway is kept. Its pink is lifted toward Nuvelo's candy pink, and the charcoal laces, collar and tongue label turn sky blue.
+
+Each patch applies to the colour, normal and occlusion-roughness-metal maps.
+
+The raw download is kept out of Git. To rebuild, download `MaterialsVariantsShoe.glb` into `source-3d/shoe/`, then run from `apps/showcase`:
+
+```sh
+python3 source-3d/clean-shoe.py
+```
+
+The script needs Pillow and writes `public/models/shoe.glb` through `@gltf-transform/cli` (WebP textures at 2048 px, meshopt compression).

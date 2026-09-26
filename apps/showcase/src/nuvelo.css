@@ -1,0 +1,64 @@
+/* Nuvelo: a white frame around a sky, the shoe name in glass letters, the shoe floating over a pink cloud bank. */
+.nv { --nv-frame: 14px; --nv-sky-top: #2f86d6; --nv-sky-low: #a9d4f2; --nv-blush: #f6b6d6; min-height: 100svh; padding: var(--nv-frame); box-sizing: border-box; background: var(--bs-surface); color: var(--bs-ink); font-family: var(--bs-font); }
+.nv a { color: inherit; }
+
+.nv-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 60px; padding: 0 clamp(.75rem, 3vw, 2.5rem); }
+.nv-mark { display: inline-flex; width: fit-content; padding: .5rem 0; }
+.nv-bar ul { display: flex; gap: clamp(1rem, 3vw, 2.6rem); margin: 0; padding: 0; list-style: none; }
+.nv-bar nav a { display: block; padding: .6rem 0; font-size: .74rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; }
+.nv-bar nav a:hover { color: var(--bs-muted); }
+.nv-tools { display: flex; justify-content: flex-end; gap: .4rem; }
+.nv-tools a { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; }
+.nv-tools a:hover { background: color-mix(in srgb, var(--bs-ink) 6%, transparent); }
+.nv-bag span { position: absolute; top: 7px; right: 6px; display: grid; place-items: center; min-width: 15px; height: 15px; border-radius: 8px; background: var(--bs-accent); color: var(--bs-on-accent); font-size: .6rem; font-weight: 700; }
+
+/* The sky: every layer sits in one box so the word, the clouds and the shoe stay in register at any width. */
+.nv-hero { position: relative; overflow: hidden; height: max(560px, calc(100svh - 60px - var(--nv-frame) * 2)); border-radius: calc(var(--bs-radius) * 2); background: linear-gradient(180deg, var(--nv-sky-top) 0%, #5aa6e3 38%, var(--nv-sky-low) 62%, var(--nv-blush) 80%); isolation: isolate; }
+.nv-hero > canvas, .nv-shoe { position: absolute; inset: 0; width: 100%; height: 100%; }
+.nv-shoe canvas { display: block; width: 100%; height: 100%; }
+.nv-sky { animation: nv-drift 60s ease-in-out infinite alternate; }
+@keyframes nv-drift { to { transform: translateX(-2.5%); } }
+
+/* Glass letters: white, fading toward the cloud bank so the sky shows through. */
+.nv-word { position: absolute; top: 15%; left: 50%; width: max-content; margin: 0; transform: translateX(-50%); font: 800 clamp(6rem, 25vw, 26rem)/.8 var(--bs-font); letter-spacing: -.02em; text-transform: uppercase; white-space: nowrap; color: transparent; background: linear-gradient(180deg, rgba(255,255,255,.96) 10%, rgba(255,255,255,.62) 55%, rgba(255,255,255,.28) 100%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 6px 18px rgba(40, 90, 160, .18)); }
+.nv-brand { position: absolute; top: 44%; left: -6%; font-size: clamp(.9rem, 1.6vw, 1.5rem); font-weight: 600; letter-spacing: .32em; color: #fff; -webkit-text-fill-color: #fff; }
+.nv-kind { position: absolute; top: calc(15% - 1.6rem); right: 29%; margin: 0; color: #fff; font-size: .74rem; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+
+.nv-orbit { position: absolute; left: 12%; bottom: 13%; width: 76%; height: 22%; overflow: visible; }
+.nv-orbit ellipse { fill: none; stroke: rgba(255,255,255,.7); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
+.nv-shoe { opacity: 0; transition: opacity 1s .1s; }
+.nv-hero[data-ready] .nv-shoe { opacity: 1; }
+
+.nv-line { position: absolute; left: clamp(1rem, 4vw, 3rem); bottom: clamp(1rem, 4vw, 2.4rem); max-width: 30ch; margin: 0; color: #5a2a4a; font-size: .85rem; font-weight: 550; }
+.nv-cta { position: absolute; right: clamp(1rem, 9vw, 9rem); top: 54%; }
+.nv .nv-cta { background: #151417; color: #fff; }
+.nv-play { position: absolute; left: 50%; bottom: clamp(1rem, 3.5vw, 2.2rem); display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; color: #d0467f; fill: currentColor; transform: translateX(-50%); cursor: pointer; box-shadow: 0 4px 14px rgba(120, 40, 90, .2); }
+.nv-play:focus-visible, .nv-cta:focus-visible { outline: 3px solid #151417; outline-offset: 3px; }
+.nv-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.nv-specs { padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem); }
+.nv-specs h2 { margin: 0 0 2rem; font-size: clamp(1.8rem, 3.6vw, 3rem); letter-spacing: -.04em; }
+.nv-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 2rem clamp(1rem, 4vw, 3rem); border-top: 1px solid var(--bs-line); font-size: .8rem; color: var(--bs-muted); }
+.nv-foot p { margin: 0; max-width: 62ch; }
+.nv-foot a { display: inline-block; padding-block: .7rem; }
+
+@media (max-width: 760px) {
+  .nv { --nv-frame: 8px; }
+  .nv-bar { grid-template-columns: 1fr auto; grid-template-rows: 56px auto; height: auto; }
+  .nv-bar nav { grid-column: 1 / -1; grid-row: 2; overflow-x: auto; }
+  .nv-bar ul { gap: 1.2rem; }
+  .nv-bar nav a { white-space: nowrap; }
+  .nv-hero { height: max(620px, calc(100svh - 110px)); }
+  .nv-word { top: 11%; font-size: 29vw; }
+  .nv-brand { top: -38%; left: 2%; font-size: .8rem; }
+  .nv-kind { top: auto; bottom: calc(100% - 11% + .6rem); display: none; }
+  .nv-cta { top: auto; right: 50%; bottom: 5.5rem; transform: translateX(50%); }
+  .nv-line { right: 1rem; bottom: 9.5rem; max-width: none; text-align: center; }
+  .nv-play { left: auto; right: 1rem; transform: none; bottom: 1rem; }
+  .nv-orbit { left: 2%; width: 96%; bottom: 22%; height: 14%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-sky { animation: none; }
+  .nv-shoe { transition: none; }
+}

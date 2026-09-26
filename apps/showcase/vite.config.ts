@@ -25,7 +25,7 @@ const liveUi: Plugin = {
 };
 
 // The docs site serves the build under /examples/. Each page gets its own index.html so a static host finds it without a rewrite rule.
-const pages = ['camera', 'deskhand'];
+const pages = ['camera', 'deskhand', 'sneaker'];
 const pageFolders = { name: 'page-folders', apply: 'build' as const, closeBundle() {
   const index = new URL('dist/index.html', import.meta.url);
   for (const page of pages) {
