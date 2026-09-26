@@ -1,0 +1,40 @@
+/* Designed at 1152x648 CSS pixels; render.mjs captures at 2x and scales to 1920x1080. */
+html, body { margin: 0; width: 1152px; height: 648px; overflow: hidden; background: #fafafa; }
+.film { position: relative; width: 1152px; height: 648px; overflow: hidden; background: #fafafa; color: #0a0a0a; font-family: "Geist Variable", system-ui, sans-serif; }
+
+.caption { position: absolute; left: 84px; top: 64px; max-width: 640px; margin: 0; font-size: 44px; line-height: 1.06; font-weight: 600; letter-spacing: -.035em; }
+
+.stage-card { position: absolute; left: 664px; top: 168px; width: 392px; display: grid; }
+.card { grid-area: 1 / 1; display: grid; gap: 14px; padding: 26px; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 10px); background: var(--bs-elevated); box-shadow: 0 30px 60px -30px rgb(0 0 0 / .35); }
+.card__tag { margin: 0; font: 500 11px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: .02em; text-transform: uppercase; color: var(--bs-muted); }
+.card__title { margin: 4px 0 0; color: var(--bs-ink); font-size: 24px; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+.card__body { margin: 0; color: var(--bs-muted); font-size: 16px; }
+.card__actions { display: flex; gap: 8px; margin-top: 6px; }
+
+.code { position: absolute; left: 84px; top: 214px; width: 470px; padding: 22px 26px; border-radius: 14px; background: #0a0a0a; color: #e4e4e7; font: 400 18px/32px "Geist Mono", ui-monospace, monospace; overflow: hidden; }
+.code p { margin: 0; }
+.code__file { color: #a1a1aa; font-size: 13px; line-height: 20px; margin-bottom: 6px !important; }
+.code__line { display: flex; align-items: center; gap: 12px; white-space: pre; }
+.swatch { flex: none; width: 16px; height: 16px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .35); }
+
+.picker { position: absolute; left: 84px; top: 236px; display: grid; gap: 10px; }
+.picker__label { margin: 8px 0 0; font: 500 12px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: .04em; text-transform: uppercase; color: #71717a; }
+.picker__row { display: flex; gap: 8px; }
+.pill { padding: 10px 18px; border: 1px solid #e4e4e7; border-radius: 999px; background: #fff; font-size: 17px; font-weight: 500; color: #3f3f46; transition: none; }
+.pill[data-on] { border-color: #0a0a0a; background: #0a0a0a; color: #fafafa; }
+
+.grid { position: absolute; left: 84px; top: 176px; width: 984px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tile { position: relative; height: 196px; display: grid; }
+.tile__theme { grid-area: 1 / 1; display: grid; place-items: center; padding: 18px; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-surface); overflow: hidden; }
+.tile__theme > * { width: 100%; }
+.tile__theme > .bs-agent { width: auto; }
+.tile__buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+.lockup { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; }
+.lockup p { margin: 0; }
+.lockup__mark { width: 96px; height: 96px; margin-bottom: 28px; }
+.lockup__mark rect { transform-box: fill-box; }
+.lockup__name { font-size: 72px; line-height: 1; font-weight: 600; letter-spacing: -.045em; }
+.lockup__line { margin-top: 16px !important; font-size: 28px; color: #52525b; letter-spacing: -.02em; }
+.lockup__foot { margin-top: 40px !important; font: 400 16px/1 "Geist Mono", ui-monospace, monospace; color: #71717a; }
+.tile__theme > :is(.bs-tasks, .bs-approval) { zoom: .84; }

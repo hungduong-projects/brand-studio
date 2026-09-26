@@ -1,6 +1,7 @@
 import { AgentPromptButton } from '@/components/agent-prompt';
 import { DemoTheme } from '@/components/demo-brand';
 import { HeroSpecimens } from '@/components/hero-specimens';
+import { IntroFilm } from '@/components/intro-film';
 import { registry } from '@/demos/registry';
 import { catalog, componentHref } from '@/lib/catalog';
 
@@ -27,6 +28,7 @@ export default function Home() {
       </div>
       <HeroSpecimens />
     </section>
+    <IntroFilm />
     <section className="showcase" aria-label="Live examples">
       {showcase.map((name) => {
         const Demo = registry[name];

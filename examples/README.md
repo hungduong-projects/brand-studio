@@ -15,6 +15,10 @@ An example belongs here only when it:
 
 `motion/` contains approved standalone motion studies. These files are dependency-free reference implementations. Reuse their structure and accessibility behavior, not their exact art direction or copy.
 
+## Intro film
+
+`intro-film/` draws the docs homepage film as a function of time from live `@brand-studio/ui` components. `render.mjs` steps it frame by frame in headless Chromium and encodes an MP4 and poster with ffmpeg. Pass `--stills 2,10,23` to write review frames instead.
+
 ## Deskhand art
 
 `deskhand/art/` is an art family drawn in code from the Deskhand brand tokens: one master, four versioned derivatives and an `asset-bible.json` that records rules, provenance and uses. Open `index.html` to see the set in a social card, an email and a landing section. Run `node examples/deskhand/art/render.mjs` to redraw missing files.
