@@ -8,8 +8,8 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { AgentThinking, ApprovalCard, BrandTheme, ChatComposer, ChatMessage, ChatThread, TaskRows, ThinkingTrace, ToolChips } from '@brand-studio/ui';
 import type { BrandPalette, TaskRow, ToolCall } from '@brand-studio/ui';
-import { AppWindow, BrowserWindow, Camera, Caption, Cursor, Stage, Terminal, aim, curves, ease, hover, rise, typed } from '../film-kit/kit';
-import type { CursorPoint } from '../film-kit/kit';
+import { AppWindow, BrowserWindow, Camera, Caption, Cursor, Stage, Terminal, aim, curves, ease, hover, rise, typed } from '../../plugins/brand-studio/skills/brand-design/scripts/film/kit';
+import type { CursorPoint } from '../../plugins/brand-studio/skills/brand-design/scripts/film/kit';
 import halden from '../../apps/showcase/src/halden.brand.json';
 
 export const SECONDS = 40;

@@ -17,9 +17,13 @@ An example belongs here only when it:
 
 ## Intro film
 
-`intro-film/` draws the docs homepage film as a function of time from live `@brand-studio/ui` components. `render.mjs` steps it frame by frame in headless Chromium and encodes an MP4 and poster with ffmpeg. Pass `--stills 2,10,23` to write review frames instead.
+`intro-film/` is the docs homepage film, drawn as a function of time from live `@brand-studio/ui` components with the brand-design skill's film kit (`plugins/brand-studio/skills/brand-design/scripts/film/`). Render it with:
 
-`film-kit/` holds the pieces the film is built from: easing curves, keyframes, a camera that zooms to follow the action, app, browser and terminal windows, a cursor with click ripples and captions. Each one draws from time alone, so any frame renders the same way twice.
+```sh
+node plugins/brand-studio/skills/brand-design/scripts/film-render.mjs --film examples/intro-film/film.tsx --name brand-studio-intro --site https://brandstudio.js.org --out apps/docs/public/videos
+```
+
+Add `--stills 2,10,23` to write review frames instead.
 
 ## Deskhand art
 
