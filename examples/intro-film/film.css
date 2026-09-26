@@ -1,5 +1,3 @@
-html, body { margin: 0; width: 1152px; height: 648px; overflow: hidden; }
-
 .chat { left: 196px; top: 70px; width: 760px; height: 480px; }
 .chat__theme { box-sizing: border-box; display: grid; grid-template-rows: 1fr auto; gap: 12px; height: 100%; padding: 18px 22px 20px; background: #fff; }
 .chat__theme .bs-thread { min-height: 0; }

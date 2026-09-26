@@ -1,6 +1,6 @@
 ---
 name: brand-design
-description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, and App Store, Google Play or install screenshots for an app. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
+description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, and a product intro video or screen-recording film rendered to MP4. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
 ---
 
 # Brand Design
@@ -38,6 +38,7 @@ Read only the references required by the task:
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).
 - Campaign across formats (social, ads, email header, poster): [campaign.md](references/campaign.md).
 - Translating an agreed brand into implementation: [brand-application.md](references/brand-application.md).
+- Product film, intro video or screen-recording story rendered to MP4: [product-film.md](references/product-film.md).
 - Slides or pitch deck: [slides.md](references/slides.md).
 - Any user-visible copy: [copy.md](references/copy.md). This audit is required before presenting or shipping the copy.
 - Completion or design review: [quality.md](references/quality.md).
