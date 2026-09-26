@@ -23,6 +23,6 @@ export function IntroFilm() {
         {playing ? <Pause aria-hidden="true" size={16} /> : <Play aria-hidden="true" size={16} />}
       </button>
     </div>
-    <figcaption id="film-caption">One card, no brand yet. A brand contract sets its colour, type and corners. One switch re-skins them all. 24 seconds, no sound.</figcaption>
+    <figcaption id="film-caption">Someone asks an agent for a launch page. The agent installs the components and the brand-design skill, writes a brand contract step by step, then real example pages scroll past. 40 seconds, no sound.</figcaption>
   </figure>;
 }

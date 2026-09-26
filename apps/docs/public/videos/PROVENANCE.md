@@ -9,6 +9,6 @@ Rebuild steps: `apps/showcase/source-3d/PROVENANCE.md`.
 
 # Brand Studio intro film
 
-- `brand-studio-intro.mp4` and `brand-studio-intro.jpg`: a 24-second silent film drawn in code from `@brand-studio/ui` components and the Hollis, Deskhand and Still demo contracts, all fictional brands. Fonts: Geist and Geist Mono (SIL OFL 1.1), Manrope (SIL OFL 1.1), bundled from Fontsource. No third-party images or footage.
+- `brand-studio-intro.mp4` and `brand-studio-intro.jpg`: a 40-second silent film drawn in code from `@brand-studio/ui` components, with screen captures of this site's own example pages (Halden, Deskhand and Editions, all fictional brands). Those pages carry their own provenance: `apps/showcase/source-3d/PROVENANCE.md` and `apps/showcase/source-art/PROVENANCE.md`. Fonts: Geist and Geist Mono (SIL OFL 1.1), bundled from Fontsource.
 
 Rebuild: `node examples/intro-film/render.mjs` (needs ffmpeg and a Playwright Chromium).
