@@ -227,6 +227,12 @@ a.hero__badge:hover { border-color: var(--ring); }
 .ghost-button { border: 1px solid var(--border); }
 .ghost-button:hover { background: var(--muted); }
 .hero__hint { margin: 1rem 0 0; font-size: .8rem; color: var(--muted-foreground); }
+.film { margin: 0 0 4rem; }
+.film__frame { position: relative; overflow: clip; border: 1px solid var(--border); border-radius: .9rem; background: #fafafa; }
+.film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.film__toggle { position: absolute; right: .75rem; bottom: .75rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 1px solid rgb(0 0 0 / .12); border-radius: 999px; background: rgb(255 255 255 / .9); color: #0a0a0a; cursor: pointer; }
+.film__toggle:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.film figcaption { margin-top: .75rem; font-size: .85rem; color: var(--muted-foreground); text-wrap: pretty; }
 .showcase { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .showcase__card { display: grid; grid-template-rows: 1fr auto; margin: 0; border: 1px solid var(--border); border-radius: .9rem; overflow: clip; }
 .showcase__card[data-wide] { grid-column: span 2; }

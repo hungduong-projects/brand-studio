@@ -1,0 +1,34 @@
+/* Film kit styles. The world is 1152x648 CSS pixels; a renderer captures it at 2x and scales the frames to 1920x1080. */
+.fk-stage { position: relative; width: 1152px; height: 648px; overflow: hidden; background:
+  radial-gradient(60% 80% at 12% 10%, var(--fk-a), transparent 70%),
+  radial-gradient(55% 75% at 92% 20%, var(--fk-b), transparent 70%),
+  radial-gradient(70% 70% at 60% 110%, var(--fk-c), transparent 70%), #f3f2f7;
+  color: #0a0a0a; font-family: "Geist Variable", system-ui, sans-serif; }
+.fk-stage p { margin: 0; }
+.fk-camera { position: absolute; left: 0; top: 0; width: 1152px; height: 648px; transform-origin: 0 0; }
+
+.fk-window { position: absolute; display: grid; grid-template-rows: auto 1fr; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / .08), 0 30px 70px -20px rgb(20 16 40 / .35), 0 8px 20px -8px rgb(20 16 40 / .18); }
+.fk-window__bar { display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 14px; border-bottom: 1px solid #ececf0; background: #fafafa; }
+.fk-lights { display: flex; gap: 7px; }
+.fk-lights i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.fk-lights i:nth-child(2) { background: #febc2e; }
+.fk-lights i:nth-child(3) { background: #28c840; }
+.fk-window__title { font-size: 12.5px; font-weight: 500; color: #52525b; }
+.fk-window__body { position: relative; min-height: 0; overflow: hidden; }
+.fk-url { flex: 1; max-width: 460px; margin-inline: auto; padding: 5px 12px; border-radius: 8px; background: #eeeef2; font-size: 12.5px; color: #3f3f46; text-align: center; }
+
+.fk-terminal { background: #0c0c0e; }
+.fk-terminal .fk-window__bar { background: #18181b; border-color: #27272a; }
+.fk-terminal .fk-window__title { color: #a1a1aa; }
+.fk-terminal__body { display: grid; align-content: start; gap: 12px; padding: 22px 24px; font: 400 17px/1.5 "Geist Mono", ui-monospace, monospace; color: #f4f4f5; }
+.fk-terminal__prompt { color: #a78bfa; }
+.fk-terminal__result { margin-top: 4px !important; color: #4ade80; }
+.fk-caret { display: inline-block; width: 9px; height: 1.1em; margin-left: 2px; vertical-align: -3px; background: #f4f4f5; }
+
+.fk-cursor { position: absolute; left: 0; top: 0; z-index: 10; width: 0; height: 0; }
+.fk-cursor svg { position: absolute; left: -5px; top: -3px; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .3)); transform-origin: 5px 3px; }
+.fk-ripple { position: absolute; left: -18px; top: -18px; width: 36px; height: 36px; border-radius: 50%; background: rgb(124 92 255 / .35); }
+
+.fk-hover { box-shadow: 0 0 0 4px rgb(124 92 255 / .28) !important; filter: brightness(1.18); }
+
+.fk-caption { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 20; width: fit-content; margin-inline: auto !important; padding: 10px 22px; border-radius: 999px; background: rgb(255 255 255 / .92); box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 12px 30px -10px rgb(20 16 40 / .35); text-align: center; font-size: 28px; font-weight: 600; letter-spacing: -.03em; color: #0a0a0a; }
