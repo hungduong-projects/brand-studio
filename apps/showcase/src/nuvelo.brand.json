@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "name": "Nuvelo",
+  "positioning": "Fictional running shoe maker. The Nuvelo Drift is a cushioned everyday running shoe. Used to study a single-hero sneaker launch page.",
+  "audience": "Runners picking one soft shoe for daily miles.",
+  "voice": [
+    "Numbers first: millimetres of foam, grams, sizes",
+    "Short plain lines, no hype words",
+    "Say what the foam does under the foot, not how it feels"
+  ],
+  "primaryAction": {
+    "label": "See the specs",
+    "href": "#specs"
+  },
+  "direction": {
+    "concept": "Soft landing. The shoe floats above a pink cloud bank, so the foam story reads before a word does.",
+    "tier": "Single-hero sneaker page. Composition studied from a sneaker hero mock-up (white frame, sky, oversized shoe name behind the product, pink clouds below, dark pill action), used for layout only. No third-party marks, media, copy or code. The shoe is the Khronos Materials Variants Shoe (Shopify, CC BY 4.0) with its marks removed and recoloured; the clouds are drawn in code.",
+    "devices": [
+      "The shoe name in oversized glass letters behind the shoe",
+      "A pink cloud bank that matches the foam",
+      "Scalloped cloud edges on the shoe's panels"
+    ],
+    "invariants": [
+      "Sky blue above, cloud pink below, white frame around",
+      "One shoe, floating toe down and heel up, credited in the footer",
+      "Every spec and price is fictional and the footer says so"
+    ],
+    "variables": [
+      "The shoe name in the glass letters",
+      "Colourway of the upper"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#ffffff",
+      "elevated": "#fbf4f8",
+      "ink": "#151417",
+      "muted": "#5c5660",
+      "accent": "#c2185b",
+      "onAccent": "#ffffff",
+      "line": "#e4dce2",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "14px"
+    },
+    "dark": {
+      "surface": "#151417",
+      "elevated": "#221f25",
+      "ink": "#fbf4f8",
+      "muted": "#b9b0b8",
+      "accent": "#f7a3c8",
+      "onAccent": "#151417",
+      "line": "#3b363e",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "14px"
+    }
+  },
+  "imagery": {
+    "subject": "One knit running shoe in candy pink with sky-blue laces and collar, floating above a bank of pink clouds in a blue sky",
+    "materials": "Knit mesh upper, foam sole",
+    "lighting": "Bright daylight from above left, blue fill from the sky, pink bounce from the clouds below",
+    "palette": "Sky #2f86d6 to #a9d4f2, cloud pink #f6b6d6, shoe pink #f7a3c8, lace blue #8fcbe8",
+    "invariants": [
+      "The same shoe shape and colours everywhere",
+      "No logos or lettering on the shoe", "Source and licence recorded in source-3d/PROVENANCE.md"
+    ],
+    "avoid": [
+      "Real shoe brand names, logos, swooshes or stripes",
+      "Models without a CC0, public-domain or CC BY licence"
+    ]
+  },
+  "motion": {
+    "character": "The shoe bobs slowly and turns a little toward the pointer. The sky clouds drift sideways over a minute.",
+    "reducedMotion": "The shoe and clouds stay still. The play button starts the shoe's motion on request."
+  },
+  "chapters": [
+    { "id": "hero", "question": "What is it?", "message": "Nuvelo Drift, a cushioned running shoe.", "visual": "The shoe floats toe up over pink clouds, its name in glass letters behind it.", "transition": "None; the specs follow below.", "mobileFallback": "Name on top, shoe in the middle, action below." },
+    { "id": "specs", "question": "What are the numbers?", "message": "Foam, drop, weight and price.", "visual": "Four key figures.", "transition": "None.", "mobileFallback": "Single column." }
+  ],
+  "evidence": []
+}

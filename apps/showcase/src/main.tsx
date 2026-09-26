@@ -10,6 +10,8 @@ import { Release } from './release';
 import { Halden } from './halden';
 import halden from './halden.brand.json';
 import { HaldenStill } from './halden-still';
+import { Nuvelo } from './nuvelo';
+import nuvelo from './nuvelo.brand.json';
 import { route } from './paths';
 
 function App() {
@@ -23,6 +25,10 @@ function App() {
   if (page === '/camera') return <BrandTheme palette={halden.tokens} mode="dark">
     <a className="skip-link" href="#main">Skip to content</a>
     <Halden />
+  </BrandTheme>;
+  if (page === '/sneaker') return <BrandTheme palette={nuvelo.tokens} mode="light">
+    <a className="skip-link" href="#main">Skip to content</a>
+    <Nuvelo />
   </BrandTheme>;
   return <BrandTheme palette={edition.tokens} mode="light">
     <a className="skip-link" href="#main">Skip to content</a>
