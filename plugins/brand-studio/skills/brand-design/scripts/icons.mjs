@@ -3,8 +3,9 @@
 //
 //   node icons.mjs <dir>/icons.json [--out DIR]
 //
-// Glyphs follow the Lucide specification (24 px canvas, strokes 1 px from the edge, round caps and joins) at the spec's
-// stroke width. Writes glyphs/, sprite.svg and glyph-sheet.png; with an app block, app/ exports for iOS Icon Composer,
+// Glyphs take the spec's style: outline follows the Lucide specification (24 px canvas, strokes 1 px from the edge, round
+// caps and joins) at the spec's stroke width; solid fills in the text colour; duotone lays outline strokes over a tone fill.
+// Writes glyphs/, sprite.svg and glyph-sheet.png; with an app block, app/ exports for iOS Icon Composer,
 // Android, Google Play, PWA and web (favicon.ico and an SVG favicon with an optional dark drawing) plus app-sheet.png. A layer
 // that fades into what is behind it prints a warning. Sizes checked 2026-10-01 against WWDC25 session 361, Android's
 // adaptive icon guide and web.dev's maskable icon article.
@@ -16,6 +17,15 @@ import { pathToFileURL } from 'node:url';
 import { encodePng, hex6, inner, inside, launch, mask, outsideCircle, pixels, root, rootStyle, shapes, slug, text, unsafe, visibleShare } from './svg-kit.mjs';
 
 const GLYPH_STYLE = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin'];
+/** Glyph drawing styles from references/icons.md. */
+export const ICON_STYLES = ['outline', 'solid', 'duotone'];
+/** Fill opacity of a duotone tone shape: the text colour, faint, under the strokes. */
+const TONE = 0.2;
+/** The attributes a style puts on each glyph's root and sprite symbol. */
+const styleAttrs = (style, stroke) => style === 'solid'
+  ? { fill: 'currentColor', stroke: 'none' }
+  : { fill: 'none', stroke: 'currentColor', 'stroke-width': String(stroke), 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+const attrText = attrs => Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
 /** A file's markup, inside a <g> that carries its root styling when it has any. */
 const wrap = (svg, skip) => { const style = rootStyle(svg, skip); return style ? `<g${style}>${inner(svg)}</g>` : inner(svg); };
 
@@ -42,37 +52,50 @@ export const manifestIcons = [
   { src: 'pwa/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
 ];
 
-/** Problems with one glyph: canvas, unsafe content, and the stroke style on every shape. */
-export function checkGlyph(svg, { grid = 24, stroke = 2 } = {}) {
+/** Problems with one glyph: canvas, unsafe content, and the style's rules on every shape. */
+export function checkGlyph(svg, { grid = 24, stroke = 2, style = 'outline' } = {}) {
   const attrs = root(svg);
   if (!attrs) return ['root element must be <svg>'];
   const errors = unsafe(svg);
   if (attrs.viewBox !== `0 0 ${grid} ${grid}`) errors.push(`viewBox must be "0 0 ${grid} ${grid}"`);
   const list = shapes(svg);
   if (!list.length) errors.push('draws no shapes');
+  let tones = 0;
   for (const { tag, attrs: a } of list) {
+    if (style === 'solid') {
+      if (a.fill !== 'currentColor') errors.push(`<${tag}> fill must be currentColor so the glyph takes the text colour`);
+      if (a.stroke !== undefined && a.stroke !== 'none') errors.push(`<${tag}> must not stroke; solid glyphs are filled shapes`);
+      if (tag === 'line') errors.push('<line> has no area to fill; draw it as a rect or path');
+      continue;
+    }
+    if (style === 'duotone' && a.fill === 'currentColor') {
+      tones++;
+      if (Number(a['fill-opacity']) !== TONE) errors.push(`<${tag}> tone needs fill-opacity="${TONE}"`);
+      if (a.stroke !== 'none') errors.push(`<${tag}> tone needs stroke="none"; the outline strokes sit on top`);
+      continue;
+    }
     if (a.fill !== 'none') errors.push(`<${tag}> fill must be none; glyphs are drawn in strokes`);
     if (a.stroke !== 'currentColor') errors.push(`<${tag}> stroke must be currentColor so the glyph takes the text colour`);
     if (Number(a['stroke-width']) !== stroke) errors.push(`<${tag}> stroke-width must be ${stroke}`);
     if (a['stroke-linecap'] !== 'round') errors.push(`<${tag}> stroke-linecap must be round`);
     if (a['stroke-linejoin'] !== 'round') errors.push(`<${tag}> stroke-linejoin must be round`);
   }
+  if (style === 'duotone' && list.length && !tones) errors.push(`duotone glyphs need a tone shape: fill="currentColor" fill-opacity="${TONE}" stroke="none"`);
   return [...new Set(errors)];
 }
 
-/** A checked glyph rebuilt with the set's attributes on the root, none repeated on shapes, and no title or size. */
-export function normalizeGlyph(svg, { grid = 24, stroke = 2 } = {}) {
-  const body = wrap(svg, GLYPH_STYLE)
-    .replace(/<(title|desc)\b[\s\S]*?<\/\1>/g, '')
-    .replace(/\s(fill|stroke|stroke-width|stroke-linecap|stroke-linejoin)\s*=\s*("[^"]*"|'[^']*')/g, '')
-    .replace(/>\s+</g, '><')
-    .trim();
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${grid} ${grid}" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+/** A checked glyph rebuilt with the style's attributes on the root and no title or size. Outline and solid shapes drop
+ * their own style attributes; duotone shapes keep theirs, since tone shapes override the root. */
+export function normalizeGlyph(svg, { grid = 24, stroke = 2, style = 'outline' } = {}) {
+  const attrs = styleAttrs(style, stroke), keep = style === 'duotone', from = root(svg) ?? {};
+  let body = wrap(svg, keep ? GLYPH_STYLE.filter(k => from[k] === attrs[k]) : GLYPH_STYLE).replace(/<(title|desc)\b[\s\S]*?<\/\1>/g, '');
+  if (!keep) body = body.replace(/\s(fill|stroke|stroke-width|stroke-linecap|stroke-linejoin)\s*=\s*("[^"]*"|'[^']*')/g, '');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${grid} ${grid}" ${attrText(attrs)}>${body.replace(/>\s+</g, '><').trim()}</svg>`;
 }
 
 /** One SVG of <symbol> elements with id prefix-name, for <svg><use href="sprite.svg#prefix-name"/></svg>. */
-export function sprite(glyphs, { prefix, grid = 24, stroke = 2 }) {
-  const symbols = glyphs.map(g => `<symbol id="${prefix}-${g.name}" viewBox="0 0 ${grid} ${grid}" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round">${inner(g.svg)}</symbol>`);
+export function sprite(glyphs, { prefix, grid = 24, stroke = 2, style = 'outline' }) {
+  const symbols = glyphs.map(g => `<symbol id="${prefix}-${g.name}" viewBox="0 0 ${grid} ${grid}" ${attrText(styleAttrs(style, stroke))}>${inner(g.svg)}</symbol>`);
   return `<svg xmlns="http://www.w3.org/2000/svg">${symbols.join('')}</svg>\n`;
 }
 
@@ -125,7 +148,8 @@ export function validateIcons(spec, { root: dir = '.' } = {}) {
   const errors = [];
   if (spec.schemaVersion !== 1) errors.push('schemaVersion must be 1');
   if (!slug(spec.prefix)) errors.push('prefix must be a short lowercase slug, such as dh');
-  const grid = spec.grid ?? 24, stroke = spec.stroke ?? 2;
+  const grid = spec.grid ?? 24, stroke = spec.stroke ?? 2, style = spec.style ?? 'outline';
+  if (!ICON_STYLES.includes(style)) errors.push(`style must be one of ${ICON_STYLES.join(', ')}`);
   if (!Number.isInteger(grid) || grid < 12) errors.push('grid must be a whole number of at least 12');
   if (!(typeof stroke === 'number' && stroke > 0 && stroke <= 3)) errors.push('stroke must be a number above 0 and at most 3');
   const glyphs = Array.isArray(spec.glyphs) ? spec.glyphs : [];
@@ -137,7 +161,7 @@ export function validateIcons(spec, { root: dir = '.' } = {}) {
     else if (names.has(g.name)) errors.push(`duplicate glyph: ${g.name}`);
     else names.add(g.name);
     if (!text(g?.meaning)) errors.push(`${at}.meaning must say what the glyph stands for; a glyph without one is decoration`);
-    errors.push(...fileErrors(dir, g?.file, `${at}.file`, svg => checkGlyph(svg, { grid, stroke })));
+    errors.push(...fileErrors(dir, g?.file, `${at}.file`, svg => checkGlyph(svg, { grid, stroke, style })));
   });
   if (spec.app !== undefined) {
     const app = spec.app ?? {};
@@ -225,27 +249,27 @@ async function main() {
   const at = argv.indexOf('--out');
   const out = path.resolve(at > 0 ? argv[at + 1] : path.join(dir, 'out'));
   const read = file => readFileSync(path.resolve(dir, file), 'utf8');
-  const grid = spec.grid ?? 24, stroke = spec.stroke ?? 2, glyphs = spec.glyphs ?? [];
+  const grid = spec.grid ?? 24, stroke = spec.stroke ?? 2, style = spec.style ?? 'outline', glyphs = spec.glyphs ?? [];
   const problems = [], warnings = [];
   const browser = await launch();
   try {
     const page = await browser.newPage();
     await page.setContent('<!doctype html><html><body></body></html>');
     if (glyphs.length) {
-      const set = glyphs.map(g => ({ name: g.name, svg: normalizeGlyph(read(g.file), { grid, stroke }) }));
+      const set = glyphs.map(g => ({ name: g.name, svg: normalizeGlyph(read(g.file), { grid, stroke, style }) }));
       mkdirSync(path.join(out, 'glyphs'), { recursive: true });
       for (const g of set) {
         writeFileSync(path.join(out, 'glyphs', `${g.name}.svg`), `${g.svg}\n`);
-        // The drawn box plus half the stroke must stay 1 px inside the canvas (Lucide canvas rule 3).
+        // The drawn box plus half the stroke, if any, must stay 1 px inside the canvas (Lucide canvas rule 3).
         const [x0, y0, x1, y1] = await page.evaluate(svg => {
           document.body.innerHTML = svg.replace(/(<svg[^>]*>)/, '$1<g id="drawn">').replace('</svg>', '</g></svg>');
           const b = document.getElementById('drawn').getBBox();
           return [b.x, b.y, b.x + b.width, b.y + b.height];
         }, g.svg);
-        const gap = Math.min(x0, y0, grid - x1, grid - y1) - stroke / 2;
+        const gap = Math.min(x0, y0, grid - x1, grid - y1) - (style === 'solid' ? 0 : stroke / 2);
         if (gap < 1 - 1e-6) problems.push(`${g.name}: strokes come within ${gap.toFixed(2)} px of the edge; keep 1 px clear`);
       }
-      writeFileSync(path.join(out, 'sprite.svg'), sprite(set, { prefix: spec.prefix, grid, stroke }));
+      writeFileSync(path.join(out, 'sprite.svg'), sprite(set, { prefix: spec.prefix, grid, stroke, style }));
       await glyphSheet(browser, set, path.join(out, 'glyph-sheet.png'));
     }
     if (spec.app) {

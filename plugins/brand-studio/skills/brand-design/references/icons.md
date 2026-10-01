@@ -2,15 +2,25 @@
 
 Use this for product glyphs the existing icon set lacks, and for the app icon, favicon and store icons. `scripts/icons.mjs` checks the files and writes every export.
 
+## Pick a style
+
+Write `style` in the spec: `outline`, `solid` or `duotone`; outline is the default. Match the product's existing set first, since two styles in one interface read as two brands. Then choose from the contract's voice and surfaces:
+
+- `outline`: strokes at one width. Suits dense product UI and calm or technical voices. Lucide and Heroicons' outline set draw this way.
+- `solid`: shapes filled in the text colour, with details cut out by `fill-rule="evenodd"` and 2 px gaps. Suits bold, friendly or consumer voices, tab bars, and sizes where thin strokes blur. Heroicons' solid set draws this way.
+- `duotone`: outline strokes over one or more tone shapes, each with `fill="currentColor"`, `fill-opacity="0.2"` and `stroke="none"`. Suits feature lists, onboarding and marketing pages for warm or editorial voices. Phosphor's duotone weight uses the same 20% tone.
+
+`examples/icon-styles/` in the Brand Studio repository draws four glyphs in each style.
+
 ## UI glyphs
 
 Start from the product's existing set; the Brand Studio docs site uses Lucide. Draw only the objects and actions specific to the brand, and give each glyph a `meaning`; a glyph without one is decoration.
 
 The script checks the Lucide specification's hard rules ([Lucide](https://github.com/lucide-icons/lucide/blob/main/docs/contribute/icons/specification.md)):
 
-- 24 × 24 canvas (`grid`), strokes at least 1 px from the edge.
+- 24 × 24 canvas (`grid`), with the drawing, half the stroke included, at least 1 px from the edge.
 - One stroke width across the set: `stroke` in the spec, matched to the product's existing icons (Lucide draws at 2).
-- Round joins and caps, `fill="none"`, `stroke="currentColor"`.
+- Outline and duotone strokes: round joins and caps, `fill="none"`, `stroke="currentColor"`. Solid shapes: `fill="currentColor"` and no stroke.
 - No live text, images, CSS or scripts.
 
 Review these on the sheet, because the script can't judge them:

@@ -8,8 +8,8 @@ const TAG = /<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<![A-Za-z][
 const ATTR = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 const BANNED = new Set(['script', 'foreignObject', 'image', 'style', 'text', 'iframe']);
 const DRAWN = new Set(['path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon']);
-const INHERITED = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule'];
-const PRESENTATION = [...INHERITED, 'fill-opacity', 'stroke-opacity', 'stroke-miterlimit', 'stroke-dasharray', 'stroke-dashoffset', 'opacity', 'color', 'clip-rule', 'paint-order', 'shape-rendering', 'visibility'];
+const INHERITED = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'fill-opacity'];
+const PRESENTATION = [...INHERITED, 'stroke-opacity', 'stroke-miterlimit', 'stroke-dasharray', 'stroke-dashoffset', 'opacity', 'color', 'clip-rule', 'paint-order', 'shape-rendering', 'visibility'];
 
 export const text = v => typeof v === 'string' && v.trim().length > 0;
 export const texts = v => Array.isArray(v) && v.length > 0 && v.every(text);

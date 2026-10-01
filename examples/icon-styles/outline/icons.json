@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "prefix": "dh",
+  "style": "outline",
+  "grid": 24,
+  "stroke": 1.8,
+  "glyphs": [
+    {
+      "name": "missing-source",
+      "file": "glyphs/missing-source.svg",
+      "meaning": "A claim with no source behind it"
+    },
+    {
+      "name": "order-ticket",
+      "file": "glyphs/order-ticket.svg",
+      "meaning": "The customer's order linked to a ticket"
+    },
+    {
+      "name": "highlight",
+      "file": "glyphs/highlight.svg",
+      "meaning": "The quoted line in a source that backs a claim"
+    },
+    {
+      "name": "deskhand",
+      "file": "glyphs/deskhand.svg",
+      "meaning": "Deskhand itself, as the agent in a thread"
+    }
+  ]
+}
