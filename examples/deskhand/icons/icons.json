@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "prefix": "dh",
+  "grid": 24,
+  "stroke": 1.8,
+  "glyphs": [
+    { "name": "cited-claim", "file": "glyphs/cited-claim.svg", "meaning": "A sentence in a reply that links to its source" },
+    { "name": "highlight", "file": "glyphs/highlight.svg", "meaning": "The quoted line in a source that backs a claim" },
+    { "name": "draft-reply", "file": "glyphs/draft-reply.svg", "meaning": "A reply drafted and not yet sent" },
+    { "name": "approve-send", "file": "glyphs/approve-send.svg", "meaning": "Approve the draft and send it" },
+    { "name": "handoff", "file": "glyphs/handoff.svg", "meaning": "Pass the ticket from Deskhand to a person" },
+    { "name": "missing-source", "file": "glyphs/missing-source.svg", "meaning": "A claim with no source behind it" },
+    { "name": "deskhand", "file": "glyphs/deskhand.svg", "meaning": "Deskhand itself, as the agent in a thread" },
+    { "name": "order-ticket", "file": "glyphs/order-ticket.svg", "meaning": "The customer's order linked to a ticket" }
+  ],
+  "app": { "background": "#ffe14d", "layers": ["app/card.svg", "app/bar.svg"] }
+}

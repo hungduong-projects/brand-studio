@@ -123,3 +123,88 @@ export function validateIcons(spec, { root: dir = '.' } = {}) {
   }
   return { errors };
 }
+/** Each glyph at 16, 24, 32 and 48 px in text colour on light and dark. */
+async function glyphSheet(browser, set, file) {
+  const cell = g => `<figure>${[16, 24, 32, 48].map(n => g.svg.replace('<svg ', `<svg width="${n}" height="${n}" `)).join('')}<figcaption>${g.name}</figcaption></figure>`;
+  const page = await browser.newPage({ viewport: { width: 1200, height: 600 } });
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;font:13px ui-monospace,monospace}section{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;padding:40px}figure{margin:0;display:flex;flex-wrap:wrap;gap:14px;align-items:end}figcaption{width:100%}</style></head><body><section style="background:#ffffff;color:#111111">${set.map(cell).join('')}</section><section style="background:#111111;color:#f5f5f5">${set.map(cell).join('')}</section></body></html>`);
+  await page.screenshot({ path: file, fullPage: true });
+  await page.close();
+}
+
+/** The icon under square, rounded and circle masks with both safe zones drawn, then at small sizes on light and dark. */
+async function appSheet(browser, flat, foreground, background, file) {
+  const src = svg => `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+  const zone = share => `<i style="position:absolute;inset:${((0.5 - share) * 100).toFixed(2)}%;border:2px dashed #e5484d;border-radius:50%"></i>`;
+  const masks = [['Square, Android and maskable safe zones', '0', true], ['Rounded (iOS approximation)', '22.4%', false], ['Circle (Android)', '50%', false]]
+    .map(([label, radius, zones]) => `<figure><div style="position:relative;width:256px;height:256px;border-radius:${radius};overflow:hidden;background:${background}"><img src="${src(foreground)}" width="256" height="256" alt="">${zones ? zone(safeZones.android) + zone(safeZones.maskable) : ''}</div><figcaption>${label}</figcaption></figure>`).join('');
+  const small = bg => `<figure style="background:${bg};padding:16px">${[180, 48, 32, 16].map(n => `<img src="${src(flat)}" width="${n}" height="${n}" alt="" style="border-radius:22.4%">`).join('')}<figcaption style="color:#888">${bg}</figcaption></figure>`;
+  const page = await browser.newPage({ viewport: { width: 1200, height: 700 } });
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;padding:40px;display:flex;flex-wrap:wrap;gap:40px;align-items:end;font:13px ui-monospace,monospace;background:#fff}figure{margin:0;display:flex;flex-wrap:wrap;gap:16px;align-items:end}figcaption{width:100%}</style></head><body>${masks}${small('#ffffff')}${small('#111111')}</body></html>`);
+  await page.screenshot({ path: file, fullPage: true });
+  await page.close();
+}
+
+/** Write every app icon export and the review sheet; return problems found. */
+async function exportApp(browser, page, app, read, out, sheetFile) {
+  const layers = app.layers.map(read);
+  const foreground = composeApp(layers), flat = composeApp(layers, app.background);
+  const problems = [];
+  const outside = outsideCircle(await mask(page, foreground, 256), 256, safeZones.android);
+  if (outside) problems.push(`app icon: ${outside} pixels at 256 px fall outside Android's 66 dp safe zone; scale the mark toward the centre`);
+  for (const sub of ['ios', 'android', 'pwa', 'web']) mkdirSync(path.join(out, sub), { recursive: true });
+  app.layers.forEach((file, i) => writeFileSync(path.join(out, 'ios', `${i + 1}-${path.basename(file)}`), read(file)));
+  for (const t of appTargets) {
+    const svg = t.kind === 'mono' && app.monochrome ? read(app.monochrome) : t.kind === 'flat' ? flat : foreground;
+    const px = await pixels(page, svg, t.size, t.kind === 'flat' ? app.background : undefined);
+    if (t.kind === 'mono' && !app.monochrome) for (let i = 0; i < px.length; i += 4) px[i] = px[i + 1] = px[i + 2] = 0;
+    writeFileSync(path.join(out, t.file), encodePng(t.size, t.size, px, { alpha: t.kind !== 'flat' }));
+  }
+  writeFileSync(path.join(out, 'web', 'favicon.svg'), `${flat}\n`);
+  writeFileSync(path.join(out, 'manifest-icons.json'), `${JSON.stringify(manifestIcons, null, 2)}\n`);
+  await appSheet(browser, flat, foreground, app.background, sheetFile);
+  return problems;
+}
+
+async function main() {
+  const argv = process.argv.slice(2), input = argv[0];
+  if (!input || input.startsWith('--')) throw new Error('Usage: node icons.mjs <dir>/icons.json [--out DIR]');
+  const dir = path.dirname(path.resolve(input));
+  const spec = JSON.parse(readFileSync(input, 'utf8'));
+  const { errors } = validateIcons(spec, { root: dir });
+  if (errors.length) throw new Error(errors.join('\n'));
+  const at = argv.indexOf('--out');
+  const out = path.resolve(at > 0 ? argv[at + 1] : path.join(dir, 'out'));
+  const read = file => readFileSync(path.resolve(dir, file), 'utf8');
+  const grid = spec.grid ?? 24, stroke = spec.stroke ?? 2, glyphs = spec.glyphs ?? [];
+  const problems = [];
+  const browser = await launch();
+  try {
+    const page = await browser.newPage();
+    await page.setContent('<!doctype html><html><body></body></html>');
+    if (glyphs.length) {
+      const set = glyphs.map(g => ({ name: g.name, svg: normalizeGlyph(read(g.file), { grid, stroke }) }));
+      mkdirSync(path.join(out, 'glyphs'), { recursive: true });
+      for (const g of set) {
+        writeFileSync(path.join(out, 'glyphs', `${g.name}.svg`), `${g.svg}\n`);
+        // The drawn box plus half the stroke must stay 1 px inside the canvas (Lucide canvas rule 3).
+        const [x0, y0, x1, y1] = await page.evaluate(svg => {
+          document.body.innerHTML = svg.replace(/(<svg[^>]*>)/, '$1<g id="drawn">').replace('</svg>', '</g></svg>');
+          const b = document.getElementById('drawn').getBBox();
+          return [b.x, b.y, b.x + b.width, b.y + b.height];
+        }, g.svg);
+        const gap = Math.min(x0, y0, grid - x1, grid - y1) - stroke / 2;
+        if (gap < 1 - 1e-6) problems.push(`${g.name}: strokes come within ${gap.toFixed(2)} px of the edge; keep 1 px clear`);
+      }
+      writeFileSync(path.join(out, 'sprite.svg'), sprite(set, { prefix: spec.prefix, grid, stroke }));
+      await glyphSheet(browser, set, path.join(out, 'glyph-sheet.png'));
+    }
+    if (spec.app) problems.push(...await exportApp(browser, page, spec.app, read, path.join(out, 'app'), path.join(out, 'app-sheet.png')));
+  } finally { await browser.close(); }
+  if (problems.length) throw new Error(problems.join('\n'));
+  console.log(`Icons exported to ${path.relative(process.cwd(), out) || '.'}: ${glyphs.length} glyphs${spec.app ? ' and the app icon' : ''}. Review the sheets at 16 px; importing the iOS layers into Icon Composer is a manual step.`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(error => { console.error(error.message); process.exitCode = 1; });
+}
