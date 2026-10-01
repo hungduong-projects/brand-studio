@@ -14,22 +14,32 @@ import { pathToFileURL } from 'node:url';
 import { GPU, encodePng, hex6, inner, inside, iou, launch, mask, pixels, root, rootStyle, shapes, slug, text, texts, unsafe, visibleShare } from './svg-kit.mjs';
 
 const CRITERIA = ['recognition', 'originality', 'simplicity', 'fit', 'range', 'appeal'];
+/** Drawing styles from references/mascot-styles.md. Monoline and retro parts may use strokes; monoline keeps one width. */
+export const STYLES = ['silhouette', 'monoline', 'sticker', 'retro', 'geometric'];
+const STROKED = ['monoline', 'retro'];
+const allowedHex = (v, allowed) => hex6(v) && allowed.has(v.toLowerCase());
 
 /** Lowercase hex colours of a contract's tokens, light and dark. */
 export function tokenColours(brand) {
   return new Set(Object.values(brand?.tokens ?? {}).flatMap(mode => Object.values(mode ?? {})).filter(hex6).map(v => v.toLowerCase()));
 }
 
-/** Problems with one part: root viewBox, unsafe content, strokes, and fills outside the allowed colours. */
-export function checkPart(svg, { viewBox, allowed }) {
+/** Problems with one part: root viewBox, unsafe content, strokes, and fills outside the allowed colours. strokes allows
+ * stroked shapes in allowed colours with a stroke-width, as the monoline style draws. */
+export function checkPart(svg, { viewBox, allowed, strokes = false }) {
   const attrs = root(svg);
   if (!attrs) return ['root element must be <svg>'];
   const errors = unsafe(svg);
   if (attrs.viewBox !== viewBox) errors.push(`viewBox must be "${viewBox}", found "${attrs.viewBox ?? ''}"`);
+  if (/<use\b/.test(svg)) errors.push('<use> is not allowed; draw the shape in place so its colours can be checked');
   const list = shapes(svg);
   if (!list.length) errors.push('draws no shapes');
   for (const { tag, attrs: a } of list) {
-    if (a.stroke !== undefined && a.stroke !== 'none') errors.push(`<${tag}> has a stroke; draw filled shapes only`);
+    if (a.stroke !== undefined && a.stroke !== 'none') {
+      if (!strokes) errors.push(`<${tag}> has a stroke; draw filled shapes only`);
+      else if (!allowedHex(a.stroke, allowed)) errors.push(`<${tag}> stroke ${a.stroke} is not in the contract tokens or the spec palette`);
+      else if (!(Number(a['stroke-width']) > 0)) errors.push(`<${tag}> needs a stroke-width`);
+    }
     if (a.fill === undefined) errors.push(`<${tag}> has no fill and would render black; set a palette hex`);
     else if (a.fill !== 'none' && !hex6(a.fill)) errors.push(`<${tag}> fill="${a.fill}" must be a six-digit hex or none`);
     else if (a.fill !== 'none' && !allowed.has(a.fill.toLowerCase())) errors.push(`<${tag}> fill ${a.fill} is not in the contract tokens or the spec palette`);
@@ -48,6 +58,8 @@ export function validateMascot(spec, { root: dir = '.' } = {}) {
   if (!texts(behaviour.appearsWhen)) errors.push('behaviour.appearsWhen needs at least one product moment');
   if (!texts(behaviour.never)) errors.push('behaviour.never needs at least one rule');
   if (behaviour.canTurnOff !== true) errors.push('behaviour.canTurnOff must be true: people can always hide the mascot');
+  if (spec.style === undefined) warnings.push('style is missing: pick one from references/mascot-styles.md to suit the brand');
+  else if (!STYLES.includes(spec.style)) errors.push(`style must be one of ${STYLES.join(', ')}`);
 
   // The concept gate: 42 of 60 across six criteria, with recognition and originality at 8 or more.
   const score = spec.conceptScore;
@@ -75,10 +87,12 @@ export function validateMascot(spec, { root: dir = '.' } = {}) {
     else if (!allowed.has(c.toLowerCase())) warnings.push(`palette ${c} is not a token in ${spec.brand}`);
   }
   allowed = new Set([...allowed, ...palette.filter(hex6).map(c => c.toLowerCase())]);
+  if (spec.darkOutline !== undefined && !allowedHex(spec.darkOutline, allowed)) errors.push('darkOutline must be a six-digit hex from the contract tokens or the spec palette');
 
   const slots = Array.isArray(spec.slots) ? spec.slots : [];
   if (!slots.length || !slots.every(slug) || new Set(slots).size !== slots.length) errors.push('slots must be unique lowercase names, bottom to top');
   const parts = spec.parts && typeof spec.parts === 'object' ? spec.parts : {};
+  const strokes = STROKED.includes(spec.style), widths = new Set();
   for (const [slot, variants] of Object.entries(parts)) {
     if (!slots.includes(slot)) { errors.push(`parts.${slot} is not a listed slot`); continue; }
     for (const [variant, file] of Object.entries(variants ?? {})) {
@@ -86,9 +100,12 @@ export function validateMascot(spec, { root: dir = '.' } = {}) {
       if (!text(file) || !inside(dir, file)) { errors.push(`${at} must be a path inside the spec's folder`); continue; }
       const full = path.resolve(dir, file);
       if (!existsSync(full)) { errors.push(`${at} not found: ${file}`); continue; }
-      if (text(spec.viewBox)) for (const e of checkPart(readFileSync(full, 'utf8'), { viewBox: spec.viewBox, allowed })) errors.push(`${file}: ${e}`);
+      const svg = readFileSync(full, 'utf8');
+      if (text(spec.viewBox)) for (const e of checkPart(svg, { viewBox: spec.viewBox, allowed, strokes })) errors.push(`${file}: ${e}`);
+      if (spec.style === 'monoline') for (const { attrs: a } of shapes(svg)) if (a.stroke && a.stroke !== 'none' && Number(a['stroke-width']) > 0) widths.add(Number(a['stroke-width']));
     }
   }
+  if (widths.size > 1) errors.push(`monoline parts must share one stroke-width; found ${[...widths].sort((a, b) => a - b).join(', ')}`);
 
   const states = Array.isArray(spec.states) ? spec.states : [];
   if (states.length < 6 || states.length > 10) errors.push(`states: ${states.length} found; a mascot needs 6 to 10, each for a product moment`);
@@ -99,6 +116,8 @@ export function validateMascot(spec, { root: dir = '.' } = {}) {
     else if (ids.has(s.id)) errors.push(`duplicate state id: ${s.id}`);
     else ids.add(s.id);
     if (!text(s?.moment)) errors.push(`${at}.moment must name the product moment it serves`);
+    if (s?.lean !== undefined && !(typeof s.lean === 'number' && Math.abs(s.lean) <= 30)) errors.push(`${at}.lean must be a number from -30 to 30 degrees`);
+    if (s?.lift !== undefined && !Number.isFinite(s.lift)) errors.push(`${at}.lift must be a number of viewBox units`);
     const chosen = Object.entries(s?.parts ?? {});
     if (!chosen.length) errors.push(`${at}.parts must pick at least one part`);
     for (const [slot, variant] of chosen) if (!Object.hasOwn(parts[slot] ?? {}, variant)) errors.push(`${at} uses ${slot}.${variant}, which parts does not define`);
@@ -117,21 +136,32 @@ export function stateDifference(a, b) {
   return covered ? changed / covered : 0;
 }
 
-/** One state as a standalone SVG: the chosen part of each slot, stacked in slot order. read(file) returns a part's text. */
+/** One state as a standalone SVG: the chosen part of each slot, stacked in slot order. read(file) returns a part's text.
+ * lean turns the figure clockwise by that many degrees about the bottom centre of the viewBox; lift then raises it straight up. */
 export function assembleState(spec, state, read) {
   const layers = spec.slots.filter(slot => state.parts[slot]).map(slot => {
     const svg = read(spec.parts[slot][state.parts[slot]]);
     return `<g data-slot="${slot}"${rootStyle(svg)}>${inner(svg)}</g>`;
-  });
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${spec.viewBox}">${layers.join('')}</svg>`;
+  }).join('');
+  const [x, y, w, h] = spec.viewBox.trim().split(/[\s,]+/).map(Number);
+  const pose = [state.lift ? `translate(0 ${-state.lift})` : '', state.lean ? `rotate(${state.lean} ${x + w / 2} ${y + h})` : ''].filter(Boolean).join(' ');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${spec.viewBox}">${pose ? `<g transform="${pose}">${layers}</g>` : layers}</svg>`;
+}
+
+/** The figure in an assembled SVG with a die-cut border of radius viewBox units in colour, so an ink figure reads on a
+ * dark surface. borderOnly draws the border shape without the figure, as the backdrop the contrast check measures against. */
+export function outlined(svg, colour, radius, { borderOnly = false } = {}) {
+  const id = `die-cut-${colour.slice(1).toLowerCase()}-${radius}`;
+  const filter = `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feMorphology in="SourceAlpha" operator="dilate" radius="${radius}" result="grown"/><feFlood flood-color="${colour}"/><feComposite in2="grown" operator="in" result="border"/><feMerge><feMergeNode in="border"/>${borderOnly ? '' : '<feMergeNode in="SourceGraphic"/>'}</feMerge></filter>`;
+  return String(svg).replace(/^(<svg\b[^>]*>)([\s\S]*)(<\/svg>)\s*$/, (_, open, body, close) => `${open}<defs>${filter}</defs><g filter="url(#${id})">${body}</g>${close}`);
 }
 /** Every state at 256, 48, 24 and 16 px on the contract's light and dark surfaces, then in grayscale and blurred. */
 async function contactSheet(browser, states, tokens, file) {
   const img = (svg, n, filter) => `<img width="${n}" height="${n}" alt="" style="filter:${filter}" src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}">`;
-  const row = (label, mode, filter = () => 'none') => `<section style="background:${mode.surface};color:${mode.ink}"><h2>${label}</h2>${states.map(s => `<figure>${[256, 48, 24, 16].map(n => img(s.svg, n, filter(n))).join('')}<figcaption>${s.id}</figcaption></figure>`).join('')}</section>`;
+  const row = (label, mode, filter = () => 'none', key = 'svg') => `<section style="background:${mode.surface};color:${mode.ink}"><h2>${label}</h2>${states.map(s => `<figure>${[256, 48, 24, 16].map(n => img(s[key], n, filter(n))).join('')}<figcaption>${s.id}</figcaption></figure>`).join('')}</section>`;
   const light = tokens.light, dark = tokens.dark ?? tokens.light;
   const page = await browser.newPage({ viewport: { width: 1800, height: 900 } });
-  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;font:14px/1.4 ui-monospace,monospace}section{display:flex;flex-wrap:wrap;gap:40px 56px;padding:48px}h2{width:100%;margin:0;font-size:14px}figure{margin:0;display:grid;grid-template-columns:repeat(4,auto);align-items:end;gap:16px}figcaption{grid-column:1/-1}</style></head><body>${row('light', light)}${row('dark', dark)}${row('grayscale: the shape holds without colour', light, () => 'grayscale(1)')}${row('squint: the pose reads when blurred', light, n => `blur(${n / 40}px)`)}</body></html>`);
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;font:14px/1.4 ui-monospace,monospace}section{display:flex;flex-wrap:wrap;gap:40px 56px;padding:48px}h2{width:100%;margin:0;font-size:14px}figure{margin:0;display:grid;grid-template-columns:repeat(4,auto);align-items:end;gap:16px}figcaption{grid-column:1/-1}</style></head><body>${row('light', light)}${row('dark', dark, undefined, 'dark')}${row('grayscale: the shape holds without colour', light, () => 'grayscale(1)')}${row('squint: the pose reads when blurred', light, n => `blur(${n / 40}px)`)}</body></html>`);
   await page.screenshot({ path: file, fullPage: true });
   await page.close();
 }
@@ -148,7 +178,12 @@ async function main() {
   const out = path.resolve(at > 0 ? argv[at + 1] : path.join(dir, 'out'));
   const read = file => readFileSync(path.resolve(dir, file), 'utf8');
   const tokens = JSON.parse(read(spec.brand)).tokens;
-  const states = spec.states.map(s => ({ id: s.id, moment: s.moment, parts: s.parts, svg: assembleState(spec, s, read) }));
+  // The border radius is a share of the viewBox width, so it keeps its weight at every render size.
+  const radius = Number(spec.viewBox.trim().split(/[\s,]+/)[2]) / 48;
+  const states = spec.states.map(s => {
+    const svg = assembleState(spec, s, read);
+    return { id: s.id, moment: s.moment, parts: s.parts, pose: { lean: s.lean, lift: s.lift }, svg, dark: spec.darkOutline ? outlined(svg, spec.darkOutline, radius) : svg, still: assembleState(spec, { parts: s.parts }, read) };
+  });
   const surfaces = Object.fromEntries(['light', 'dark'].filter(m => tokens[m]?.surface).map(m => [m, tokens[m].surface]));
   mkdirSync(path.join(out, 'states'), { recursive: true });
 
@@ -161,7 +196,12 @@ async function main() {
     for (const s of states) {
       writeFileSync(path.join(out, 'states', `${s.id}.svg`), `${s.svg}\n`);
       writeFileSync(path.join(out, 'states', `${s.id}.png`), encodePng(512, 512, await pixels(page, s.svg, 512)));
-      masks.push(await mask(page, s.svg, 128));
+      if (spec.darkOutline) {
+        writeFileSync(path.join(out, 'states', `${s.id}-dark.svg`), `${s.dark}\n`);
+        writeFileSync(path.join(out, 'states', `${s.id}-dark.png`), encodePng(512, 512, await pixels(page, s.dark, 512)));
+      }
+      // The outline check compares bodies, so it ignores lean and lift.
+      masks.push(await mask(page, s.still, 128));
       glance.push(await pixels(page, s.svg, 48));
     }
     states.forEach((s, i) => { silhouette[s.id] = Number(iou(masks[0], masks[i]).toFixed(3)); });
@@ -176,12 +216,14 @@ async function main() {
     for (const s of states) {
       const used = spec.slots.filter(slot => s.parts[slot]);
       const layers = [];
-      for (const slot of used) layers.push(await pixels(page, assembleState(spec, { parts: { [slot]: s.parts[slot] } }, read), 128));
+      for (const slot of used) layers.push(await pixels(page, assembleState(spec, { ...s.pose, parts: { [slot]: s.parts[slot] } }, read), 128));
       visible[s.id] = {};
       for (const [mode, surface] of Object.entries(surfaces)) {
         let least = 1;
         for (const [k, slot] of used.entries()) {
-          const below = assembleState(spec, { parts: Object.fromEntries(used.slice(0, k).map(x => [x, s.parts[x]])) }, read);
+          let below = assembleState(spec, { ...s.pose, parts: Object.fromEntries(used.slice(0, k).map(x => [x, s.parts[x]])) }, read);
+          // On the dark surface a die-cut border sits behind the whole figure.
+          if (mode === 'dark' && spec.darkOutline) below = outlined(s.svg, spec.darkOutline, radius, { borderOnly: true }).replace(/<\/svg>$/, `${inner(below)}</svg>`);
           const share = visibleShare(layers[k], await pixels(page, below, 128, surface));
           if (share < 0.2) faint.push(`${s.id}: ${slot} keeps ${Math.round(share * 100)}% of its pixels at 3:1 on the ${mode} surface; give it an outline or a core that contrasts with what is behind it`);
           least = Math.min(least, share);
