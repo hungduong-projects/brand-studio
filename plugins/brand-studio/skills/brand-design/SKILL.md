@@ -1,6 +1,6 @@
 ---
 name: brand-design
-description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, and a product intro video or screen-recording film rendered to MP4. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
+description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, a brand mascot or character with expression states, a UI icon set, an app icon or favicon, and a product intro video or screen-recording film rendered to MP4. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
 ---
 
 # Brand Design
@@ -32,6 +32,8 @@ Read only the references required by the task:
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
+- Mascot or brand character with expression states: [mascot.md](references/mascot.md).
+- UI icon set, app icon or favicon: [icons.md](references/icons.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - Mobile app for iOS and Android: [mobile-app.md](references/mobile-app.md).
