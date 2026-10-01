@@ -194,6 +194,25 @@ button.hero__prompt:hover { border-color: var(--ring); }
 a.hero__badge:hover { border-color: var(--ring); }
 .hero__badge span { width: .45rem; height: .45rem; border-radius: 50%; background: #16a34a; }
 .hero h1 { max-width: 12ch; margin: 0; font-size: clamp(2.5rem, 5.6vw, 4.5rem); font-weight: 600; letter-spacing: -.045em; line-height: 1; text-wrap: balance; }
+.hero__heading { display: grid; grid-template-columns: minmax(0, 1fr) clamp(5.5rem, 10vw, 8rem); align-items: center; gap: .75rem; }
+.hero-mascot { animation: mascot-enter 700ms ease-out both; }
+.hero-mascot__button { display: block; width: 100%; padding: 0; border: 0; border-radius: .5rem; background: transparent; cursor: pointer; touch-action: manipulation; }
+.hero-mascot__button:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+.hero-mascot__image { display: block; width: 100%; height: auto; transform-origin: 50% 85%; transition: transform 250ms ease-out; }
+@media (hover: hover) { .hero-mascot__button:hover .hero-mascot__image { transform: translateY(-3px) rotate(-4deg); } }
+.hero-mascot__button[data-greeting] .hero-mascot__image { animation: mascot-greet 800ms ease-in-out; }
+@keyframes mascot-enter { from { transform: translateY(12px) rotate(4deg); } to { transform: none; } }
+@keyframes mascot-greet { 0%, 100% { transform: none; } 25%, 65% { transform: translateY(-4px) rotate(-8deg); } 45%, 85% { transform: rotate(5deg); } }
+@media (max-width: 479px) { .hero__heading { grid-template-columns: minmax(0, 1fr) 5rem; gap: .5rem; } }
+@media (max-width: 359px) {
+  .hero__heading { grid-template-columns: minmax(0, 1fr); }
+  .hero-mascot { grid-row: 1; width: 4.5rem; justify-self: end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mascot, .hero-mascot__button[data-greeting] .hero-mascot__image { animation: none; }
+  .hero-mascot__image { transition: none; }
+  .hero-mascot__button:hover .hero-mascot__image { transform: none; }
+}
 .hero__lead { max-width: 34rem; margin: 1.5rem 0 0; font-size: clamp(1rem, 1.6vw, 1.15rem); color: var(--muted-foreground); text-wrap: pretty; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem; }
 .hero__hint { margin: 1rem 0 0; font-size: .8rem; color: var(--muted-foreground); }
@@ -236,6 +255,20 @@ a.hero__badge:hover { border-color: var(--ring); }
 .showcase { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .showcase__card { display: grid; grid-template-rows: 1fr auto; margin: 0; border: 1px solid var(--border); border-radius: .9rem; overflow: clip; }
 .showcase__card[data-wide] { grid-column: span 2; }
+.asset-workflows { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
+.asset-workflows h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; }
+.asset-workflows__intro p { margin: 1rem 0 1.5rem; max-width: 34rem; color: var(--muted-foreground); }
+.asset-workflows__list { margin: 0; }
+.asset-workflows__list > div { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+.asset-workflows__list > div:first-child { padding-top: 0; }
+.asset-workflows dt { font-weight: 600; }
+.asset-workflows dt a { display: inline-flex; align-items: center; min-height: 2.75rem; text-underline-offset: .25em; }
+.asset-workflows dd { margin: .35rem 0 0; color: var(--muted-foreground); }
+.asset-workflows__sheet { grid-column: 1 / -1; margin: 0; border: 1px solid var(--border); border-radius: .9rem; overflow: clip; }
+.asset-workflows__sheet img { display: block; width: 100%; height: auto; }
+.asset-workflows__sheet figcaption { padding: .6rem .9rem; border-top: 1px solid var(--border); font-size: .8rem; color: var(--muted-foreground); text-wrap: pretty; }
+.asset-workflows__sheet figcaption a { color: var(--foreground); text-underline-offset: 3px; }
+@media (max-width: 767px) { .asset-workflows { grid-template-columns: minmax(0, 1fr); margin-top: 3rem; padding-top: 2rem; } }
 @media (max-width: 1023px) { .showcase { grid-template-columns: repeat(2, minmax(0, 1fr)); } .showcase__card:last-child { grid-column: span 2; } }
 @media (max-width: 639px) { .showcase { grid-template-columns: minmax(0, 1fr); } .showcase__card[data-wide], .showcase__card:last-child { grid-column: auto; } .showcase .showcase__stage { padding-inline: .75rem; overflow-x: auto; } }
 .showcase__stage { display: grid; place-items: center; min-height: 12rem; padding: 2rem 1.25rem; }
