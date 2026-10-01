@@ -94,3 +94,55 @@ export function assembleState(spec, state, read) {
   const layers = spec.slots.filter(slot => state.parts[slot]).map(slot => `<g data-slot="${slot}">${inner(read(spec.parts[slot][state.parts[slot]]))}</g>`);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${spec.viewBox}">${layers.join('')}</svg>`;
 }
+/** Every state at 256, 48, 24 and 16 px on the contract's light and dark surfaces. */
+async function contactSheet(browser, states, tokens, file) {
+  const img = (svg, n) => `<img width="${n}" height="${n}" alt="" src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}">`;
+  const row = mode => `<section style="background:${mode.surface};color:${mode.ink}">${states.map(s => `<figure>${[256, 48, 24, 16].map(n => img(s.svg, n)).join('')}<figcaption>${s.id}</figcaption></figure>`).join('')}</section>`;
+  const page = await browser.newPage({ viewport: { width: 1800, height: 900 } });
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;font:14px/1.4 ui-monospace,monospace}section{display:flex;flex-wrap:wrap;gap:40px 56px;padding:48px}figure{margin:0;display:grid;grid-template-columns:repeat(4,auto);align-items:end;gap:16px}figcaption{grid-column:1/-1}</style></head><body>${row(tokens.light)}${row(tokens.dark ?? tokens.light)}</body></html>`);
+  await page.screenshot({ path: file, fullPage: true });
+  await page.close();
+}
+
+async function main() {
+  const argv = process.argv.slice(2), input = argv[0];
+  if (!input || input.startsWith('--')) throw new Error('Usage: node mascot.mjs <dir>/mascot.json [--out DIR] [--3d]');
+  const dir = path.dirname(path.resolve(input));
+  const spec = JSON.parse(readFileSync(input, 'utf8'));
+  const { errors, warnings } = validateMascot(spec, { root: dir });
+  for (const w of warnings) console.warn(`warning: ${w}`);
+  if (errors.length) throw new Error(errors.join('\n'));
+  const at = argv.indexOf('--out'), want3d = argv.includes('--3d');
+  const out = path.resolve(at > 0 ? argv[at + 1] : path.join(dir, 'out'));
+  const read = file => readFileSync(path.resolve(dir, file), 'utf8');
+  const tokens = JSON.parse(read(spec.brand)).tokens;
+  const states = spec.states.map(s => ({ id: s.id, moment: s.moment, svg: assembleState(spec, s, read) }));
+  mkdirSync(path.join(out, 'states'), { recursive: true });
+
+  const drift = [], silhouette = {};
+  const browser = await launch(want3d ? GPU : []);
+  try {
+    const page = await browser.newPage();
+    await page.setContent('<!doctype html><html><body></body></html>');
+    const masks = [];
+    for (const s of states) {
+      writeFileSync(path.join(out, 'states', `${s.id}.svg`), `${s.svg}\n`);
+      writeFileSync(path.join(out, 'states', `${s.id}.png`), encodePng(512, 512, await pixels(page, s.svg, 512)));
+      masks.push(await mask(page, s.svg, 128));
+    }
+    states.forEach((s, i) => { silhouette[s.id] = Number(iou(masks[0], masks[i]).toFixed(3)); });
+    for (const [id, score] of Object.entries(silhouette)) if (score < 0.85) drift.push(`${id} shares ${score} of its outline with ${states[0].id}; check on the contact sheet that it still reads as ${spec.name}`);
+    await contactSheet(browser, states, tokens, path.join(out, 'contact-sheet.png'));
+    if (want3d) {
+      const { render3d } = await import('./mascot-3d.mjs');
+      await render3d(browser, states, spec.slots, path.join(out, '3d'));
+    }
+  } finally { await browser.close(); }
+  for (const d of drift) console.warn(`warning: ${d}`);
+  writeFileSync(path.join(out, 'report.json'), `${JSON.stringify({ name: spec.name, states: states.map(s => ({ id: s.id, moment: s.moment, silhouette: silhouette[s.id] })), warnings: [...warnings, ...drift] }, null, 2)}\n`);
+  console.log(`Mascot rendered: ${states.length} states to ${path.relative(process.cwd(), out) || '.'}. Review contact-sheet.png at 16 px before you ship it.`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(error => { console.error(error.message); process.exitCode = 1; });
+}

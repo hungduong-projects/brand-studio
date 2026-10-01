@@ -1,0 +1,46 @@
+{
+  "name": "Deskhand card",
+  "states": [
+    {
+      "id": "welcome",
+      "moment": "Empty inbox on first run",
+      "silhouette": 1
+    },
+    {
+      "id": "reading",
+      "moment": "Sources load for a ticket",
+      "silhouette": 0.896
+    },
+    {
+      "id": "drafting",
+      "moment": "Reply draft in progress",
+      "silhouette": 0.94
+    },
+    {
+      "id": "waiting",
+      "moment": "Draft ready for approval",
+      "silhouette": 0.896
+    },
+    {
+      "id": "sent",
+      "moment": "Reply sent to the customer",
+      "silhouette": 0.918
+    },
+    {
+      "id": "missing-source",
+      "moment": "A claim in the draft has no source",
+      "silhouette": 0.896
+    },
+    {
+      "id": "handoff",
+      "moment": "Ticket passed to a person",
+      "silhouette": 0.946
+    },
+    {
+      "id": "idle",
+      "moment": "Inbox clear, nothing to do",
+      "silhouette": 0.958
+    }
+  ],
+  "warnings": []
+}
