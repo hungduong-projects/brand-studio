@@ -9,6 +9,8 @@ A shared brand-design skill for Claude Code, Codex, Gemini CLI and other agents 
 - `skills/brand-design/SKILL.md`: one portable workflow with conditional references.
 - `skills/brand-design/scripts/brand-check.mjs`: Node.js contract and contrast checker; optional CSS export.
 - `skills/brand-design/scripts/film-render.mjs` and `scripts/film/`: product-film kit and MP4 renderer; `assets/film-starter.tsx` is a starter film.
+- `skills/brand-design/scripts/mascot.mjs` and `scripts/mascot-3d.mjs`: mascot rig checker, state renderer and optional soft-3D renders.
+- `skills/brand-design/scripts/icons.mjs`: UI glyph checker, sprite and app icon exports for iOS, Android, Google Play, PWA and web.
 - `skills/brand-design/assets/still.brand.json`: fictional coffee example.
 
 It bundles no hooks, MCP servers, credentials, upstream skills, auto-running executables or image-generation service. Image generation and browser verification depend on tools present in the assistant host.

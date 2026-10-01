@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "name": "Deskhand card",
+  "concept": "The Deskhand mark come to life: the rounded card is the body and the logo's bar is the mouth. It carries the source documents and the highlighter that prove every reply, so it can only belong to Deskhand. Neither a robot nor a chat bubble, which the contract rules out.",
+  "brand": "../../../apps/showcase/src/deskhand.brand.json",
+  "viewBox": "0 0 512 512",
+  "palette": [],
+  "slots": ["body", "eyes", "brows", "mouth", "prop", "arms"],
+  "parts": {
+    "body": { "card": "parts/body-card.svg" },
+    "eyes": { "open": "parts/eyes-open.svg", "look": "parts/eyes-look.svg", "happy": "parts/eyes-happy.svg", "closed": "parts/eyes-closed.svg" },
+    "brows": { "raised": "parts/brows-raised.svg", "concerned": "parts/brows-concerned.svg" },
+    "mouth": { "bar": "parts/mouth-bar.svg", "smile": "parts/mouth-smile.svg", "open": "parts/mouth-open.svg", "o": "parts/mouth-o.svg" },
+    "prop": { "doc": "parts/prop-doc.svg", "doc-empty": "parts/prop-doc-empty.svg", "marker": "parts/prop-marker.svg", "check": "parts/prop-check.svg" },
+    "arms": { "rest": "parts/arms-rest.svg", "wave": "parts/arms-wave.svg", "up": "parts/arms-up.svg", "hold": "parts/arms-hold.svg", "point": "parts/arms-point.svg" }
+  },
+  "states": [
+    { "id": "welcome", "moment": "Empty inbox on first run", "parts": { "body": "card", "eyes": "open", "brows": "raised", "mouth": "smile", "arms": "wave" } },
+    { "id": "reading", "moment": "Sources load for a ticket", "parts": { "body": "card", "eyes": "look", "mouth": "bar", "prop": "doc", "arms": "hold" } },
+    { "id": "drafting", "moment": "Reply draft in progress", "parts": { "body": "card", "eyes": "look", "mouth": "bar", "prop": "marker", "arms": "rest" } },
+    { "id": "waiting", "moment": "Draft ready for approval", "parts": { "body": "card", "eyes": "open", "brows": "raised", "mouth": "bar", "prop": "doc", "arms": "hold" } },
+    { "id": "sent", "moment": "Reply sent to the customer", "parts": { "body": "card", "eyes": "happy", "mouth": "open", "prop": "check", "arms": "up" } },
+    { "id": "missing-source", "moment": "A claim in the draft has no source", "parts": { "body": "card", "eyes": "open", "brows": "concerned", "mouth": "o", "prop": "doc-empty", "arms": "hold" } },
+    { "id": "handoff", "moment": "Ticket passed to a person", "parts": { "body": "card", "eyes": "open", "mouth": "smile", "arms": "point" } },
+    { "id": "idle", "moment": "Inbox clear, nothing to do", "parts": { "body": "card", "eyes": "closed", "mouth": "bar", "arms": "rest" } }
+  ],
+  "constants": ["Rounded card silhouette with the ink ring", "Card proportions and corner radius", "Oval ink eyes", "Ink, highlighter yellow and paper white only"],
+  "variables": ["Arm pose", "Held prop", "Eye and mouth expression"],
+  "behaviour": {
+    "appearsWhen": ["The inbox is empty", "A reply has been sent", "A ticket is handed to a person"],
+    "never": ["Covers the draft, the sources or the approval bar", "Speaks in guilt or pressure copy", "Appears in an error message instead of the facts"],
+    "canTurnOff": true
+  }
+}
