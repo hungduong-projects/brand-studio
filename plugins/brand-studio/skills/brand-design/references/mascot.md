@@ -10,6 +10,19 @@ A mascot earns its place when the product has repeated emotional moments: a firs
 
 Derive the character from the mark or the subject so no competitor could reuse it; Mozilla's Kit borrows the Firefox logo ([Envato](https://elements.envato.com/learn/the-return-of-the-brand-mascot-and-how-to-create-your-own)). Propose two concepts, check each against `imagery.avoid`, pick one and write the reason in `concept`.
 
+## Score the concept
+
+Before you draw, score each concept from 1 to 10 on six criteria, as a critic would rather than as its author:
+
+- `recognition`: people know it from its filled silhouette at 16 px with the logo hidden.
+- `originality`: it would not fit any of ten competitors, and it is not a stock animal, robot or blob.
+- `simplicity`: every detail survives at 48 px.
+- `fit`: it comes from the mark, the product or its promise, and respects `imagery.avoid`.
+- `range`: the face and arms carry every state without a new body.
+- `appeal`: people would want to see it again.
+
+A concept goes ahead at 42 of 60 or more, with `recognition` and `originality` at 8 or more. Write the winner in `conceptScore` with its `scores`, a `hook` (what people remember once colour, props and pose are gone) and `fiveWords` (the mascot in five words or fewer). If you can't write either line, the concept isn't ready. The script fails a score under the bar and warns when `conceptScore` is missing.
+
 ## Silhouette first
 
 Fill the character black at 16 px with the logo removed. If people still know it, the shape is ownable. Add detail inside the silhouette, not around it ([svgapp.ai](https://svgapp.ai/blog/mascot-design-trends-2026/)).
@@ -38,6 +51,7 @@ Write `brand/mascot.json` next to a `parts/` folder:
 - `states`: 6 to 10 entries of `id`, `moment` and the variant chosen per slot. Omit a slot to leave it empty.
 - `constants`, `variables`, and `behaviour` with `appearsWhen`, `never` and `canTurnOff: true`.
 - `brand`: path to the contract. `palette`: extra hex colours, each reported as a warning when it is not a token.
+- `conceptScore`: the scores from the step above.
 
 Each part is an SVG on the spec's `viewBox` with filled shapes only. Every fill is a six-digit hex from the contract tokens or `palette`. Parts may not contain scripts, images, live text, CSS or external links. `examples/deskhand/mascot/` in the Brand Studio repository is a complete rig.
 
@@ -47,9 +61,15 @@ Each part is an SVG on the spec's `viewBox` with filled shapes only. Every fill 
 node <this-skill>/scripts/mascot.mjs <project>/brand/mascot.json [--3d] [--out DIR]
 ```
 
-The script writes `states/<id>.svg` and `.png`, `contact-sheet.png` (every state at 256, 48, 24 and 16 px on the light and dark surfaces) and `report.json`. Each state's silhouette score compares its outline with the first state's; a score under 0.85 prints a warning to look again, and the run still succeeds.
+The script writes `states/<id>.svg` and `.png`, `contact-sheet.png` and `report.json`. The sheet shows every state at 256, 48, 24 and 16 px on the light and dark surfaces, then in grayscale and blurred. Three checks print warnings, and the run still succeeds:
 
-Open the contact sheet. Check the 16 px row, the expression at 48 px and where props meet hands. On the dark row, any part drawn in a colour close to the dark surface disappears; draw limbs and props as an outline around a lighter core so they read on both surfaces. Fix a part file, rerun and look again.
+- **Silhouette:** a state whose outline overlaps the first state's by less than 0.85.
+- **Distinct:** two states that differ in under 5% of their pixels at 48 px. People see one picture; change the pose or the prop.
+- **Contrast:** a part with under 20% of its pixels at 3:1 against what is behind it, on either surface. 3:1 is the WCAG minimum for graphics; below it the part fades out.
+
+`report.json` records each state's `silhouette`, its smallest `distinct` score against any other state, and its weakest part's `visible` share on each surface.
+
+Open the contact sheet. Check the 16 px row, the expression at 48 px and where props meet hands. On the dark row, any part drawn in a colour close to the dark surface disappears; draw limbs and props as an outline around a lighter core so they read on both surfaces. In the grayscale row the shape must hold without colour, and in the blurred row the pose must still read. Fix a part file, rerun and look again.
 
 `--3d` extrudes the parts into a soft clay figure with three.js and writes `3d/<id>.png`. The body slot takes the depth; the other slots sit on its face. It needs `three` installed where you run the script. Use these renders for marketing and social posts; the product UI uses the flat states.
 

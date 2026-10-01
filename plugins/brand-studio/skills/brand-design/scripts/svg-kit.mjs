@@ -89,6 +89,24 @@ export function iou(a, b) {
   return either ? both / either : 1;
 }
 
+const luminance = (px, i) => [0, 1, 2].reduce((sum, c) => {
+  const v = px[i + c] / 255;
+  return sum + [0.2126, 0.7152, 0.0722][c] * (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+}, 0);
+
+/** Share of a layer's covered pixels that reach 3:1 against the backdrop pixels behind them, the WCAG minimum for graphics.
+ * Both are RGBA at the same size; 1 when the layer covers nothing. */
+export function visibleShare(layer, backdrop) {
+  let covered = 0, seen = 0;
+  for (let i = 0; i < layer.length; i += 4) {
+    if (layer[i + 3] < 128) continue;
+    covered++;
+    const [hi, lo] = [luminance(layer, i), luminance(backdrop, i)].sort((a, b) => b - a);
+    if ((hi + 0.05) / (lo + 0.05) >= 3) seen++;
+  }
+  return covered ? seen / covered : 1;
+}
+
 /** Covered pixels of a size × size mask whose centres fall outside a centred circle of radius share × size. */
 export function outsideCircle(mask, size, share) {
   const r = share * size, c = size / 2;
