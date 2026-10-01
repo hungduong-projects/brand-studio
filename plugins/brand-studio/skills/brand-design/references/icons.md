@@ -31,6 +31,8 @@ Build it from the contract's mark and signature device.
 - Draw 1 to 4 layer SVGs on a 1024 canvas, bottom to top. These become Icon Composer's groups. Leave out the mask and the background; Icon Composer applies the mask and sets the background colour. Convert type to outlines; the script rejects `<text>` ([WWDC25 session 361](https://developer.apple.com/videos/play/wwdc2025/361/)).
 - Android shows only the inner 66 of 108 dp on every mask. The script fails the icon when any pixel of the layers falls outside that circle ([Android](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)). That circle also satisfies the web's maskable safe zone of a 40% radius ([web.dev](https://web.dev/articles/maskable-icon)).
 - A `monochrome` layer is optional. Without it, the script fills the layers in one colour for Android 13+ themed icons.
+- `dark` is optional: a `background` and 1 to 4 `layers` drawn for dark mode. Redraw the colours; an inverted icon looks wrong. The SVG favicon switches to it when the browser is in dark mode.
+- The script warns when a layer has under 20% of its pixels at 3:1, the WCAG minimum for graphics, against the background and the layers below it.
 
 | Export | Use |
 |---|---|
@@ -40,6 +42,7 @@ Build it from the contract's mark and signature device.
 | `app/play-512.png` | Google Play listing |
 | `app/pwa/*.png`, `app/manifest-icons.json` | Web app manifest `icons` |
 | `app/web/favicon.svg`, `favicon-48.png`, `apple-touch-icon.png` | `<link rel="icon">`, Expo `web.favicon` and `<link rel="apple-touch-icon">` |
+| `app/web/favicon.ico` | 16, 32 and 48 px in one file, served at `/favicon.ico` for browsers and tools that request it by default |
 
 Opaque exports are RGB PNGs with no alpha channel, as the stores require.
 
@@ -49,4 +52,4 @@ Opaque exports are RGB PNGs with no alpha channel, as the stores require.
 node <this-skill>/scripts/icons.mjs <project>/brand/icons.json [--out DIR]
 ```
 
-Open `glyph-sheet.png` (16, 24, 32 and 48 px on light and dark) and `app-sheet.png` (square, rounded and circle masks with both safe zones dashed, then 180 to 16 px). The script exits with an error after writing the files when a glyph crosses the 1 px margin or the icon leaves the Android safe zone, so you can see the problem. `examples/deskhand/icons/` in the Brand Studio repository is a complete set.
+Open `glyph-sheet.png` (16, 24, 32 and 48 px on light and dark) and `app-sheet.png` (square, rounded and circle masks with both safe zones dashed, then 180 to 16 px on light, on dark with the dark drawing, and in grayscale). The script exits with an error after writing the files when a glyph crosses the 1 px margin or the icon leaves the Android safe zone, so you can see the problem. `examples/deskhand/icons/` in the Brand Studio repository is a complete set.

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assembleState, checkPart, validateMascot } from '../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs';
+import { assembleState, checkPart, stateDifference, validateMascot } from '../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs', import.meta.url));
 const VB = '0 0 512 512';
@@ -32,6 +32,8 @@ function rig(edit = s => s, files = {}) {
   return { spec, dir };
 }
 const errs = ({ spec, dir }) => validateMascot(spec, { root: dir }).errors;
+const SCORE = { hook: 'A card with the logo bar for a mouth', fiveWords: 'The logo card, alive', scores: { recognition: 8, originality: 8, simplicity: 7, fit: 7, range: 6, appeal: 6 } };
+const scored = edit => errs(rig(s => ({ ...s, conceptScore: edit(structuredClone(SCORE)) })));
 
 test('accepts a valid rig, uppercase hex included', () => assert.deepEqual(errs(rig()), []));
 
@@ -79,6 +81,32 @@ test('a spec palette colour outside the contract passes with a warning', () => {
   assert.ok(warnings.some(w => w.includes('#ff8fa3')));
 });
 
+test('a concept score needs 42 of 60, with recognition and originality at 8 or more', () => {
+  assert.deepEqual(scored(c => c), []);
+  assert.ok(scored(c => { c.scores.appeal = 5; return c; }).some(e => e.includes('41 of 60')));
+  assert.ok(scored(c => { c.scores.recognition = 7; c.scores.appeal = 7; return c; }).some(e => e.includes('recognition is 7')));
+  assert.ok(scored(c => { c.scores.originality = 7; c.scores.range = 7; return c; }).some(e => e.includes('originality is 7')));
+  assert.ok(scored(c => { c.scores.fit = 11; return c; }).some(e => e.includes('whole number from 1 to 10')));
+  assert.ok(scored(c => { delete c.scores.range; return c; }).some(e => e.includes('scores.range')));
+  assert.ok(scored(c => { c.fiveWords = 'a yellow card that has a face'; return c; }).some(e => e.includes('five words')));
+  assert.ok(scored(c => { c.hook = ''; return c; }).some(e => e.includes('hook')));
+});
+
+test('a rig without a concept score passes with a warning', () => {
+  const { spec, dir } = rig();
+  const { errors, warnings } = validateMascot(spec, { root: dir });
+  assert.deepEqual(errors, []);
+  assert.ok(warnings.some(w => w.includes('conceptScore')));
+});
+
+test('stateDifference is the share of covered pixels that change', () => {
+  const a = Buffer.from([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const b = Buffer.from([0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 0]);
+  assert.equal(stateDifference(a, a), 0);
+  assert.equal(stateDifference(a, b), 2 / 3);
+  assert.equal(stateDifference(Buffer.alloc(8), Buffer.alloc(8)), 0);
+});
+
 test('assembles a state with slots stacked bottom to top', () => {
   const { spec, dir } = rig();
   const svg = assembleState(spec, { id: 'x', parts: { eyes: 'open', body: 'base' } }, f => readFileSync(path.join(dir, f), 'utf8'));
@@ -99,4 +127,18 @@ test('the CLI runs when started through a symlink', () => {
   const run = spawnSync(process.execPath, [link], { encoding: 'utf8' });
   assert.equal(run.status, 1);
   assert.match(run.stderr, /Usage: node mascot\.mjs/);
+});
+
+test('the CLI warns about parts that vanish on a surface and states that look alike', () => {
+  // The body is yellow with no outline, so it melts into the light surface; welcome and drafting use the same parts.
+  const { spec, dir } = rig();
+  writeFileSync(path.join(dir, 'mascot.json'), JSON.stringify({ ...spec, conceptScore: SCORE }));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'mascot.json')], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stderr, /welcome: body keeps 0% of its pixels at 3:1 on the light surface/);
+  assert.match(run.stderr, /welcome and drafting differ in 0% of their pixels at 48 px/);
+  const report = JSON.parse(readFileSync(path.join(dir, 'out', 'report.json'), 'utf8'));
+  assert.deepEqual(Object.keys(report.states[0]), ['id', 'moment', 'silhouette', 'distinct', 'visible']);
+  assert.equal(report.states[0].distinct, 0);
+  assert.ok(existsSync(path.join(dir, 'out', 'contact-sheet.png')));
 });

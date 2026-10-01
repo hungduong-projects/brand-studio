@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inflateSync } from 'node:zlib';
-import { encodePng, hex6, inner, inside, iou, outsideCircle, readTags, root, rootStyle, shapes, unsafe, withSize } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
+import { encodePng, hex6, inner, inside, iou, outsideCircle, readTags, root, rootStyle, shapes, unsafe, visibleShare, withSize } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
 
 const REPO = fileURLToPath(new URL('..', import.meta.url));
 const KIT = path.join(REPO, 'plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs');
@@ -46,6 +46,16 @@ test('iou and outsideCircle measure masks', () => {
   assert.equal(outsideCircle(centre, size, 0.2), 0);
   assert.ok(outsideCircle(full, size, 0.4) > 0);
   assert.equal(outsideCircle(full, size, 0.75), 0);
+});
+
+test('visibleShare counts covered pixels at 3:1 or more against the pixels behind them', () => {
+  const px = (...list) => Buffer.from(list.flat());
+  const ink = [16, 17, 20, 255], paper = [246, 246, 243, 255], yellow = [255, 225, 77, 255], clear = [0, 0, 0, 0];
+  assert.equal(visibleShare(px(ink, ink), px(paper, paper)), 1);
+  assert.equal(visibleShare(px(ink, ink), px(ink, ink)), 0);
+  assert.equal(visibleShare(px(ink, yellow), px(paper, paper)), 0.5, 'yellow on paper is about 1.2:1');
+  assert.equal(visibleShare(px(clear, ink), px(ink, paper)), 1, 'only covered pixels count');
+  assert.equal(visibleShare(px(clear), px(paper)), 1);
 });
 
 test('encodePng writes RGB without alpha for opaque store icons', () => {
