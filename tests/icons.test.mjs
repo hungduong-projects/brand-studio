@@ -5,11 +5,13 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFil
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appTargets, checkAppLayer, checkGlyph, composeApp, encodeIco, faviconSvg, manifestIcons, normalizeGlyph, safeZones, sprite, validateIcons } from '../plugins/brand-studio/skills/brand-design/scripts/icons.mjs';
+import { ICON_STYLES, appTargets, checkAppLayer, checkGlyph, composeApp, encodeIco, faviconSvg, manifestIcons, normalizeGlyph, safeZones, sprite, validateIcons } from '../plugins/brand-studio/skills/brand-design/scripts/icons.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../plugins/brand-studio/skills/brand-design/scripts/icons.mjs', import.meta.url));
 const STYLE = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 const glyph = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ${STYLE}>${body}</svg>`;
+const solid = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">${body}</svg>`;
+const TONE = '<path d="M4 4h16v16H4z" fill="currentColor" fill-opacity="0.2" stroke="none"/>';
 const layer = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">${body}</svg>`;
 
 function setup(edit = s => s, files = {}) {
@@ -48,6 +50,39 @@ test('normalizes a glyph to root attributes, without titles or size', () => {
 
 test('sprite symbols take the prefix', () => {
   assert.match(sprite([{ name: 'ticket', svg: glyph('<path d="M4 12h16"/>') }], { prefix: 'dh' }), /<symbol id="dh-ticket" viewBox="0 0 24 24"[^>]*><path d="M4 12h16"\/><\/symbol>/);
+});
+
+test('icon styles are outline, solid and duotone; outline is the default', () => {
+  assert.deepEqual(ICON_STYLES, ['outline', 'solid', 'duotone']);
+  assert.deepEqual(set(s => { delete s.style; return s; }), []);
+  assert.ok(set(s => { s.style = 'glass'; return s; }).some(e => e.includes('style must be one of outline, solid, duotone')));
+  assert.ok(set(s => { s.style = 'solid'; return s; }).some(e => e.includes('fill must be currentColor')));
+  assert.deepEqual(set(s => { s.style = 'solid'; return s; }, { 'glyphs/ticket.svg': solid('<rect x="4" y="8" width="16" height="8" rx="2"/>') }), []);
+});
+
+test('solid glyphs fill in the text colour and never stroke', () => {
+  assert.deepEqual(checkGlyph(solid('<path fill-rule="evenodd" d="M4 4h16v16H4zM8 11h8v2H8z"/>'), { style: 'solid' }), []);
+  assert.ok(checkGlyph(solid('<path d="M4 4h16v16H4z" fill="#101114"/>'), { style: 'solid' }).some(e => e.includes('fill must be currentColor')));
+  assert.ok(checkGlyph(solid('<path d="M4 4h16v16H4z" stroke="currentColor"/>'), { style: 'solid' }).some(e => e.includes('must not stroke')));
+});
+
+test('duotone glyphs are outline strokes over a tone fill at 0.2', () => {
+  assert.deepEqual(checkGlyph(glyph(`${TONE}<path d="M4 12h16"/>`), { style: 'duotone' }), []);
+  assert.ok(checkGlyph(glyph('<path d="M4 12h16"/>'), { style: 'duotone' }).some(e => e.includes('need a tone shape')));
+  assert.ok(checkGlyph(glyph(`${TONE.replace('0.2', '0.5')}<path d="M4 12h16"/>`), { style: 'duotone' }).some(e => e.includes('fill-opacity="0.2"')));
+  assert.ok(checkGlyph(glyph(`${TONE.replace(' stroke="none"', '')}<path d="M4 12h16"/>`), { style: 'duotone' }).some(e => e.includes('stroke="none"')));
+  assert.ok(checkGlyph(glyph('<path d="M4 12h16" stroke-width="3"/>'), { style: 'duotone' }).some(e => e.includes('stroke-width must be 2')));
+});
+
+test('normalizing and sprites put each style on the root and keep duotone tones', () => {
+  const s = normalizeGlyph(solid('<rect x="4" y="4" width="16" height="16" fill="currentColor"/>'), { style: 'solid' });
+  assert.equal(s, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>');
+  assert.deepEqual(checkGlyph(s, { style: 'solid' }), []);
+  const d = normalizeGlyph(glyph(`${TONE}<path d="M4 12h16" stroke="currentColor"/>`), { style: 'duotone' });
+  assert.equal(d, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ${STYLE}>${TONE}<path d="M4 12h16" stroke="currentColor"/></svg>`);
+  assert.deepEqual(checkGlyph(d, { style: 'duotone' }), []);
+  assert.match(sprite([{ name: 'card', svg: s }], { prefix: 'dh', style: 'solid' }), /<symbol id="dh-card" viewBox="0 0 24 24" fill="currentColor">/);
+  assert.match(sprite([{ name: 'card', svg: d }], { prefix: 'dh', style: 'duotone' }), new RegExp(`<symbol id="dh-card" viewBox="0 0 24 24" ${STYLE}>`));
 });
 
 test('accepts a valid set; rejects a non-object spec', () => {
@@ -146,4 +181,13 @@ test('the CLI writes favicon.ico and warns when a layer disappears into the back
   const ico = readFileSync(path.join(dir, 'out', 'app', 'web', 'favicon.ico'));
   assert.equal(ico.readUInt16LE(4), 3);
   assert.ok(existsSync(path.join(dir, 'out', 'app-sheet.png')));
+});
+
+test('the CLI measures the 1 px margin without a stroke for solid glyphs', () => {
+  const edge = solid('<rect x="1" y="1" width="22" height="22"/>');
+  const { spec, dir } = setup(s => { s.style = 'solid'; delete s.app; return s; }, { 'glyphs/ticket.svg': edge });
+  writeFileSync(path.join(dir, 'icons.json'), JSON.stringify(spec));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'icons.json')], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(readFileSync(path.join(dir, 'out', 'sprite.svg'), 'utf8'), /<symbol id="dh-ticket" viewBox="0 0 24 24" fill="currentColor">/);
 });
