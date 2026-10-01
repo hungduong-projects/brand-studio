@@ -1,84 +1,84 @@
 {
-  "name": "Deskhand card",
+  "name": "Deskhand page",
   "states": [
     {
       "id": "welcome",
       "moment": "Empty inbox on first run",
       "silhouette": 1,
-      "distinct": 0.087,
+      "distinct": 0.215,
       "visible": {
-        "light": 0.28,
-        "dark": 0.47
+        "light": 0.4,
+        "dark": 0.4
       }
     },
     {
       "id": "reading",
       "moment": "Sources load for a ticket",
-      "silhouette": 0.896,
-      "distinct": 0.088,
+      "silhouette": 0.906,
+      "distinct": 0.315,
       "visible": {
-        "light": 0.28,
-        "dark": 0.54
+        "light": 0.27,
+        "dark": 0.27
       }
     },
     {
       "id": "drafting",
       "moment": "Reply draft in progress",
-      "silhouette": 0.94,
-      "distinct": 0.098,
+      "silhouette": 0.864,
+      "distinct": 0.215,
       "visible": {
-        "light": 0.28,
-        "dark": 0.49
+        "light": 0.41,
+        "dark": 0.41
       }
     },
     {
       "id": "waiting",
       "moment": "Draft ready for approval",
-      "silhouette": 0.852,
-      "distinct": 0.195,
+      "silhouette": 0.902,
+      "distinct": 0.41,
       "visible": {
-        "light": 0.23,
-        "dark": 0.52
+        "light": 0.28,
+        "dark": 0.28
       }
     },
     {
       "id": "sent",
       "moment": "Reply sent to the customer",
-      "silhouette": 0.918,
-      "distinct": 0.179,
+      "silhouette": 0.873,
+      "distinct": 0.552,
       "visible": {
-        "light": 0.28,
-        "dark": 0.46
+        "light": 0.33,
+        "dark": 0.33
       }
     },
     {
       "id": "missing-source",
       "moment": "A claim in the draft has no source",
-      "silhouette": 0.896,
-      "distinct": 0.088,
+      "silhouette": 0.906,
+      "distinct": 0.306,
       "visible": {
         "light": 0.28,
-        "dark": 0.54
+        "dark": 0.28
       }
     },
     {
       "id": "handoff",
       "moment": "Ticket passed to a person",
-      "silhouette": 0.946,
-      "distinct": 0.087,
+      "silhouette": 0.884,
+      "distinct": 0.257,
       "visible": {
-        "light": 0.28,
-        "dark": 0.46
+        "light": 0.52,
+        "dark": 0.52
       }
     },
     {
       "id": "idle",
       "moment": "Inbox clear, nothing to do",
-      "silhouette": 0.958,
-      "distinct": 0.098,
+      "silhouette": 0.866,
+      "distinct": 0.315,
       "visible": {
-        "light": 0.28,
-        "dark": 0.49
+        "light": 0.53,
+        "dark": 0.53
       }
     }
   ],

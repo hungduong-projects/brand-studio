@@ -1,39 +1,215 @@
 {
   "schemaVersion": 1,
-  "name": "Deskhand card",
-  "concept": "The Deskhand mark come to life: the rounded card is the body and the logo's bar is the mouth. It carries the source documents and the highlighter that prove every reply, so it can only belong to Deskhand. Neither a robot nor a chat bubble, which the contract rules out.",
+  "name": "Deskhand page",
+  "style": "silhouette",
+  "concept": "A page of ink come to life: a dog-eared sheet with a highlighter stripe across its eyes, because Deskhand reads every source and highlights the line that proves each reply. One solid shape with the face cut out keeps it bold at any size. Neither a robot nor a chat bubble, which the contract rules out.",
   "brand": "../../../apps/showcase/src/deskhand.brand.json",
   "conceptScore": {
-    "hook": "The Deskhand mark with a face: the card is the body and the logo bar is the mouth",
-    "fiveWords": "The Deskhand mark, come alive",
-    "scores": { "recognition": 8, "originality": 8, "simplicity": 9, "fit": 9, "range": 7, "appeal": 7 }
+    "hook": "An ink page with a dog-ear and a highlighter stripe across its eyes",
+    "fiveWords": "Ink page, highlighter eyes",
+    "scores": {
+      "recognition": 9,
+      "originality": 8,
+      "simplicity": 9,
+      "fit": 9,
+      "range": 8,
+      "appeal": 8
+    }
   },
   "viewBox": "0 0 512 512",
   "palette": [],
-  "slots": ["body", "eyes", "brows", "mouth", "prop", "arms"],
+  "darkOutline": "#f6f6f3",
+  "slots": [
+    "body",
+    "feet",
+    "visor",
+    "eyes",
+    "mouth",
+    "arms",
+    "prop"
+  ],
   "parts": {
-    "body": { "card": "parts/body-card.svg" },
-    "eyes": { "open": "parts/eyes-open.svg", "look": "parts/eyes-look.svg", "happy": "parts/eyes-happy.svg", "closed": "parts/eyes-closed.svg" },
-    "brows": { "raised": "parts/brows-raised.svg", "concerned": "parts/brows-concerned.svg" },
-    "mouth": { "bar": "parts/mouth-bar.svg", "smile": "parts/mouth-smile.svg", "open": "parts/mouth-open.svg", "o": "parts/mouth-o.svg" },
-    "prop": { "doc": "parts/prop-doc.svg", "doc-empty": "parts/prop-doc-empty.svg", "doc-up": "parts/prop-doc-up.svg", "marker": "parts/prop-marker.svg", "check": "parts/prop-check.svg" },
-    "arms": { "rest": "parts/arms-rest.svg", "wave": "parts/arms-wave.svg", "up": "parts/arms-up.svg", "hold": "parts/arms-hold.svg", "point": "parts/arms-point.svg" }
+    "body": {
+      "page": "parts/body-page.svg"
+    },
+    "feet": {
+      "stand": "parts/feet-stand.svg",
+      "tuck": "parts/feet-tuck.svg",
+      "step": "parts/feet-step.svg",
+      "sit": "parts/feet-sit.svg"
+    },
+    "visor": {
+      "level": "parts/visor-level.svg",
+      "focus": "parts/visor-focus.svg",
+      "raised": "parts/visor-raised.svg",
+      "worried": "parts/visor-worried.svg"
+    },
+    "eyes": {
+      "open": "parts/eyes-open.svg",
+      "down": "parts/eyes-down.svg",
+      "up": "parts/eyes-up.svg",
+      "side": "parts/eyes-side.svg",
+      "wide": "parts/eyes-wide.svg",
+      "happy": "parts/eyes-happy.svg",
+      "closed": "parts/eyes-closed.svg"
+    },
+    "mouth": {
+      "smile": "parts/mouth-smile.svg",
+      "bar": "parts/mouth-bar.svg",
+      "open": "parts/mouth-open.svg",
+      "o": "parts/mouth-o.svg"
+    },
+    "arms": {
+      "rest": "parts/arms-rest.svg",
+      "wave": "parts/arms-wave.svg",
+      "up": "parts/arms-up.svg",
+      "hold": "parts/arms-hold.svg",
+      "write": "parts/arms-write.svg",
+      "point": "parts/arms-point.svg"
+    },
+    "prop": {
+      "doc": "parts/prop-doc.svg",
+      "doc-empty": "parts/prop-doc-empty.svg",
+      "doc-up": "parts/prop-doc-up.svg",
+      "marker": "parts/prop-marker.svg",
+      "zz": "parts/prop-zz.svg"
+    }
   },
   "states": [
-    { "id": "welcome", "moment": "Empty inbox on first run", "parts": { "body": "card", "eyes": "open", "brows": "raised", "mouth": "smile", "arms": "wave" } },
-    { "id": "reading", "moment": "Sources load for a ticket", "parts": { "body": "card", "eyes": "look", "mouth": "bar", "prop": "doc", "arms": "hold" } },
-    { "id": "drafting", "moment": "Reply draft in progress", "parts": { "body": "card", "eyes": "look", "mouth": "bar", "prop": "marker", "arms": "rest" } },
-    { "id": "waiting", "moment": "Draft ready for approval", "parts": { "body": "card", "eyes": "open", "brows": "raised", "mouth": "bar", "prop": "doc-up", "arms": "wave" } },
-    { "id": "sent", "moment": "Reply sent to the customer", "parts": { "body": "card", "eyes": "happy", "mouth": "open", "prop": "check", "arms": "up" } },
-    { "id": "missing-source", "moment": "A claim in the draft has no source", "parts": { "body": "card", "eyes": "open", "brows": "concerned", "mouth": "o", "prop": "doc-empty", "arms": "hold" } },
-    { "id": "handoff", "moment": "Ticket passed to a person", "parts": { "body": "card", "eyes": "open", "mouth": "smile", "arms": "point" } },
-    { "id": "idle", "moment": "Inbox clear, nothing to do", "parts": { "body": "card", "eyes": "closed", "mouth": "bar", "arms": "rest" } }
+    {
+      "id": "welcome",
+      "moment": "Empty inbox on first run",
+      "lean": 6,
+      "parts": {
+        "body": "page",
+        "feet": "stand",
+        "visor": "level",
+        "eyes": "open",
+        "mouth": "smile",
+        "arms": "wave"
+      }
+    },
+    {
+      "id": "reading",
+      "moment": "Sources load for a ticket",
+      "lean": -4,
+      "parts": {
+        "body": "page",
+        "feet": "stand",
+        "visor": "focus",
+        "eyes": "down",
+        "mouth": "bar",
+        "arms": "hold",
+        "prop": "doc"
+      }
+    },
+    {
+      "id": "drafting",
+      "moment": "Reply draft in progress",
+      "lean": 5,
+      "parts": {
+        "body": "page",
+        "feet": "stand",
+        "visor": "focus",
+        "eyes": "side",
+        "mouth": "bar",
+        "arms": "write",
+        "prop": "marker"
+      }
+    },
+    {
+      "id": "waiting",
+      "moment": "Draft ready for approval",
+      "parts": {
+        "body": "page",
+        "feet": "stand",
+        "visor": "raised",
+        "eyes": "up",
+        "mouth": "smile",
+        "arms": "hold",
+        "prop": "doc-up"
+      }
+    },
+    {
+      "id": "sent",
+      "moment": "Reply sent to the customer",
+      "lean": -3,
+      "lift": 30,
+      "parts": {
+        "body": "page",
+        "feet": "tuck",
+        "visor": "raised",
+        "eyes": "happy",
+        "mouth": "open",
+        "arms": "up"
+      }
+    },
+    {
+      "id": "missing-source",
+      "moment": "A claim in the draft has no source",
+      "lean": 8,
+      "parts": {
+        "body": "page",
+        "feet": "stand",
+        "visor": "worried",
+        "eyes": "wide",
+        "mouth": "o",
+        "arms": "hold",
+        "prop": "doc-empty"
+      }
+    },
+    {
+      "id": "handoff",
+      "moment": "Ticket passed to a person",
+      "lean": 8,
+      "parts": {
+        "body": "page",
+        "feet": "step",
+        "visor": "level",
+        "eyes": "side",
+        "mouth": "smile",
+        "arms": "point"
+      }
+    },
+    {
+      "id": "idle",
+      "moment": "Inbox clear, nothing to do",
+      "lean": -4,
+      "lift": -8,
+      "parts": {
+        "body": "page",
+        "feet": "sit",
+        "visor": "level",
+        "eyes": "closed",
+        "mouth": "bar",
+        "arms": "rest",
+        "prop": "zz"
+      }
+    }
   ],
-  "constants": ["Rounded card silhouette with the ink ring", "Card proportions and corner radius", "Oval ink eyes", "Ink, highlighter yellow and paper white only"],
-  "variables": ["Arm pose", "Held prop", "Eye and mouth expression"],
+  "constants": [
+    "Ink pear-shaped page with the dog-ear",
+    "Highlighter visor across the eyes",
+    "Face cut out of the ink in white",
+    "Ink, highlighter yellow and paper white only"
+  ],
+  "variables": [
+    "Lean and lift",
+    "Arm and foot pose",
+    "Visor shape, eyes and mouth",
+    "Held prop"
+  ],
   "behaviour": {
-    "appearsWhen": ["The inbox is empty", "A reply has been sent", "A ticket is handed to a person"],
-    "never": ["Covers the draft, the sources or the approval bar", "Speaks in guilt or pressure copy", "Appears in an error message instead of the facts"],
+    "appearsWhen": [
+      "The inbox is empty",
+      "A reply has been sent",
+      "A ticket is handed to a person"
+    ],
+    "never": [
+      "Covers the draft, the sources or the approval bar",
+      "Speaks in guilt or pressure copy",
+      "Appears in an error message instead of the facts"
+    ],
     "canTurnOff": true
   }
 }
