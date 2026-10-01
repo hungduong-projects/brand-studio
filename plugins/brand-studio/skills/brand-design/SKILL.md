@@ -32,7 +32,7 @@ Read only the references required by the task:
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
-- Mascot or brand character with expression states: [mascot.md](references/mascot.md).
+- Mascot or brand character with expression states: [mascot.md](references/mascot.md), with its drawing style from [mascot-styles.md](references/mascot-styles.md).
 - UI icon set, app icon or favicon: [icons.md](references/icons.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).

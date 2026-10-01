@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFil
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assembleState, checkPart, stateDifference, validateMascot } from '../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs';
+import { STYLES, assembleState, checkPart, outlined, stateDifference, validateMascot } from '../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs', import.meta.url));
 const VB = '0 0 512 512';
@@ -99,6 +99,57 @@ test('a rig without a concept score passes with a warning', () => {
   assert.ok(warnings.some(w => w.includes('conceptScore')));
 });
 
+test('a style comes from the catalogue; a rig without one passes with a warning', () => {
+  assert.deepEqual(STYLES, ['silhouette', 'monoline', 'sticker', 'retro', 'geometric']);
+  assert.deepEqual(errs(rig(s => ({ ...s, style: 'silhouette' }))), []);
+  assert.ok(errs(rig(s => ({ ...s, style: 'clay' }))).some(e => e.includes('style must be one of')));
+  const { spec, dir } = rig();
+  assert.ok(validateMascot(spec, { root: dir }).warnings.some(w => w.includes('style is missing')));
+});
+
+test('monoline and retro parts may stroke in contract colours; monoline keeps one width', () => {
+  const line = w => part(`<path d="M0 0L9 9" fill="none" stroke="#101114" stroke-width="${w}"/>`);
+  const ok = rig(s => ({ ...s, style: 'monoline' }), { 'parts/eyes-open.svg': line(11), 'parts/eyes-closed.svg': line(11) });
+  assert.deepEqual(errs(ok), []);
+  const mixed = rig(s => ({ ...s, style: 'monoline' }), { 'parts/eyes-open.svg': line(11), 'parts/eyes-closed.svg': line(8) });
+  assert.ok(errs(mixed).some(e => e.includes('one stroke-width') && e.includes('8, 11')));
+  assert.deepEqual(errs(rig(s => ({ ...s, style: 'retro' }), { 'parts/eyes-open.svg': line(11), 'parts/eyes-closed.svg': line(8) })), []);
+  const opts = { viewBox: VB, allowed: new Set(['#101114']), strokes: true };
+  assert.ok(checkPart(part('<path d="M0 0" fill="none" stroke="#ff0000" stroke-width="4"/>'), opts).some(e => e.includes('stroke #ff0000 is not in the contract')));
+  assert.ok(checkPart(part('<path d="M0 0" fill="none" stroke="#101114"/>'), opts).some(e => e.includes('stroke-width')));
+  assert.ok(errs(rig(s => ({ ...s, style: 'silhouette' }), { 'parts/eyes-open.svg': line(11) })).some(e => e.includes('filled shapes only')));
+});
+
+test('a state may lean up to 30 degrees and lift by a number of units', () => {
+  assert.deepEqual(errs(rig(s => { s.states[0].lean = -12; s.states[0].lift = 24; return s; })), []);
+  assert.ok(errs(rig(s => { s.states[0].lean = 31; return s; })).some(e => e.includes('lean must be a number from -30 to 30')));
+  assert.ok(errs(rig(s => { s.states[0].lift = '24'; return s; })).some(e => e.includes('lift must be a number')));
+});
+
+test('assembly turns a state about the bottom centre of the viewBox and lifts it', () => {
+  const { spec, dir } = rig();
+  const read = f => readFileSync(path.join(dir, f), 'utf8');
+  const svg = assembleState(spec, { parts: { body: 'base' }, lean: -8, lift: 20 }, read);
+  assert.match(svg, /viewBox="0 0 512 512"><g transform="rotate\(-8 256 512\) translate\(0 -20\)"><g data-slot="body"/);
+  assert.doesNotMatch(assembleState(spec, { parts: { body: 'base' } }, read), /transform/);
+});
+
+test('a dark outline must be a contract or palette colour', () => {
+  assert.deepEqual(errs(rig(s => ({ ...s, darkOutline: '#F6F6F3' }))), []);
+  assert.ok(errs(rig(s => ({ ...s, darkOutline: '#123456' }))).some(e => e.includes('darkOutline')));
+});
+
+test('outlined wraps a figure in a die-cut border, or draws the border alone', () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}"><rect width="9" height="9" fill="#101114"/></svg>`;
+  const both = outlined(svg, '#f6f6f3', 10);
+  assert.match(both, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 512 512"><defs><filter id="die-cut-f6f6f3"/);
+  assert.match(both, /<feMorphology in="SourceAlpha" operator="dilate" radius="10"/);
+  assert.match(both, /flood-color="#f6f6f3"/);
+  assert.match(both, /<feMergeNode in="SourceGraphic"\/>/);
+  assert.match(both, /<g filter="url\(#die-cut-f6f6f3\)"><rect width="9"/);
+  assert.doesNotMatch(outlined(svg, '#f6f6f3', 10, { borderOnly: true }), /SourceGraphic"\/>/);
+});
+
 test('stateDifference is the share of covered pixels that change', () => {
   const a = Buffer.from([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0]);
   const b = Buffer.from([0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 0]);
@@ -141,4 +192,20 @@ test('the CLI warns about parts that vanish on a surface and states that look al
   assert.deepEqual(Object.keys(report.states[0]), ['id', 'moment', 'silhouette', 'distinct', 'visible']);
   assert.equal(report.states[0].distinct, 0);
   assert.ok(existsSync(path.join(dir, 'out', 'contact-sheet.png')));
+});
+
+test('the CLI draws a die-cut border on dark surfaces when the rig asks for one', () => {
+  // An ink body vanishes on the ink dark surface; the paper border keeps it visible.
+  const ink = { 'parts/body.svg': part('<rect x="100" y="100" width="300" height="300" rx="80" fill="#101114"/>'), 'parts/eyes-open.svg': part('<circle cx="200" cy="200" r="30" fill="#ffe14d"/>'), 'parts/eyes-closed.svg': part('<rect x="170" y="190" width="60" height="20" fill="#ffe14d"/>') };
+  const run = darkOutline => {
+    const { spec, dir } = rig(s => ({ ...s, style: 'silhouette', conceptScore: SCORE, ...(darkOutline && { darkOutline }) }), ink);
+    writeFileSync(path.join(dir, 'mascot.json'), JSON.stringify(spec));
+    return { dir, ...spawnSync(process.execPath, [SCRIPT, path.join(dir, 'mascot.json')], { encoding: 'utf8' }) };
+  };
+  assert.match(run().stderr, /welcome: body keeps 0% of its pixels at 3:1 on the dark surface/);
+  const bordered = run('#f6f6f3');
+  assert.equal(bordered.status, 0, bordered.stderr);
+  assert.doesNotMatch(bordered.stderr, /on the dark surface/);
+  assert.match(readFileSync(path.join(bordered.dir, 'out', 'states', 'welcome-dark.svg'), 'utf8'), /feMorphology/);
+  assert.ok(existsSync(path.join(bordered.dir, 'out', 'states', 'welcome-dark.png')));
 });
