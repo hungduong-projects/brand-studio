@@ -1,10 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { appTargets, checkAppLayer, checkGlyph, composeApp, manifestIcons, normalizeGlyph, safeZones, sprite, validateIcons } from '../plugins/brand-studio/skills/brand-design/scripts/icons.mjs';
 
+const SCRIPT = fileURLToPath(new URL('../plugins/brand-studio/skills/brand-design/scripts/icons.mjs', import.meta.url));
 const STYLE = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 const glyph = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ${STYLE}>${body}</svg>`;
 const layer = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">${body}</svg>`;
@@ -86,4 +89,20 @@ test('composeApp puts the background under the layers', () => {
   const svg = composeApp([layer('<rect id="a"/>'), layer('<rect id="b"/>')], '#ffe14d');
   assert.ok(svg.indexOf('fill="#ffe14d"') < svg.indexOf('id="a"') && svg.indexOf('id="a"') < svg.indexOf('id="b"'));
   assert.ok(!composeApp([layer('<rect/>')]).includes('<rect width="1024"'));
+});
+
+test('normalizing, sprites and app layers keep styling set on the root', () => {
+  const dashed = `<svg viewBox="0 0 24 24" ${STYLE} stroke-dasharray="2 2"><path d="M4 12h16"/></svg>`;
+  assert.deepEqual(checkGlyph(dashed), []);
+  assert.match(normalizeGlyph(dashed), /<g stroke-dasharray="2 2"><path d="M4 12h16"\/><\/g><\/svg>$/);
+  assert.match(sprite([{ name: 'dash', svg: normalizeGlyph(dashed) }], { prefix: 'dh' }), /<g stroke-dasharray="2 2">/);
+  assert.match(composeApp(['<svg viewBox="0 0 1024 1024" fill="#ffffff"><rect width="10" height="10"/></svg>']), /<g fill="#ffffff"><rect/);
+});
+
+test('the CLI runs when started through a symlink', () => {
+  const link = path.join(mkdtempSync(path.join(tmpdir(), 'link-')), 'icons.mjs');
+  symlinkSync(SCRIPT, link);
+  const run = spawnSync(process.execPath, [link], { encoding: 'utf8' });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /Usage: node icons\.mjs/);
 });

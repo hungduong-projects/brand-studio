@@ -1,10 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { assembleState, checkPart, validateMascot } from '../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs';
 
+const SCRIPT = fileURLToPath(new URL('../plugins/brand-studio/skills/brand-design/scripts/mascot.mjs', import.meta.url));
 const VB = '0 0 512 512';
 const part = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}">${body}</svg>`;
 
@@ -81,4 +84,19 @@ test('assembles a state with slots stacked bottom to top', () => {
   const svg = assembleState(spec, { id: 'x', parts: { eyes: 'open', body: 'base' } }, f => readFileSync(path.join(dir, f), 'utf8'));
   assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 512 512">/);
   assert.ok(svg.indexOf('data-slot="body"') < svg.indexOf('data-slot="eyes"'));
+});
+
+test('assembly keeps styling a part sets on its root', () => {
+  const r = rig(s => s, { 'parts/body.svg': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" fill="#ffe14d"><rect width="240" height="240"/></svg>` });
+  assert.deepEqual(errs(r), []);
+  const svg = assembleState(r.spec, { id: 'x', parts: { body: 'base' } }, f => readFileSync(path.join(r.dir, f), 'utf8'));
+  assert.match(svg, /<g data-slot="body" fill="#ffe14d"><rect/);
+});
+
+test('the CLI runs when started through a symlink', () => {
+  const link = path.join(mkdtempSync(path.join(tmpdir(), 'link-')), 'mascot.mjs');
+  symlinkSync(SCRIPT, link);
+  const run = spawnSync(process.execPath, [link], { encoding: 'utf8' });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /Usage: node mascot\.mjs/);
 });

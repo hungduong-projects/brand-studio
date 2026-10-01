@@ -1,5 +1,6 @@
 // Shared helpers for mascot.mjs and icons.mjs: read SVG tags, flag unsafe content, measure masks, encode PNGs and render
 // SVG in Chromium. The tag reader handles the hand-written and exported SVG these scripts check, not every XML feature.
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { crc32, deflateSync } from 'node:zlib';
 
@@ -8,6 +9,7 @@ const ATTR = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 const BANNED = new Set(['script', 'foreignObject', 'image', 'style', 'text', 'iframe']);
 const DRAWN = new Set(['path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon']);
 const INHERITED = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule'];
+const PRESENTATION = [...INHERITED, 'fill-opacity', 'stroke-opacity', 'stroke-miterlimit', 'stroke-dasharray', 'stroke-dashoffset', 'opacity', 'color', 'clip-rule', 'paint-order', 'shape-rendering', 'visibility'];
 
 export const text = v => typeof v === 'string' && v.trim().length > 0;
 export const texts = v => Array.isArray(v) && v.length > 0 && v.every(text);
@@ -36,6 +38,13 @@ export function inner(svg) {
   return open < 0 || end < start ? '' : s.slice(start, end).trim();
 }
 
+/** The root's presentation attributes, except skip, as an attribute string for a wrapper <g>. inner() drops the root, so
+ * callers that reuse a file's markup carry these across. */
+export function rootStyle(svg, skip = []) {
+  const attrs = root(svg) ?? {};
+  return PRESENTATION.filter(k => k in attrs && !skip.includes(k)).map(k => ` ${k}="${attrs[k].replace(/"/g, '&quot;')}"`).join('');
+}
+
 /** Drawn shapes with the presentation attributes they set or inherit from ancestors. */
 export function shapes(svg) {
   const stack = [{}], out = [];
@@ -54,8 +63,10 @@ export function unsafe(svg) {
   for (const { name, attrs, close } of readTags(svg)) {
     if (close) continue;
     if (BANNED.has(name)) problems.add(`<${name}> is not allowed`);
+    if (name.includes(':')) problems.add(`<${name}> is not allowed; export plain SVG`);
     for (const [key, value] of Object.entries(attrs)) {
       if (/^on/i.test(key)) problems.add(`event attribute ${key} is not allowed`);
+      if (key.includes(':') && !/^xml(ns)?:/.test(key)) problems.add(`namespaced attribute ${key} is not allowed; export plain SVG`);
       if ((key === 'href' || key === 'xlink:href') && !value.startsWith('#')) problems.add(`external ${key} is not allowed`);
       if (key === 'style' || key === 'class') problems.add(`${key} attribute is not allowed; use presentation attributes`);
     }
@@ -103,10 +114,13 @@ export function encodePng(width, height, rgba, { alpha = true } = {}) {
 /** Chromium flags for WebGL, as shoot.mjs and film-render.mjs use. */
 export const GPU = ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'darwin' ? ['--use-angle=metal'] : [])];
 
-/** Launch Chromium through playwright-core, with an install hint when it is missing. */
+/** Load a package from the project in the working directory; an installed plugin has no node_modules of its own. */
+export const fromProject = id => createRequire(path.join(process.cwd(), 'package.json'))(id);
+
+/** Launch Chromium through the project's playwright-core, with an install hint when it is missing. */
 export async function launch(args = []) {
   let chromium;
-  try { ({ chromium } = await import('playwright-core')); } catch { throw new Error('playwright-core is not installed here. Run: npm install --no-save playwright-core && npx playwright-core install chromium'); }
+  try { ({ chromium } = fromProject('playwright-core')); } catch { throw new Error('playwright-core is not installed here. Run: npm install --no-save playwright-core && npx playwright-core install chromium'); }
   return chromium.launch({ args });
 }
 

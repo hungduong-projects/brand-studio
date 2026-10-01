@@ -9,10 +9,14 @@
 // adaptive icon guide and web.dev's maskable icon article.
 //
 // Needs playwright-core and a Chromium (`npx playwright-core install chromium`).
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { encodePng, hex6, inner, inside, launch, mask, outsideCircle, pixels, root, shapes, slug, text, unsafe } from './svg-kit.mjs';
+import { encodePng, hex6, inner, inside, launch, mask, outsideCircle, pixels, root, rootStyle, shapes, slug, text, unsafe } from './svg-kit.mjs';
+
+const GLYPH_STYLE = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin'];
+/** A file's markup, inside a <g> that carries its root styling when it has any. */
+const wrap = (svg, skip) => { const style = rootStyle(svg, skip); return style ? `<g${style}>${inner(svg)}</g>` : inner(svg); };
 
 /** Shares of the icon width: Android always shows the inner 66 of 108 dp; web.dev keeps maskable content within a 40% radius. */
 export const safeZones = { android: 33 / 108, maskable: 0.4 };
@@ -57,7 +61,7 @@ export function checkGlyph(svg, { grid = 24, stroke = 2 } = {}) {
 
 /** A checked glyph rebuilt with the set's attributes on the root, none repeated on shapes, and no title or size. */
 export function normalizeGlyph(svg, { grid = 24, stroke = 2 } = {}) {
-  const body = inner(svg)
+  const body = wrap(svg, GLYPH_STYLE)
     .replace(/<(title|desc)\b[\s\S]*?<\/\1>/g, '')
     .replace(/\s(fill|stroke|stroke-width|stroke-linecap|stroke-linejoin)\s*=\s*("[^"]*"|'[^']*')/g, '')
     .replace(/>\s+</g, '><')
@@ -83,7 +87,7 @@ export function checkAppLayer(svg) {
 
 /** The app icon as one SVG: an optional background square, then the layers bottom to top. */
 export function composeApp(layers, background) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">${background ? `<rect width="1024" height="1024" fill="${background}"/>` : ''}${layers.map(inner).join('')}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">${background ? `<rect width="1024" height="1024" fill="${background}"/>` : ''}${layers.map(l => wrap(l)).join('')}</svg>`;
 }
 
 function fileErrors(dir, file, at, check) {
@@ -205,6 +209,7 @@ async function main() {
   console.log(`Icons exported to ${path.relative(process.cwd(), out) || '.'}: ${glyphs.length} glyphs${spec.app ? ' and the app icon' : ''}. Review the sheets at 16 px; importing the iOS layers into Icon Composer is a manual step.`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// realpath: Node resolves a symlinked script to its target, so compare against the resolved path.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch(error => { console.error(error.message); process.exitCode = 1; });
 }

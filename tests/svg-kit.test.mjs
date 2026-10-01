@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { copyFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inflateSync } from 'node:zlib';
-import { encodePng, hex6, inner, inside, iou, outsideCircle, readTags, root, shapes, unsafe, withSize } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
+import { encodePng, hex6, inner, inside, iou, outsideCircle, readTags, root, rootStyle, shapes, unsafe, withSize } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
+
+const REPO = fileURLToPath(new URL('..', import.meta.url));
+const KIT = path.join(REPO, 'plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs');
 
 test('reads tags and skips the prolog, doctype and comments', () => {
   const svg = '<?xml version="1.0"?><!DOCTYPE svg><!-- <rect fill="red"/> --><svg viewBox="0 0 4 4"><rect x="1" y=\'2\' width="1" height="1"/></svg>';
@@ -60,4 +68,24 @@ test('hex6 accepts six-digit hex in any case; inside keeps paths in a folder', (
   assert.ok(inside('/a/b', 'parts/x.svg'));
   assert.ok(!inside('/a/b', '../x.svg'));
   assert.ok(!inside('/a/b', '/etc/passwd'));
+});
+
+test('flags namespaced tags and attributes from design-tool exports', () => {
+  const problems = unsafe('<svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xml:space="preserve"><sodipodi:namedview/><path inkscape:label="a" d="M0 0"/><use xlink:href="#a"/></svg>');
+  for (const p of ['<sodipodi:namedview>', 'inkscape:label', 'xlink:href']) assert.ok(problems.some(q => q.includes(p)), `missing ${p}`);
+  assert.ok(!problems.some(q => q.includes('xmlns') || q.includes('xml:space')), 'namespace declarations and xml: attributes are allowed');
+});
+
+test('rootStyle returns the root presentation attributes for a wrapper group', () => {
+  assert.equal(rootStyle(`<svg viewBox="0 0 4 4" width="4" fill="#ffe14d" stroke-dasharray='2 2'><rect/></svg>`), ' fill="#ffe14d" stroke-dasharray="2 2"');
+  assert.equal(rootStyle('<svg viewBox="0 0 4 4" fill="none" opacity=".5"><rect/></svg>', ['fill']), ' opacity=".5"');
+  assert.equal(rootStyle('<svg viewBox="0 0 4 4"><rect/></svg>'), '');
+});
+
+test('fromProject loads packages from the working directory, not the script folder', () => {
+  const copy = path.join(mkdtempSync(path.join(tmpdir(), 'kit-')), 'svg-kit.mjs');
+  copyFileSync(KIT, copy);
+  const code = `const { fromProject } = await import(${JSON.stringify(pathToFileURL(copy).href)}); console.log(typeof fromProject('playwright-core').chromium);`;
+  const run = spawnSync(process.execPath, ['--input-type=module', '-e', code], { cwd: REPO, encoding: 'utf8' });
+  assert.equal(run.stdout.trim(), 'object', run.stderr);
 });

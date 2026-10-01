@@ -8,10 +8,10 @@
 // reports drift, and a person still judges the contact sheet.
 //
 // Needs playwright-core and a Chromium (`npx playwright-core install chromium`).
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { GPU, encodePng, hex6, inner, inside, iou, launch, mask, pixels, root, shapes, slug, text, texts, unsafe } from './svg-kit.mjs';
+import { GPU, encodePng, hex6, inner, inside, iou, launch, mask, pixels, root, rootStyle, shapes, slug, text, texts, unsafe } from './svg-kit.mjs';
 
 /** Lowercase hex colours of a contract's tokens, light and dark. */
 export function tokenColours(brand) {
@@ -91,7 +91,10 @@ export function validateMascot(spec, { root: dir = '.' } = {}) {
 
 /** One state as a standalone SVG: the chosen part of each slot, stacked in slot order. read(file) returns a part's text. */
 export function assembleState(spec, state, read) {
-  const layers = spec.slots.filter(slot => state.parts[slot]).map(slot => `<g data-slot="${slot}">${inner(read(spec.parts[slot][state.parts[slot]]))}</g>`);
+  const layers = spec.slots.filter(slot => state.parts[slot]).map(slot => {
+    const svg = read(spec.parts[slot][state.parts[slot]]);
+    return `<g data-slot="${slot}"${rootStyle(svg)}>${inner(svg)}</g>`;
+  });
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${spec.viewBox}">${layers.join('')}</svg>`;
 }
 /** Every state at 256, 48, 24 and 16 px on the contract's light and dark surfaces. */
@@ -143,6 +146,7 @@ async function main() {
   console.log(`Mascot rendered: ${states.length} states to ${path.relative(process.cwd(), out) || '.'}. Review contact-sheet.png at 16 px before you ship it.`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// realpath: Node resolves a symlinked script to its target, so compare against the resolved path.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch(error => { console.error(error.message); process.exitCode = 1; });
 }
