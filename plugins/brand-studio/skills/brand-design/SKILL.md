@@ -31,6 +31,7 @@ Read only the references required by the task:
 - Contract creation or schema changes: [contract.md](references/contract.md).
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
+- Reference-based posters, exact multilingual image copy or JSON prompts for ChatGPT/Gemini: [reference-image-production.md](references/reference-image-production.md), after imagery.
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
 - Mascot or brand character with expression states: [mascot.md](references/mascot.md), with its drawing style from [mascot-styles.md](references/mascot-styles.md).
 - UI icon set in an outline, solid or duotone style, app icon or favicon: [icons.md](references/icons.md).

@@ -1,5 +1,7 @@
 # Consistent generated imagery
 
+For a poster built from a template and supplied photos, follow [reference image production](reference-image-production.md). It covers asset roles, portable JSON briefs, Vietnamese copy, staged edits, output inspection and private handoff folders for ChatGPT/OpenAI and Gemini workflows.
+
 Create an asset bible before generating. Record product geometry, colors, materials, lighting direction and softness, lens/perspective, background, grain, allowed crops and forbidden props. Separate subject identity from style: the same blue color is not proof that two cups are the same object.
 
 ## Production loop
