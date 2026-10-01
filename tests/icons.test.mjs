@@ -64,6 +64,7 @@ test('solid glyphs fill in the text colour and never stroke', () => {
   assert.deepEqual(checkGlyph(solid('<path fill-rule="evenodd" d="M4 4h16v16H4zM8 11h8v2H8z"/>'), { style: 'solid' }), []);
   assert.ok(checkGlyph(solid('<path d="M4 4h16v16H4z" fill="#101114"/>'), { style: 'solid' }).some(e => e.includes('fill must be currentColor')));
   assert.ok(checkGlyph(solid('<path d="M4 4h16v16H4z" stroke="currentColor"/>'), { style: 'solid' }).some(e => e.includes('must not stroke')));
+  assert.ok(checkGlyph(solid('<line x1="4" y1="12" x2="20" y2="12"/>'), { style: 'solid' }).some(e => e.includes('<line> has no area to fill')));
 });
 
 test('duotone glyphs are outline strokes over a tone fill at 0.2', () => {
@@ -76,12 +77,12 @@ test('duotone glyphs are outline strokes over a tone fill at 0.2', () => {
 
 test('normalizing and sprites put each style on the root and keep duotone tones', () => {
   const s = normalizeGlyph(solid('<rect x="4" y="4" width="16" height="16" fill="currentColor"/>'), { style: 'solid' });
-  assert.equal(s, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>');
+  assert.equal(s, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="16"/></svg>');
   assert.deepEqual(checkGlyph(s, { style: 'solid' }), []);
   const d = normalizeGlyph(glyph(`${TONE}<path d="M4 12h16" stroke="currentColor"/>`), { style: 'duotone' });
   assert.equal(d, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ${STYLE}>${TONE}<path d="M4 12h16" stroke="currentColor"/></svg>`);
   assert.deepEqual(checkGlyph(d, { style: 'duotone' }), []);
-  assert.match(sprite([{ name: 'card', svg: s }], { prefix: 'dh', style: 'solid' }), /<symbol id="dh-card" viewBox="0 0 24 24" fill="currentColor">/);
+  assert.match(sprite([{ name: 'card', svg: s }], { prefix: 'dh', style: 'solid' }), /<symbol id="dh-card" viewBox="0 0 24 24" fill="currentColor" stroke="none">/);
   assert.match(sprite([{ name: 'card', svg: d }], { prefix: 'dh', style: 'duotone' }), new RegExp(`<symbol id="dh-card" viewBox="0 0 24 24" ${STYLE}>`));
 });
 
@@ -189,5 +190,5 @@ test('the CLI measures the 1 px margin without a stroke for solid glyphs', () =>
   writeFileSync(path.join(dir, 'icons.json'), JSON.stringify(spec));
   const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'icons.json')], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
-  assert.match(readFileSync(path.join(dir, 'out', 'sprite.svg'), 'utf8'), /<symbol id="dh-ticket" viewBox="0 0 24 24" fill="currentColor">/);
+  assert.match(readFileSync(path.join(dir, 'out', 'sprite.svg'), 'utf8'), /<symbol id="dh-ticket" viewBox="0 0 24 24" fill="currentColor" stroke="none">/);
 });

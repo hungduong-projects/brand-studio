@@ -23,7 +23,7 @@ export const ICON_STYLES = ['outline', 'solid', 'duotone'];
 const TONE = 0.2;
 /** The attributes a style puts on each glyph's root and sprite symbol. */
 const styleAttrs = (style, stroke) => style === 'solid'
-  ? { fill: 'currentColor' }
+  ? { fill: 'currentColor', stroke: 'none' }
   : { fill: 'none', stroke: 'currentColor', 'stroke-width': String(stroke), 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
 const attrText = attrs => Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
 /** A file's markup, inside a <g> that carries its root styling when it has any. */
@@ -65,6 +65,7 @@ export function checkGlyph(svg, { grid = 24, stroke = 2, style = 'outline' } = {
     if (style === 'solid') {
       if (a.fill !== 'currentColor') errors.push(`<${tag}> fill must be currentColor so the glyph takes the text colour`);
       if (a.stroke !== undefined && a.stroke !== 'none') errors.push(`<${tag}> must not stroke; solid glyphs are filled shapes`);
+      if (tag === 'line') errors.push('<line> has no area to fill; draw it as a rect or path');
       continue;
     }
     if (style === 'duotone' && a.fill === 'currentColor') {
