@@ -31,6 +31,7 @@ export function checkPart(svg, { viewBox, allowed, strokes = false }) {
   if (!attrs) return ['root element must be <svg>'];
   const errors = unsafe(svg);
   if (attrs.viewBox !== viewBox) errors.push(`viewBox must be "${viewBox}", found "${attrs.viewBox ?? ''}"`);
+  if (/<use\b/.test(svg)) errors.push('<use> is not allowed; draw the shape in place so its colours can be checked');
   const list = shapes(svg);
   if (!list.length) errors.push('draws no shapes');
   for (const { tag, attrs: a } of list) {
@@ -136,21 +137,21 @@ export function stateDifference(a, b) {
 }
 
 /** One state as a standalone SVG: the chosen part of each slot, stacked in slot order. read(file) returns a part's text.
- * lean turns the figure clockwise by that many degrees about the bottom centre of the viewBox; lift raises it. */
+ * lean turns the figure clockwise by that many degrees about the bottom centre of the viewBox; lift then raises it straight up. */
 export function assembleState(spec, state, read) {
   const layers = spec.slots.filter(slot => state.parts[slot]).map(slot => {
     const svg = read(spec.parts[slot][state.parts[slot]]);
     return `<g data-slot="${slot}"${rootStyle(svg)}>${inner(svg)}</g>`;
   }).join('');
   const [x, y, w, h] = spec.viewBox.trim().split(/[\s,]+/).map(Number);
-  const pose = [state.lean ? `rotate(${state.lean} ${x + w / 2} ${y + h})` : '', state.lift ? `translate(0 ${-state.lift})` : ''].filter(Boolean).join(' ');
+  const pose = [state.lift ? `translate(0 ${-state.lift})` : '', state.lean ? `rotate(${state.lean} ${x + w / 2} ${y + h})` : ''].filter(Boolean).join(' ');
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${spec.viewBox}">${pose ? `<g transform="${pose}">${layers}</g>` : layers}</svg>`;
 }
 
 /** The figure in an assembled SVG with a die-cut border of radius viewBox units in colour, so an ink figure reads on a
  * dark surface. borderOnly draws the border shape without the figure, as the backdrop the contrast check measures against. */
 export function outlined(svg, colour, radius, { borderOnly = false } = {}) {
-  const id = `die-cut-${colour.slice(1).toLowerCase()}`;
+  const id = `die-cut-${colour.slice(1).toLowerCase()}-${radius}`;
   const filter = `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feMorphology in="SourceAlpha" operator="dilate" radius="${radius}" result="grown"/><feFlood flood-color="${colour}"/><feComposite in2="grown" operator="in" result="border"/><feMerge><feMergeNode in="border"/>${borderOnly ? '' : '<feMergeNode in="SourceGraphic"/>'}</feMerge></filter>`;
   return String(svg).replace(/^(<svg\b[^>]*>)([\s\S]*)(<\/svg>)\s*$/, (_, open, body, close) => `${open}<defs>${filter}</defs><g filter="url(#${id})">${body}</g>${close}`);
 }

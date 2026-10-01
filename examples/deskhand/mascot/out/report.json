@@ -15,7 +15,7 @@
       "id": "reading",
       "moment": "Sources load for a ticket",
       "silhouette": 0.906,
-      "distinct": 0.318,
+      "distinct": 0.315,
       "visible": {
         "light": 0.27,
         "dark": 0.27
@@ -45,7 +45,7 @@
       "id": "sent",
       "moment": "Reply sent to the customer",
       "silhouette": 0.873,
-      "distinct": 0.557,
+      "distinct": 0.552,
       "visible": {
         "light": 0.33,
         "dark": 0.33
@@ -75,7 +75,7 @@
       "id": "idle",
       "moment": "Inbox clear, nothing to do",
       "silhouette": 0.866,
-      "distinct": 0.318,
+      "distinct": 0.315,
       "visible": {
         "light": 0.53,
         "dark": 0.53

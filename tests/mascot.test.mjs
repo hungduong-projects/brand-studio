@@ -67,6 +67,7 @@ test('parts use filled shapes in contract colours only', () => {
   assert.ok(checkPart(part('<rect/>'), opts).some(e => e.includes('render black')));
   assert.ok(checkPart(part('<path d="M0 0" fill="none" stroke="#101114"/>'), opts).some(e => e.includes('filled shapes only')));
   assert.ok(checkPart(part('<image/><rect fill="#101114"/>'), opts).some(e => e.includes('<image>')));
+  assert.ok(checkPart(part('<defs><path id="a" d="M0 0L99 99" fill="#101114"/></defs><use href="#a" stroke="#ff0000" stroke-width="30"/>'), opts).some(e => e.includes('<use> is not allowed')));
   assert.ok(checkPart('<svg viewBox="0 0 10 10"><rect fill="#101114"/></svg>', opts).some(e => e.includes('viewBox')));
 });
 
@@ -126,11 +127,11 @@ test('a state may lean up to 30 degrees and lift by a number of units', () => {
   assert.ok(errs(rig(s => { s.states[0].lift = '24'; return s; })).some(e => e.includes('lift must be a number')));
 });
 
-test('assembly turns a state about the bottom centre of the viewBox and lifts it', () => {
+test('assembly turns a state about the bottom centre of the viewBox and lifts it straight up', () => {
   const { spec, dir } = rig();
   const read = f => readFileSync(path.join(dir, f), 'utf8');
   const svg = assembleState(spec, { parts: { body: 'base' }, lean: -8, lift: 20 }, read);
-  assert.match(svg, /viewBox="0 0 512 512"><g transform="rotate\(-8 256 512\) translate\(0 -20\)"><g data-slot="body"/);
+  assert.match(svg, /viewBox="0 0 512 512"><g transform="translate\(0 -20\) rotate\(-8 256 512\)"><g data-slot="body"/);
   assert.doesNotMatch(assembleState(spec, { parts: { body: 'base' } }, read), /transform/);
 });
 
@@ -142,11 +143,12 @@ test('a dark outline must be a contract or palette colour', () => {
 test('outlined wraps a figure in a die-cut border, or draws the border alone', () => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}"><rect width="9" height="9" fill="#101114"/></svg>`;
   const both = outlined(svg, '#f6f6f3', 10);
-  assert.match(both, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 512 512"><defs><filter id="die-cut-f6f6f3"/);
+  assert.match(both, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 512 512"><defs><filter id="die-cut-f6f6f3-10"/);
   assert.match(both, /<feMorphology in="SourceAlpha" operator="dilate" radius="10"/);
   assert.match(both, /flood-color="#f6f6f3"/);
   assert.match(both, /<feMergeNode in="SourceGraphic"\/>/);
-  assert.match(both, /<g filter="url\(#die-cut-f6f6f3\)"><rect width="9"/);
+  assert.match(both, /<g filter="url\(#die-cut-f6f6f3-10\)"><rect width="9"/);
+  assert.match(outlined(svg, '#f6f6f3', 12), /id="die-cut-f6f6f3-12"/);
   assert.doesNotMatch(outlined(svg, '#f6f6f3', 10, { borderOnly: true }), /SourceGraphic"\/>/);
 });
 
