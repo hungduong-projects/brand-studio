@@ -118,6 +118,7 @@ export const guides = [
   { slug: '', title: 'Introduction', description: 'React components that take their colours, type and shape from a brand contract.' },
   { slug: 'installation', title: 'Installation', description: 'Add the package, import the styles and wrap your app in a theme.' },
   { slug: 'theming', title: 'Theming', description: 'How a brand palette becomes CSS variables every component reads.' },
+  { slug: 'asset-creation', title: 'Asset creation', description: 'Use the brand-design skill for mascots, sticker-style artwork and icon exports.' },
 ];
 
 export const componentHref = (slug: string) => `/docs/components/${slug}/`;

@@ -19,7 +19,9 @@
       "Hero: one card rendered in all three demo brands, fanned; the picked brand comes to the front",
       "One brand switch re-skins every live demo on the site at once",
       "Top bar: offset-cards mark with version pill, centred search with a shortcut hint, framed icon buttons",
-      "Showcase cards sit on an even grid so every row ends on one line"
+      "Showcase cards sit on an even grid so every row ends on one line",
+      "A greyscale offset-card mascot beside the hero headline; the real component cards remain the product demonstration",
+      "An asset creation section below the component examples links to the skill workflows for mascots, sticker-style artwork and icons, and shows the Deskhand mascot contact sheet as example output"
     ],
     "invariants": [
       "Greyscale chrome: colour appears only inside demos",
@@ -59,13 +61,14 @@
     }
   },
   "imagery": {
-    "subject": "Live component demos; the only photography is the Still coffee set reused from the showcase",
+    "subject": "Live component demos; the only photography is the Still coffee set reused from the showcase; a generated offset-card mascot appears only in the landing hero; the Deskhand mascot contact sheet shows skill output in the asset creation section",
     "materials": "Flat white and near-black surfaces with hairline borders",
     "lighting": "Flat; no shadows on the chrome",
     "palette": "Greyscale chrome; demo brands supply all colour",
     "invariants": [
       "Demos render the real package, never screenshots",
-      "All demo brands share the Still coffee images"
+      "All demo brands share the Still coffee images",
+      "The mascot keeps its greyscale paper-card identity across demo brands and modes"
     ],
     "avoid": [
       "Invented adoption numbers, logos or testimonials",
@@ -73,7 +76,7 @@
     ]
   },
   "motion": {
-    "character": "Quiet: the brand and mode switch crossfade; components carry their own motion.",
+    "character": "Quiet: the brand and mode switch crossfade; components carry their own motion. The mascot enters once, tilts on hover and greets on activation; it has no continuous idle animation.",
     "reducedMotion": "No transitions; every state and all content stay reachable."
   },
   "chapters": [
