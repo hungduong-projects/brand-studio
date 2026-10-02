@@ -1,0 +1,57 @@
+{
+  "brief_version": 1,
+  "fictional_example": true,
+  "status": "not_rendered",
+  "purpose": "A fictional ceramics workshop poster adapted from a supplied layout reference.",
+  "deliverable": "image",
+  "locale": "vi-VN",
+  "canvas": { "width": 1080, "height": 1920, "format": "png" },
+  "assets": [
+    { "id": "template", "file": "inputs/template.jpg", "role": "layout_reference" },
+    { "id": "subject", "file": "inputs/ceramic-cup.png", "role": "protected_product", "preserve": ["silhouette", "handle", "glaze", "colour"] }
+  ],
+  "copy": {
+    "headline": { "text": "XƯỞNG GỐM CUỐI TUẦN", "source": "fictional_example", "status": "example_only" },
+    "support": { "text": "Tự tay tạo một chiếc cốc.", "source": "fictional_example", "status": "example_only" }
+  },
+  "layout": {
+    "mode": "adapt_reference",
+    "bbox_format": "[x, y, width, height], pixels, top-left origin",
+    "content_safe_bbox": [80, 200, 840, 1280],
+    "safe_area_status": "designer_proposal_not_platform_verified",
+    "regions": [
+      { "id": "headline", "bbox": [80, 240, 840, 180], "copy_id": "headline", "font_size_px": 72 },
+      { "id": "product", "bbox": [140, 500, 720, 640], "asset_id": "subject", "fit": "contain" },
+      { "id": "support", "bbox": [100, 1220, 800, 120], "copy_id": "support", "font_size_px": 42 }
+    ]
+  },
+  "constraints": {
+    "locked": ["Approved copy including Vietnamese accents", "Protected product geometry", "Source image aspect ratios"],
+    "creative": ["Non-factual background", "Panel treatment", "Spacing within the approved layout"],
+    "prohibited": ["Invented offers or contact details", "Metadata rendered as visible text", "Additional product parts"]
+  },
+  "execution": {
+    "provider": "select_at_runtime",
+    "interface": "check_available_tool",
+    "model": null,
+    "capabilities_checked_at": null,
+    "reference_limit": null,
+    "passes": [
+      { "id": "base", "input_order": ["template", "subject"], "change": "Create the approved composition; use copy and layout verbatim." }
+    ],
+    "note": "Populate supported settings and attach actual files before generation. This object is not an API request."
+  },
+  "production": {
+    "text_method": "real_font_layers_for_exact_copy",
+    "asset_method": "composite_source_for_exact_preservation",
+    "native_output_dimensions": null,
+    "delivery_dimensions": [1080, 1920],
+    "transforms": []
+  },
+  "verification": {
+    "copy": "pending",
+    "asset_preservation": "pending",
+    "delivery_size_legibility": "pending",
+    "platform_preview": "not_performed"
+  }
+}
