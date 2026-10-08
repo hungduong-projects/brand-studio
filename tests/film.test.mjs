@@ -57,6 +57,11 @@ test('a tutorial plan shows each screen in order and clicks where the capture me
     assert.ok(shot.x >= 840 / (2 * shot.zoom) - 1e-9 && shot.x <= 840 - 840 / (2 * shot.zoom) + 1e-9, 'the camera keeps the window in frame');
   }
   assert.ok(Math.abs(plan.seconds - (plan.steps.at(-1).end + .4 + 2.8)) < 1e-9);
+  // Captions cue each step over its own window, with the note on a second line.
+  const cues = tutorial.tutorialCues({ ...manifest, steps: manifest.steps.map((step, i) => i === 2 ? { ...step, note: 'Total with GST' } : step) });
+  assert.deepEqual(cues.map(cue => [cue.start, cue.end]), plan.steps.map(step => [step.start, step.end]));
+  assert.equal(cues[2].text, 'Enter the amount\nTotal with GST');
+  assert.equal(cues[0].text, 'Open Claims');
   // A full-width target gets less zoom, so all of it stays in view.
   const wide = tutorial.tutorialPlan({ ...manifest, steps: [manifest.steps[0], { ...manifest.steps[3], box: { x: 40, y: 500, width: 1200, height: 60 } }] });
   const aim = wide.shots.find(shot => shot.at === wide.steps[1].start + .95);

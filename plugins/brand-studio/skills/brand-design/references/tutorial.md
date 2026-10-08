@@ -85,5 +85,6 @@ Review the stills before the full render: the ring and cursor sit on the target,
 
 - Put the films on a help page in the product, grouped by role, each with its written steps beside it. The written steps are the same captions and notes, numbered, so the video is never the only way to learn the task.
 - Use `controls`, `preload="metadata"` and the poster frame. Do not autoplay a tutorial: the viewer starts it when ready.
+- The render also writes `<name>.vtt`, one cue per step with its caption and note. Add it as `<track kind="captions" srcLang="en" label="English">` without `default`: the film already shows the captions, and the track gives screen readers the text and satisfies `jsx-a11y/media-has-caption`.
 - Keep each file near 1.5 MB per 10 seconds; raise `--crf` before cutting resolution.
 - When the UI changes, rerun the capture with the same steps file and re-render. Fix a failed selector in the steps file, not by hand-editing screens.
