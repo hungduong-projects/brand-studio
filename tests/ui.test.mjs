@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -510,4 +510,29 @@ test('pinned zoom, curtain reveal and scroll path read in order before enhanceme
   const path = render(h(ScrollPath, { label: 'Journey', steps: [{ title: 'Picked' }, { title: 'Roasted', body: h('p', null, 'Monday') }] }));
   assert.match(path, /^<ol class="bs-path " aria-label="Journey"><li class="bs-path__step"><span class="bs-path__dot" aria-hidden="true"><\/span><h3>Picked<\/h3><\/li>/);
   assert.match(path, /<h3>Roasted<\/h3><div class="bs-path__body"><p>Monday<\/p><\/div>/);
+});
+
+test('social posts name their author, mark up text and count you in once', () => {
+  const post = render(h(SocialPost, { author: { name: 'Still Coffee', handle: 'stillcoffee', verified: true }, time: '2h', likes: 1280, defaultLiked: true, views: 24600 }, 'Ask @maren_roasts #pourover https://example.com/huila.'));
+  assert.match(post, /<article class="bs-post [^"]*" aria-label="Still Coffee, 2h">/);
+  assert.match(post, /role="img" aria-label="Verified"/);
+  assert.match(post, /@stillcoffee/);
+  assert.match(post, /<span class="bs-post__link">@maren_roasts<\/span>/);
+  assert.match(post, /<span class="bs-post__link">#pourover<\/span>/);
+  assert.match(post, /<a class="bs-post__link" href="https:\/\/example.com\/huila" rel="noopener noreferrer">example.com\/huila<\/a>\./);
+  assert.match(post, /aria-pressed="true"><svg[^]*?Like<\/span><span>1.3K<\/span>/);
+  assert.match(post, /Views<\/span>24.6K/);
+  const thread = render(h(PostThread, { label: 'Brewing' }, h(SocialPost, { author: { name: 'A', handle: 'a' }, time: '1h' }, 'One'), null, h(SocialPost, { author: { name: 'B', handle: 'b' }, time: '1h' }, 'Two')));
+  assert.match(thread, /^<ol class="bs-post-thread [^"]*" aria-label="Brewing">/);
+  assert.equal((thread.match(/<li>/g) ?? []).length, 2);
+});
+test('story viewer ships every slide, labelled in order, with real step and pause buttons', () => {
+  const slides = ['beans', 'pour', 'cup'].map(id => ({ id, asset: asset(id), title: `About ${id}` }));
+  const html = render(h(StoryViewer, { slides, author: { name: 'Still Coffee' }, label: 'Stories' }));
+  assert.match(html, /aria-label="Stories" aria-roledescription="carousel"/);
+  assert.match(html, /--bs-story-duration:5000ms/);
+  for (const [i, { id }] of slides.entries()) assert.match(html, new RegExp(`aria-label="${i + 1} of 3"${i ? ' hidden=""' : ''}>.*alt="View of ${id}"`));
+  for (const name of ['Previous story', 'Next story', 'Pause stories']) assert.ok(html.includes(`aria-label="${name}"`), name);
+  assert.equal((html.match(/data-current/g) ?? []).length, 1);
+  assert.equal(render(h(StoryViewer, { slides: [], author: { name: 'A' } })), '');
 });
