@@ -65,6 +65,23 @@ Ingarden held that a work leaves "places of indeterminacy" that each viewer fill
 
 Group averages hide subgroups. In one study, about half of observers preferred fractal images with a medium amount of fine detail, and most of the rest split between smoother and sharper images ([Spehar et al. 2016](https://www.frontiersin.org/articles/10.3389/fnhum.2016.00350/full)). When a choice is close, show two versions to people from the audience and record the result in `brand/verification.md`. Do not settle it with a formula.
 
+## Run the audit
+
+`scripts/aesthetics.mjs` measures the rules a script can check. Pass it a folder of SVGs, one SVG, a `mascot.json` or an `icons.json`. Each argument is one set:
+
+```sh
+node <this-skill>/scripts/aesthetics.mjs <project>/brand/mascot.json <project>/brand/icons.json [--json]
+```
+
+It prints the weight, detail and symmetry of each item, then a warning for each problem:
+
+- A large rounded corner that jumps to full curvature where it meets a straight edge. The script skips corners under a tenth of the canvas, and glyphs on a canvas of 48 or less.
+- More than one stroke width, or more than two corner radii, across a set.
+- An item whose ink weight or outline detail is more than 1.5 times, or less than two thirds of, the set's median. Only sets of three or more get this check.
+- A golden-ratio claim in the Markdown or JSON notes beside the files.
+
+The script reports symmetry but does not judge it. A score of 1 is a perfect mirror, and a mascot often scores lower on purpose. The script cannot judge proportion, novelty or fit, so finish with the checklist below.
+
 ## Review checklist
 
 - The object's job is written in one line, and the drawing serves it.
