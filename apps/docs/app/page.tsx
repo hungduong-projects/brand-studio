@@ -1,7 +1,7 @@
+import { VoiceOrb } from '@brand-studio/ui';
 import { AgentPromptButton } from '@/components/agent-prompt';
 import { BrandBoard } from '@/components/brand-board';
 import { CopyButton } from '@/components/copy-button';
-import { HeroMascot } from '@/components/hero-mascot';
 import { IntroFilm } from '@/components/intro-film';
 import { catalog } from '@/lib/catalog';
 
@@ -16,7 +16,8 @@ export default function Home() {
         <h1>Components that wear your brand.</h1>
       </div>
       <div className="hero__aside">
-        <HeroMascot />
+        {/* Decoration: the lead below says the same thing in words. */}
+        <div className="hero-orb" aria-hidden="true"><VoiceOrb state="thinking" shape="network" size={96} label="Reading brand.json" /></div>
         <p className="hero__lead">{catalog.length} React components for apps, AI agents and story pages. Each one reads its colours, typeface and corners from a brand contract.</p>
         <div className="hero__actions">
           <a href="/docs/installation/" className="solid-button">Read the install steps</a>

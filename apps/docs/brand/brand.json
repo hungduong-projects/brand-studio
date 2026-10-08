@@ -22,7 +22,7 @@
       "One brand switch re-skins every live demo on the site at once",
       "Top bar: offset-cards mark with version pill, centred search with a shortcut hint, framed icon buttons",
       "Board cells share hairline gaps in the brand's line colour, so the grid reads as one surface",
-      "A greyscale offset-card mascot above the hero lead, beside it on phones; the real component cards remain the product demonstration",
+      "A small VoiceOrb, network shape in its thinking state, above the hero lead, drawn in the page ink so the chrome stays greyscale; the real component cards remain the product demonstration",
       "An asset creation section below the component examples links to the skill workflows for mascots, sticker-style artwork and icons, and shows the Deskhand mascot contact sheet as example output"
     ],
     "invariants": [
@@ -63,14 +63,13 @@
     }
   },
   "imagery": {
-    "subject": "Live component demos; the only photography is the Still coffee set reused from the showcase; a generated offset-card mascot appears only in the landing hero; the Deskhand mascot contact sheet shows skill output in the asset creation section",
+    "subject": "Live component demos; the only photography is the Still coffee set reused from the showcase; the Deskhand mascot contact sheet shows skill output in the asset creation section",
     "materials": "Flat white and near-black surfaces with hairline borders",
     "lighting": "Flat; no shadows on the chrome",
     "palette": "Greyscale chrome; demo brands supply all colour",
     "invariants": [
       "Demos render the real package, never screenshots",
-      "All demo brands share the Still coffee images",
-      "The mascot keeps its greyscale paper-card identity across demo brands and modes"
+      "All demo brands share the Still coffee images"
     ],
     "avoid": [
       "Invented adoption numbers, logos or testimonials",
@@ -78,7 +77,7 @@
     ]
   },
   "motion": {
-    "character": "Quiet: the brand and mode switch crossfade; components carry their own motion. The mascot enters once, tilts on hover and greets on activation; it has no continuous idle animation.",
+    "character": "Quiet: the brand and mode switch crossfade; components carry their own motion. The hero orb turns slowly while thinking and stands still under reduced motion.",
     "reducedMotion": "No transitions; every state and all content stay reachable."
   },
   "chapters": [
