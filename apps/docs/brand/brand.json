@@ -9,18 +9,20 @@
     "Honest: fictional demo brands are labelled as fictional"
   ],
   "primaryAction": {
-    "label": "Get started",
+    "label": "Read the install steps",
     "href": "/docs/installation/"
   },
   "direction": {
     "concept": "Neutral frame, branded contents.",
     "tier": "Reference docs: reading speed first. The chrome stays greyscale so the only colour on screen comes from the demo brand.",
     "devices": [
-      "Hero: one card rendered in all three demo brands, fanned; the picked brand comes to the front",
+      "Hero: a large headline over the brand board. The board shows brand tabs, the picked brand's contract values and an uneven grid of live components; picking a tab re-skins the board in a circle that spreads from the tab",
+      "The board's Yours tab sets the accent, corner radius and typeface by hand, and every card and the contract line follow as you drag",
+      "A field of ink dots behind the board, fading out at its edges; it echoes the dotted VoiceOrb",
       "One brand switch re-skins every live demo on the site at once",
       "Top bar: offset-cards mark with version pill, centred search with a shortcut hint, framed icon buttons",
-      "Showcase cards sit on an even grid so every row ends on one line",
-      "A greyscale offset-card mascot beside the hero headline; the real component cards remain the product demonstration",
+      "Board cells share hairline gaps in the brand's line colour, so the grid reads as one surface",
+      "A greyscale offset-card mascot above the hero lead, beside it on phones; the real component cards remain the product demonstration",
       "An asset creation section below the component examples links to the skill workflows for mascots, sticker-style artwork and icons, and shows the Deskhand mascot contact sheet as example output"
     ],
     "invariants": [
@@ -84,9 +86,9 @@
       "id": "home",
       "question": "What is in the package?",
       "message": "Components that wear your brand.",
-      "visual": "Hero, then an even grid of live demos.",
-      "transition": "Brand switch crossfades every demo.",
-      "mobileFallback": "Single-column list of demo cards."
+      "visual": "Hero copy, then the brand board of live demos, then the intro film.",
+      "transition": "A board tab re-skins the board in a circle from the tab; the header switch crossfades.",
+      "mobileFallback": "Single-column board, voice orb first; tabs and contract values wrap above it."
     },
     {
       "id": "component",
