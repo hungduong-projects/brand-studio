@@ -324,6 +324,7 @@ test('voice pieces say their state in words and keep guesses away from screen re
   assert.match(orb, /role="status"/);
   assert.match(orb, /<canvas class="bs-orb__canvas" aria-hidden="true"/);
   assert.match(orb, /Speaking/);
+  assert.match(render(h(VoiceOrb, { state: 'thinking', shape: 'morph', size: 20 })), /--bs-orb-size:20px.*Thinking/);
   const button = render(h(DictationButton, { mode: 'hold' }));
   assert.match(button, /aria-pressed="false" aria-label="Hold to talk"/);
   assert.match(button, /class="bs-dictate__note" role="status"><\/span>/);

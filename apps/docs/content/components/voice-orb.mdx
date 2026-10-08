@@ -17,9 +17,10 @@ import { VoiceOrb } from '@brand-studio/ui';
 
 ```tsx
 <VoiceOrb state="listening" level={level} size={140} />
+<VoiceOrb state="thinking" shape="network" />
 ```
 
-`level` runs from 0 to 1. Feed it the microphone's loudness while listening (DictationButton's `onLevel` gives you this) or the agent's voice while speaking. Idle shows a ring that breathes, listening sends a wave through rows of dots, thinking runs dots round tilted orbits and speaking spreads ripples from the orb's face. The dots take the ink colour, so the orb follows light and dark themes. Below 64 px it draws fewer, larger dots.
+`level` runs from 0 to 1. Feed it the microphone's loudness while listening (DictationButton's `onLevel` gives you this) or the agent's voice while speaking. Idle shows a ring that breathes, listening sends a wave through rows of dots, thinking runs dots round tilted orbits and speaking spreads ripples from the orb's face. Pass `shape` to swap in another look for every state: `network` joins dots with lines, `meridians` weaves dots along vertical lines, `ribbon` rolls a band of strokes round the sphere and `morph` re-forms a ring of dots into a circle, a triangle and a square. A shape runs at half speed while idle and swells with `level`. The dots take the ink colour, so the orb follows light and dark themes. Below 64 px it draws fewer, larger dots.
 
 ## Accessibility
 
