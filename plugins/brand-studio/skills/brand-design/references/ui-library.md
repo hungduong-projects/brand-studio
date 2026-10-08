@@ -80,6 +80,14 @@ Start from the job the person is doing on this screen, not from a component you 
 | Talk instead of typing | `DictationButton` | The page is not served over https: the browser blocks the microphone |
 | Watch spoken words appear as they are recognised | `LiveTranscript` | The words are the agent's typed answer: use `StreamingText` |
 
+### Follow a brand on social
+
+| The person needs to | Use | Not when |
+|---|---|---|
+| Read one short post with its author, time and reactions, and like or repost it | `SocialPost` | The text is long or has headings: use `Card` or an article |
+| Follow a few posts that answer one another, in order | `PostThread` | The posts are unrelated: list `SocialPost` items in a feed |
+| Watch a short run of full-height pictures with a line each, at their own pace | `StoryViewer` | Each picture needs close reading or a caption over two lines: use `Lightbox` or `StorySequence` |
+
 ### Feel the brand
 
 Use these for a brand moment, not for routine controls. Allow at most one per view, and only when it comes from the brand concept.

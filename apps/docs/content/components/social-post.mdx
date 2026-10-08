@@ -1,0 +1,48 @@
+---
+title: Social Post
+description: "One post in a feed: author, time, text with links and tags, an optional image, and reply, repost and like counts."
+---
+
+<Preview name="social-post/default" />
+
+## Installation
+
+<Install name="SocialPost" />
+
+## Usage
+
+```tsx
+import { SocialPost } from '@brand-studio/ui';
+```
+
+```tsx
+<SocialPost
+  author={{ name: 'Still Coffee', handle: 'stillcoffee', verified: true }}
+  time="2h"
+  dateTime="2026-10-08T07:30:00Z"
+  media={pour}
+  replies={18}
+  reposts={42}
+  likes={1280}
+  onLikeChange={liked => save(postId, liked)}
+>
+  {'Tasting on Saturday at 10:00 with @maren_roasts. #pourover https://example.com/tasting'}
+</SocialPost>
+```
+
+Pass the text as a plain string and the post finds links, @mentions and #tags and sets them in the accent colour. Line breaks in the string become line breaks in the post. Pass elements instead when you want to mark up the body yourself.
+
+Like and repost are toggles. Each press adds you to the count or takes you off it, and calls `onLikeChange` or `onRepostChange`, so you can save it. Counts over a thousand read as `1.3K`. Leave out `views` to hide the views figure.
+
+The avatar is the first letter of the name unless you pass `avatar`, such as an `<img>`.
+
+## Accessibility
+
+- Each post is an article named by its author and time.
+- Reply, Repost and Like are buttons named in words with their counts; Like and Repost report `aria-pressed`.
+- The verified mark is an image named **Verified**.
+- Links in the text open in the same tab and are real links you can tab to.
+
+## API Reference
+
+<Props name="SocialPost" />

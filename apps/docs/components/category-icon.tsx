@@ -1,10 +1,10 @@
-import { BookOpen, Bot, Clapperboard, Compass, LayoutGrid, Package, Palette, Sparkles, Table2 } from 'lucide-react';
+import { BookOpen, Bot, Clapperboard, Compass, LayoutGrid, MessagesSquare, Package, Palette, Sparkles, Table2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Category } from '@/lib/catalog';
 
 const icons: Record<Category | 'Getting Started', LucideIcon> = {
   'Getting Started': BookOpen, Foundations: Palette, App: LayoutGrid, Navigation: Compass, Data: Table2,
-  'AI agents': Bot, Effects: Sparkles, Storytelling: Clapperboard, 'Product page': Package,
+  'AI agents': Bot, Social: MessagesSquare, Effects: Sparkles, Storytelling: Clapperboard, 'Product page': Package,
 };
 
 /** A group heading with its Lucide icon, shared by the sidebar and the mobile menu. */

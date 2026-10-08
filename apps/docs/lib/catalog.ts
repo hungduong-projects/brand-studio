@@ -1,4 +1,4 @@
-export type Category = 'Foundations' | 'App' | 'Navigation' | 'Data' | 'AI agents' | 'Effects' | 'Storytelling' | 'Product page';
+export type Category = 'Foundations' | 'App' | 'Navigation' | 'Data' | 'AI agents' | 'Social' | 'Effects' | 'Storytelling' | 'Product page';
 
 export interface Entry {
   slug: string;
@@ -11,7 +11,7 @@ export interface Entry {
   base?: string;
 }
 
-export const categories: Category[] = ['Foundations', 'App', 'Navigation', 'Data', 'AI agents', 'Effects', 'Storytelling', 'Product page'];
+export const categories: Category[] = ['Foundations', 'App', 'Navigation', 'Data', 'AI agents', 'Social', 'Effects', 'Storytelling', 'Product page'];
 
 export const catalog: Entry[] = [
   { slug: 'brand-theme', exports: ['BrandTheme'], title: 'Brand Theme', category: 'Foundations', description: 'Applies a brand palette to everything inside it, in light, dark or the system mode.', base: 'HTMLAttributes<HTMLDivElement>' },
@@ -60,6 +60,9 @@ export const catalog: Entry[] = [
   { slug: 'voice-orb', exports: ['VoiceOrb'], title: 'Voice Orb', category: 'AI agents', description: 'The face of a voice agent: a sphere of ink dots that waves with the voice, orbits while thinking and ripples while speaking.' },
   { slug: 'dictation-button', exports: ['DictationButton'], title: 'Dictation Button', category: 'AI agents', description: 'A microphone button whose bars follow your voice, to toggle or hold to talk.' },
   { slug: 'live-transcript', exports: ['LiveTranscript'], title: 'Live Transcript', category: 'AI agents', description: 'Words as they are spoken, with the unsettled guess faded after them.' },
+  { slug: 'social-post', exports: ['SocialPost'], title: 'Social Post', category: 'Social', description: 'One post in a feed: author, time, text with links and tags, an optional image, and reply, repost and like counts.' },
+  { slug: 'post-thread', exports: ['PostThread'], title: 'Post Thread', category: 'Social', description: 'Posts that answer one another, in order, joined by a line between their avatars.' },
+  { slug: 'story-viewer', exports: ['StoryViewer'], title: 'Story Viewer', category: 'Social', description: 'Full-height stories that play in turn under a progress bar each. Tap to step, hold to pause.' },
   { slug: 'border-beam', exports: ['BorderBeam'], title: 'Border Beam', category: 'Effects', description: 'A light that travels around the edge of a card.', base: 'HTMLAttributes<HTMLDivElement>' },
   { slug: 'metal-button', exports: ['MetalButton'], title: 'Metal Button', category: 'Effects', description: 'A brushed-metal button whose sheen follows the pointer.', base: 'ButtonHTMLAttributes<HTMLButtonElement>' },
   { slug: 'magnet-tabs', exports: ['MagnetTabs'], title: 'Magnet Tabs', category: 'Effects', description: 'Pill tabs whose highlight slides toward the pointer.' },
