@@ -1,0 +1,29 @@
+/* Tutorial film styles. Colours arrive as --tf-* variables from the brand contract; the frame is the kit's 1152x648 world. */
+.tf-stage { position: relative; width: 1152px; height: 648px; overflow: hidden; background: var(--tf-stage); color: var(--tf-ink); font-family: system-ui, sans-serif; }
+.tf-stage p { margin: 0; }
+
+.tf-rail { position: absolute; left: 24px; top: 77px; width: 240px; display: grid; align-content: start; gap: 10px; }
+.tf-app { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--tf-muted); }
+.tf-title { font-size: 25px; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+.tf-progress { height: 4px; margin: 6px 0 8px; border-radius: 2px; background: color-mix(in srgb, var(--tf-muted) 22%, transparent); overflow: hidden; }
+.tf-progress i { display: block; height: 100%; background: var(--tf-accent); transform-origin: 0 50%; }
+.tf-steps { overflow: hidden; }
+.tf-steps ol { margin: 0; padding: 0; list-style: none; }
+.tf-step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; height: 50px; font-size: 14.5px; line-height: 1.3; color: var(--tf-muted); }
+.tf-step__text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.tf-step__n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 13px; font-weight: 700; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tf-muted) 45%, transparent); }
+.tf-step--done .tf-step__n { box-shadow: none; background: color-mix(in srgb, var(--tf-accent) 22%, transparent); color: var(--tf-ink); }
+.tf-step--now { color: var(--tf-ink); font-size: 17px; font-weight: 650; }
+.tf-step--now .tf-step__n { box-shadow: none; background: var(--tf-ink); color: var(--tf-on-ink); }
+
+.tf-viewport { position: absolute; left: 288px; top: 77px; width: 840px; overflow: hidden; border-radius: 14px; box-shadow: 0 0 0 1px rgb(0 0 0 / .08), 0 30px 70px -24px rgb(0 20 40 / .35); }
+.tf-world { position: absolute; left: 0; top: 0; width: 840px; height: 100%; transform-origin: 0 0; }
+.tf-world .fk-window { box-shadow: none; border-radius: 0; }
+.tf-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.tf-ring { position: absolute; z-index: 5; border-radius: 10px; box-shadow: 0 0 0 3px var(--tf-accent), 0 0 0 9px color-mix(in srgb, var(--tf-accent) 28%, transparent); pointer-events: none; }
+
+.tf-card { position: absolute; inset: 0; z-index: 30; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 0 120px; background: var(--tf-ink); color: var(--tf-on-ink); text-align: center; }
+.tf-card__logo { height: 34px; margin-bottom: 18px; }
+.tf-card__kicker { font-size: 15px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--tf-accent); }
+.tf-card__title { font-size: 54px; font-weight: 700; line-height: 1.08; letter-spacing: -.03em; }
+.tf-card__line { font-size: 20px; color: color-mix(in srgb, var(--tf-on-ink) 72%, transparent); }
