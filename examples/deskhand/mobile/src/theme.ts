@@ -7,7 +7,7 @@ import { previewOs } from './preview';
  * (surface, ink, accent), never literal colours. `npm run sync-brand` refreshes brand.json
  * from the website's contract, so the site and the app share one source.
  */
-type Tokens = typeof brand.tokens.light;
+type Tokens = typeof brand.tokens.light | typeof brand.tokens.dark;
 
 /** Which platform's conventions to follow. The web export follows iOS unless previewing Android. */
 export const os: 'ios' | 'android' = Platform.OS === 'android' || previewOs === 'android' ? 'android' : 'ios';
