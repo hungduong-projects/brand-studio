@@ -35,6 +35,7 @@ One JSON file per film, in the product's repository so it changes with the UI:
   "app": "Claims",
   "title": "Submit an expense claim",
   "url": "claims.example.com",
+  "locale": "en-SG",
   "steps": [
     { "goto": "/", "caption": "Open Claims" },
     { "click": "#new-claim", "caption": "Click New claim" },
@@ -50,6 +51,7 @@ One JSON file per film, in the product's repository so it changes with the UI:
 - Captions are commands of two to six words that name the label on screen exactly.
 - `note` adds one sentence of context to the written guide; the film shows only the caption.
 - A `fill` types its text key by key. A date, month or time input takes the ISO value instead (`2026-10` for October 2026) and gets it in one step, since a browser's date picker drops keys typed across the capture's pauses.
+- Set `locale` to the audience's locale. Text the product formats with `Intl` or `toLocaleDateString` follows it (`en-SG` shows 16/10/2026); without it, headless Chromium formats as `en-US` (10/16/2026). On macOS a native date input ignores it and shows the capture machine's short date format from System Settings.
 - End on a `view` of the result, so the viewer knows what success looks like.
 - Prefer stable selectors (`id`, `data-*`, labels). A capture fails on a missing selector, which also flags a tutorial the UI has outgrown.
 
