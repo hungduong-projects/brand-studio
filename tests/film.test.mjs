@@ -29,3 +29,41 @@ test('the starter film and the intro film bundle for the renderer', async () => 
     assert.equal(errors.length, 0, film);
   }
 });
+
+const tutorial = await (async () => {
+  const file = new URL('../plugins/brand-studio/skills/brand-design/scripts/film/tutorial.tsx', import.meta.url).pathname;
+  const { outputFiles } = await bundle(file, { format: 'esm', platform: 'node', loader: { '.css': 'empty' } });
+  return import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+})();
+
+test('a tutorial plan shows each screen in order and clicks where the capture measured', () => {
+  const manifest = { app: 'Claims', title: 'Submit a claim', url: 'claims.example.com', viewport: [1280, 701], end: '04.jpg', steps: [
+    { caption: 'Open Claims', action: 'goto', shot: '00.jpg' },
+    { caption: 'Click New claim', action: 'click', shot: '01.jpg', box: { x: 1180, y: 20, width: 80, height: 30 } },
+    { caption: 'Enter the amount', action: 'fill', shot: '02.jpg', box: { x: 400, y: 300, width: 200, height: 36 }, typing: ['02a.jpg', '02b.jpg'] },
+    { caption: 'Your claim is pending', action: 'view', shot: '03.jpg', box: { x: 100, y: 500, width: 120, height: 24 } },
+  ] };
+  const plan = tutorial.tutorialPlan(manifest);
+  const times = plan.screens.map(screen => screen.at);
+  assert.deepEqual(times, [...times].sort((a, b) => a - b));
+  // A closing view step acts on nothing, so its own screen is the last one; after an action the end screen follows.
+  assert.deepEqual([...new Set(plan.screens.map(screen => screen.src))], ['00.jpg', '01.jpg', '02.jpg', '02a.jpg', '02b.jpg', '03.jpg']);
+  assert.equal(tutorial.tutorialPlan({ ...manifest, steps: manifest.steps.slice(0, 2) }).screens.at(-1).src, '04.jpg');
+  const click = plan.cursor.find(point => point.click);
+  assert.equal(click.at, plan.steps[1].act - .2);
+  assert.ok(Math.abs(click.x - 1220 * 840 / 1280) < 1e-9 && Math.abs(click.y - (34 + 35 * 840 / 1280)) < 1e-9);
+  assert.equal(plan.cursor.filter(point => point.click).length, 2, 'the view step points without clicking');
+  for (const shot of plan.shots) {
+    assert.ok(shot.x >= 840 / (2 * shot.zoom) - 1e-9 && shot.x <= 840 - 840 / (2 * shot.zoom) + 1e-9, 'the camera keeps the window in frame');
+  }
+  assert.ok(Math.abs(plan.seconds - (plan.steps.at(-1).end + .4 + 2.8)) < 1e-9);
+  // A full-width target gets less zoom, so all of it stays in view.
+  const wide = tutorial.tutorialPlan({ ...manifest, steps: [manifest.steps[0], { ...manifest.steps[3], box: { x: 40, y: 500, width: 1200, height: 60 } }] });
+  const aim = wide.shots.find(shot => shot.at === wide.steps[1].start + .95);
+  assert.ok(1200 * 840 / 1280 <= 840 / aim.zoom, 'the wide target fits the zoomed view');
+});
+
+test('the tutorial film bundles for the renderer', async () => {
+  const { errors } = await bundle(new URL('../plugins/brand-studio/skills/brand-design/scripts/film/tutorial.tsx', import.meta.url).pathname, { format: 'iife', outdir: '/tmp', minify: true });
+  assert.equal(errors.length, 0);
+});

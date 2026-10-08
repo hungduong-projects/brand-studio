@@ -1,6 +1,7 @@
 // Render a product film to MP4 plus a poster frame, or to review stills.
 //
-//   node film-render.mjs --film film/film.tsx [--name intro] [--out DIR] [--site https://example.com] [--fps 30] [--blur 4] [--crf 26] [--stills 2,10,23]
+//   node film-render.mjs --film film/film.tsx [--name intro] [--out DIR] [--site https://example.com] [--fps 30] [--blur 4] [--crf 26] [--stills 2,10,23] [--assets DIR]
+//   node film-render.mjs --tutorial CAPTURE_DIR --theme theme.json [--out DIR] [--blur 1] [--stills 3,6,9]
 //
 // A film is a React file drawn as a pure function of time with film/kit.tsx. It sets `window.film = { seconds, posterAt, pages? }`
 // and `window.seek(t)`, and may set `window.setFrames` and `window.aim` (see assets/film-starter.tsx).
@@ -10,10 +11,13 @@
 // 3. Seeks --blur sub-frames per frame and pipes them to ffmpeg, which averages each group into one frame (motion blur)
 //    and scales to 1920x1080. A 5/3 device scale would land on 1920x1080 directly, but Chromium leaves seams under
 //    rounded boxes at that fractional scale.
+// --assets copies a folder's files next to the bundled film, such as the screens tutorial-capture.mjs writes.
+// --tutorial renders a tutorial-capture.mjs folder with film/tutorial.tsx and needs no film file. --theme is a JSON file of
+// tutorial options: colors, font, outro, logo and fonts [{ family, weight, file }].
 // --stills writes only those moments as PNGs, for review. Run it from the project that holds the film: react, react-dom,
 // esbuild and playwright-core (with a Chromium) load from that project's node_modules. Needs ffmpeg on the PATH.
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -21,14 +25,16 @@ import { pathToFileURL } from 'node:url';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
-const entry = flag('film');
-if (!entry) { console.error('Pass --film <path to film.tsx>.'); process.exit(1); }
-const name = flag('name', path.basename(path.dirname(path.resolve(entry))));
-const out = path.resolve(flag('out', path.join(path.dirname(entry), 'out')));
+const tutorial = flag('tutorial');
+let entry = flag('film');
+if (!entry && !tutorial) { console.error('Pass --film <path to film.tsx>, or --tutorial <capture dir> with --theme <theme.json>.'); process.exit(1); }
+const name = flag('name', path.basename(tutorial ? path.resolve(tutorial) : path.dirname(path.resolve(entry))));
+const out = path.resolve(flag('out', tutorial ? 'out' : path.join(path.dirname(entry), 'out')));
 const site = flag('site', '').replace(/\/$/, '');
 const fps = Number(flag('fps', 30));
 const blur = Number(flag('blur', 4));
 const crf = flag('crf', '26');
+const assets = flag('assets');
 const stills = flag('stills')?.split(',').map(Number);
 const size = 'scale=1920:1080:flags=lanczos';
 
@@ -39,8 +45,26 @@ const { chromium } = load('playwright-core');
 if (spawnSync('ffmpeg', ['-version']).status !== 0) { console.error('ffmpeg is not on the PATH. Install it (brew install ffmpeg) and run again.'); process.exit(1); }
 
 const work = mkdtempSync(path.join(tmpdir(), 'film-'));
+if (tutorial) {
+  const themeFile = flag('theme');
+  if (!themeFile) { console.error('Pass --theme <theme.json> with --tutorial.'); process.exit(1); }
+  const theme = JSON.parse(readFileSync(themeFile, 'utf8'));
+  // A path starting with . is relative to the theme file; any other resolves as a package file, such as @fontsource/inter/files/….
+  const near = file => JSON.stringify(file.startsWith('.') ? path.resolve(path.dirname(themeFile), file) : fromProject.resolve(file));
+  const faces = (theme.fonts ?? []).map(face => `@font-face{font-family:${JSON.stringify(face.family)};font-weight:${face.weight};src:url(${near(face.file)})}`);
+  writeFileSync(path.join(work, 'fonts.css'), faces.join('\n'));
+  entry = path.join(work, 'entry.tsx');
+  writeFileSync(entry, [
+    `import manifest from ${JSON.stringify(path.resolve(tutorial, 'manifest.json'))};`,
+    `import { mountTutorial } from ${JSON.stringify(path.join(import.meta.dirname, 'film', 'tutorial'))};`,
+    theme.logo ? `import logo from ${near(theme.logo)};` : 'const logo = undefined;',
+    `import './fonts.css';`,
+    `mountTutorial(manifest as never, { ...${JSON.stringify(theme)}, logo });`
+  ].join('\n'));
+}
 // nodePaths lets the kit, which lives with this skill, resolve react from the project.
-await build({ entryPoints: { film: path.resolve(entry) }, bundle: true, outdir: work, format: 'iife', jsx: 'automatic', minify: true, nodePaths: [path.join(process.cwd(), 'node_modules')], loader: { '.woff2': 'dataurl', '.woff': 'dataurl' }, define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'warning' });
+await build({ entryPoints: { film: path.resolve(entry) }, bundle: true, outdir: work, format: 'iife', jsx: 'automatic', minify: true, nodePaths: [path.join(process.cwd(), 'node_modules')], loader: { '.woff2': 'dataurl', '.woff': 'dataurl', '.png': 'file', '.jpg': 'file', '.svg': 'file' }, define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'warning' });
+for (const dir of [assets, tutorial].filter(Boolean)) cpSync(path.resolve(dir), work, { recursive: true });
 const css = existsSync(path.join(work, 'film.css')) ? '<link rel="stylesheet" href="film.css">' : '';
 writeFileSync(path.join(work, 'index.html'), `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>html,body{margin:0;width:1152px;height:648px;overflow:hidden}</style>${css}</head><body><div id="film"></div><script src="film.js"></script></body></html>`);
 
