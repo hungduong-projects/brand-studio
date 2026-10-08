@@ -3,7 +3,9 @@ import { AgentPromptButton } from '@/components/agent-prompt';
 import { BrandBoard } from '@/components/brand-board';
 import { CopyButton } from '@/components/copy-button';
 import { IntroFilm } from '@/components/intro-film';
+import { JsonLd } from '@/components/json-ld';
 import { catalog } from '@/lib/catalog';
+import { faq } from '@/lib/faq';
 
 export default function Home() {
   return <main id="main" tabIndex={-1} className="home">
@@ -43,6 +45,11 @@ export default function Home() {
         <img src="/images/mascot/deskhand-contact-sheet.webp" alt="Contact sheet of Deskhand, an ink-black character with a yellow visor, in eight states: welcome, reading, drafting, waiting, sent, missing source, handoff and idle. Each state repeats at three small sizes." width={1384} height={983} loading="lazy" />
         <figcaption>The mascot workflow’s contact sheet for Deskhand, an example product: eight expression states, each checked at small sizes. The <a href="https://github.com/hungduong-projects/brand-studio/blob/main/examples/deskhand/mascot/out/contact-sheet.png">full sheet</a> also reviews dark backgrounds, greyscale and blur.</figcaption>
       </figure>
+    </section>
+    <section className="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Questions about the package</h2>
+      <dl className="faq__list">{faq.map(({ question, answer }) => <div key={question}><dt>{question}</dt><dd>{answer}</dd></div>)}</dl>
+      <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(({ question, answer }) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })) }} />
     </section>
   </main>;
 }
