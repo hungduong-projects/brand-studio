@@ -28,6 +28,7 @@ jobs:
       - run: npm run build
       - run: npm run build:docs
       - run: npm run typecheck
+      - run: npx playwright-core install --with-deps chromium
       - run: npm test
       - run: npm run check:brand
       - run: npm publish --workspace @brand-studio/ui --access public
