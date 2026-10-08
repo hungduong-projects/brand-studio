@@ -15,6 +15,8 @@ export default function ChatThreadDemo() {
   const [turns, setTurns] = useState<Turn[]>([
     { id: 1, from: 'user', text: 'How should I brew the new Huila beans?' },
     { id: 2, from: 'agent', text: 'A pour-over brings out the red fruit. Want the recipe?' },
+    { id: 3, from: 'user', text: 'Yes, for one cup.' },
+    { id: 4, from: 'agent', text: replies[0]! },
   ]);
   const [busy, setBusy] = useState(false);
   const send = (text: string) => {
@@ -24,12 +26,12 @@ export default function ChatThreadDemo() {
     setTimeout(() => { setTurns(list => [...list, { id: list.length + 1, from: 'agent', text: reply }]); setBusy(false); }, 700);
   };
   return (
-    <div style={{ width: '100%', maxWidth: 560, height: 440, display: 'grid', gridTemplateRows: '1fr auto', gap: 12 }}>
+    <div style={{ width: '100%', maxWidth: 560, height: 560, display: 'grid', gridTemplateRows: '1fr auto', gap: 12 }}>
       <ChatThread label="Brew assistant">
         {turns.map(turn => (
           <ChatMessage key={turn.id} from={turn.from} name={turn.from === 'user' ? 'You' : 'Brew assistant'} avatar={turn.from === 'agent' ? 'B' : undefined}
             actions={turn.from === 'agent' ? <MessageActions copyText={turn.text} /> : undefined}>
-            {turn.from === 'agent' && turn.id > 2 ? <StreamingText text={turn.text} /> : <p>{turn.text}</p>}
+            {turn.from === 'agent' && turn.id > 4 ? <StreamingText text={turn.text} /> : <p>{turn.text}</p>}
           </ChatMessage>
         ))}
       </ChatThread>

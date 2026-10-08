@@ -8,7 +8,7 @@ import { brands, brandKeys, type BrandKey } from '@/lib/brands';
 import { Contrast } from 'lucide-react';
 
 type Mode = 'light' | 'dark';
-interface DemoBrand { brand: BrandKey; mode: Mode; set: (next: Partial<{ brand: BrandKey; mode: Mode }>) => void }
+interface DemoBrand { brand: BrandKey; mode: Mode; set: (next: Partial<{ brand: BrandKey; mode: Mode }>, animate?: boolean) => void }
 
 const DemoBrandContext = createContext<DemoBrand | null>(null);
 const storageKey = 'bs-docs-demo';
@@ -26,14 +26,15 @@ export function DemoBrandProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const set: DemoBrand['set'] = (next) => {
+  // `animate: false` applies the change at once, for callers that run their own view transition.
+  const set: DemoBrand['set'] = (next, animate = true) => {
     const apply = () => flushSync(() => setState((current) => {
       const updated = { ...current, ...next };
       localStorage.setItem(storageKey, JSON.stringify(updated));
       document.documentElement.classList.toggle('dark', updated.mode === 'dark');
       return updated;
     }));
-    if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(apply);
+    if (animate && document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(apply);
     else apply();
   };
 
