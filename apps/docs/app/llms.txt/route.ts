@@ -1,4 +1,6 @@
+import pkg from '../../../../packages/ui/package.json';
 import { catalog, categories, guides } from '@/lib/catalog';
+import { faq } from '@/lib/faq';
 import { markdownHref, origin } from '@/lib/markdown';
 import { source } from '@/lib/source';
 
@@ -12,6 +14,12 @@ export function GET() {
     '',
     '> React components that take their colours, type and shape from a brand contract. Install with `npm install @brand-studio/ui`, import `@brand-studio/ui/styles.css` once and wrap the app in `BrandTheme`.',
     '',
+    `- Package: \`${pkg.name}\` ${pkg.version} on npm (https://www.npmjs.com/package/${pkg.name}), MIT licence`,
+    '- Peer dependencies: React and React DOM 18.3 or 19',
+    `- Components: ${catalog.length} in ${categories.length} groups`,
+    '- Source: https://github.com/hungduong-projects/brand-studio',
+    '',
+    ...faq.flatMap(({ question, answer }) => [`**${question}** ${answer}`, '']),
     `Every page below is Markdown. The whole set is in one file at ${origin}/llms-full.txt.`,
     '',
     '## Getting Started',

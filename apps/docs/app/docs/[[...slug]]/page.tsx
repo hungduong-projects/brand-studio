@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { JsonLd } from '@/components/json-ld';
 import { mdxComponents } from '@/components/mdx';
 import { Pager, PagerArrows } from '@/components/pager';
 import { Toc } from '@/components/toc';
-import { markdownHref } from '@/lib/markdown';
+import { markdownHref, origin } from '@/lib/markdown';
 import { source } from '@/lib/source';
 
 export const dynamicParams = false;
@@ -23,7 +24,16 @@ export default async function DocsPage({ params }: { params: Promise<{ slug?: st
   if (!page) notFound();
   const Body = page.data.body;
   const href = page.url.endsWith('/') ? page.url : `${page.url}/`;
+  const crumbs = [['Brand Studio UI', '/'], ['Docs', '/docs/'], ...(href === '/docs/' ? [] : [[page.data.title, href]])];
+  const data = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'TechArticle', headline: page.data.title, description: page.data.description, url: `${origin}${href}`, isPartOf: { '@id': `${origin}/#website` }, about: { '@id': `${origin}/#package` } },
+      { '@type': 'BreadcrumbList', itemListElement: crumbs.map(([name, path], index) => ({ '@type': 'ListItem', position: index + 1, name, item: `${origin}${path}` })) },
+    ],
+  };
   return <>
+    <JsonLd data={data} />
     <main id="main" tabIndex={-1} className="docs-main">
       <div className="docs-head">
         <div className="docs-head__row">

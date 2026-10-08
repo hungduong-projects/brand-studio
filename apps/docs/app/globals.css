@@ -266,7 +266,7 @@ html.board-reveal::view-transition-new(brand-board) { animation: board-reveal 85
 .film__toggle:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
 .film figcaption { margin-top: .75rem; font-size: .85rem; color: var(--muted-foreground); text-wrap: pretty; }
 .asset-workflows { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
-.asset-workflows h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; }
+.asset-workflows h2, .faq h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; }
 .asset-workflows__intro p { margin: 1rem 0 1.5rem; max-width: 34rem; color: var(--muted-foreground); }
 .asset-workflows__list { margin: 0; }
 .asset-workflows__list > div { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
@@ -279,6 +279,13 @@ html.board-reveal::view-transition-new(brand-board) { animation: board-reveal 85
 .asset-workflows__sheet figcaption { padding: .6rem .9rem; border-top: 1px solid var(--border); font-size: .8rem; color: var(--muted-foreground); text-wrap: pretty; }
 .asset-workflows__sheet figcaption a { color: var(--foreground); text-underline-offset: 3px; }
 @media (max-width: 767px) { .asset-workflows { grid-template-columns: minmax(0, 1fr); margin-top: 3rem; padding-top: 2rem; } }
+.faq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
+.faq__list { margin: 0; }
+.faq__list > div { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+.faq__list > div:first-child { padding-top: 0; }
+.faq dt { font-weight: 600; }
+.faq dd { margin: .35rem 0 0; color: var(--muted-foreground); text-wrap: pretty; }
+@media (max-width: 767px) { .faq { grid-template-columns: minmax(0, 1fr); margin-top: 3rem; padding-top: 2rem; } }
 
 /* Demo helpers */
 .demo-trail { display: grid; place-items: center; min-height: 26rem; padding: 2rem; }
