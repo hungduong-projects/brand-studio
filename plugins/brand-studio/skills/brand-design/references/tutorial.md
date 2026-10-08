@@ -49,6 +49,7 @@ One JSON file per film, in the product's repository so it changes with the UI:
 - One action per step. Start with `goto` and navigate by clicks after it, as the viewer would.
 - Captions are commands of two to six words that name the label on screen exactly.
 - `note` adds one sentence of context to the written guide; the film shows only the caption.
+- A `fill` types its text key by key. A date, month or time input takes the ISO value instead (`2026-10` for October 2026) and gets it in one step, since a browser's date picker drops keys typed across the capture's pauses.
 - End on a `view` of the result, so the viewer knows what success looks like.
 - Prefer stable selectors (`id`, `data-*`, labels). A capture fails on a missing selector, which also flags a tutorial the UI has outgrown.
 
