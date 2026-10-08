@@ -86,12 +86,18 @@ for (const [i, step] of script.steps.entries()) {
   if (action === 'press') await page.keyboard.press(selector);
   if (action === 'fill') {
     await target.click();
-    await target.fill('');
     record.typing = [];
-    const every = Math.max(1, Math.ceil(step.text.length / 12));
-    for (let n = 1; n <= step.text.length; n++) {
-      await page.keyboard.type(step.text[n - 1]);
-      if (n % every === 0 || n === step.text.length) record.typing.push(await shoot());
+    // A date or month picker drops keys typed across the pauses for screenshots, so it takes the ISO value at once.
+    if (await target.evaluate(el => ['date', 'month', 'week', 'time', 'datetime-local'].includes(el.type))) {
+      await target.fill(step.text);
+      record.typing.push(await shoot());
+    } else {
+      await target.fill('');
+      const every = Math.max(1, Math.ceil(step.text.length / 12));
+      for (let n = 1; n <= step.text.length; n++) {
+        await page.keyboard.type(step.text[n - 1]);
+        if (n % every === 0 || n === step.text.length) record.typing.push(await shoot());
+      }
     }
   }
   if (action !== 'goto') await settle(step);
