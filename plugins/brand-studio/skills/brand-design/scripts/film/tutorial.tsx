@@ -76,6 +76,12 @@ export function tutorialPlan(manifest: TutorialManifest) {
   return { steps, screens, shots, cursor, rings, scale, height, outro: at + .4, seconds: at + .4 + OUTRO };
 }
 
+/** One caption cue per step for the film's WebVTT track: the caption, then the note on a second line. */
+export function tutorialCues(manifest: TutorialManifest) {
+  const { steps } = tutorialPlan(manifest);
+  return manifest.steps.map((step, i) => ({ start: steps[i].start, end: steps[i].end, text: step.note ? `${step.caption}\n${step.note}` : step.caption }));
+}
+
 function Rail({ t, manifest, plan }: { t: number; manifest: TutorialManifest; plan: ReturnType<typeof tutorialPlan> }) {
   const current = plan.steps.findLastIndex(step => t >= step.start);
   const progress = current < 0 ? 0 : Math.min(1, (current + Math.min(1, (t - plan.steps[current].start) / (plan.steps[current].end - plan.steps[current].start))) / plan.steps.length);
@@ -143,8 +149,8 @@ export function mountTutorial(manifest: TutorialManifest, options: TutorialOptio
   </div>;
 
   const root = createRoot(document.getElementById('film')!);
-  const film = window as unknown as { film: { seconds: number; posterAt: number }; seek: (t: number) => Promise<void> };
-  film.film = { seconds: plan.seconds, posterAt: plan.steps[Math.min(1, plan.steps.length - 1)].act + .8 };
+  const film = window as unknown as { film: { seconds: number; posterAt: number; cues: ReturnType<typeof tutorialCues> }; seek: (t: number) => Promise<void> };
+  film.film = { seconds: plan.seconds, posterAt: plan.steps[Math.min(1, plan.steps.length - 1)].act + .8, cues: tutorialCues(manifest) };
   film.seek = async t => {
     flushSync(() => root.render(<Film t={t} />));
     await Promise.all([...document.images].map(image => image.decode().catch(() => undefined)));

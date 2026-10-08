@@ -1,10 +1,11 @@
-// Render a product film to MP4 plus a poster frame, or to review stills.
+// Render a product film to MP4 plus a poster frame and, when the film sets cues, a WebVTT captions file; or to review stills.
 //
 //   node film-render.mjs --film film/film.tsx [--name intro] [--out DIR] [--site https://example.com] [--fps 30] [--blur 4] [--crf 26] [--stills 2,10,23] [--assets DIR]
 //   node film-render.mjs --tutorial CAPTURE_DIR --theme theme.json [--out DIR] [--blur 1] [--stills 3,6,9]
 //
-// A film is a React file drawn as a pure function of time with film/kit.tsx. It sets `window.film = { seconds, posterAt, pages? }`
-// and `window.seek(t)`, and may set `window.setFrames` and `window.aim` (see assets/film-starter.tsx).
+// A film is a React file drawn as a pure function of time with film/kit.tsx. It sets `window.film = { seconds, posterAt, pages?, cues? }`
+// and `window.seek(t)`, and may set `window.setFrames` and `window.aim` (see assets/film-starter.tsx). `cues` is
+// [{ start, end, text }] in seconds; the tutorial template sets one cue per step.
 // 1. Captures each page in `film.pages` from --site, one screenshot per film frame while it scrolls, and hands them to setFrames.
 // 2. Bundles the film with esbuild and opens it in headless Chromium at 1152x648 with a 2x device scale. Calls aim, so cursor
 //    stops land on their real targets.
@@ -127,7 +128,11 @@ if (stills) {
   await done;
   const poster = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'png_pipe', '-i', '-', '-vf', size, '-q:v', '3', path.join(out, `${name}.jpg`)], { input: await shot(film.posterAt) });
   if (poster.status !== 0) throw new Error(`poster export failed: ${poster.stderr}`);
-  console.log(`\nWrote ${name}.mp4 and ${name}.jpg to ${out}`);
+  // WebVTT cue text treats & and < as markup, so escape them; timestamps are hh:mm:ss.mmm.
+  const stamp = seconds => new Date(Math.round(seconds * 1000)).toISOString().slice(11, 23);
+  const escape = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (film.cues?.length) writeFileSync(path.join(out, `${name}.vtt`), ['WEBVTT', ...film.cues.map(cue => `${stamp(cue.start)} --> ${stamp(cue.end)}\n${escape(cue.text)}`)].join('\n\n') + '\n');
+  console.log(`\nWrote ${name}.mp4, ${name}.jpg${film.cues?.length ? ` and ${name}.vtt` : ''} to ${out}`);
 }
 await browser.close();
 rmSync(work, { recursive: true, force: true });
