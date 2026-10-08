@@ -1,16 +1,18 @@
 version: 2
-multi-ecosystem-groups:
-  dependencies:
-    schedule:
-      interval: weekly
 updates:
   - package-ecosystem: npm
     directory: /
-    patterns: ["*"]
-    multi-ecosystem-group: dependencies
+    schedule:
+      interval: weekly
+    groups:
+      npm:
+        patterns: ["*"]
     open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
-    patterns: ["*"]
-    multi-ecosystem-group: dependencies
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
     open-pull-requests-limit: 5
