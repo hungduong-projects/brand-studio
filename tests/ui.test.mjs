@@ -322,7 +322,7 @@ test('recommendation card writes confidence in words and keeps alternatives clos
 test('voice pieces say their state in words and keep guesses away from screen readers', () => {
   const orb = render(h(VoiceOrb, { state: 'speaking', level: 3 }));
   assert.match(orb, /role="status"/);
-  assert.match(orb, /--level:1.000/);
+  assert.match(orb, /<canvas class="bs-orb__canvas" aria-hidden="true"/);
   assert.match(orb, /Speaking/);
   const button = render(h(DictationButton, { mode: 'hold' }));
   assert.match(button, /aria-pressed="false" aria-label="Hold to talk"/);
