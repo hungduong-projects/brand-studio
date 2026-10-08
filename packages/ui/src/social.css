@@ -1,0 +1,63 @@
+/* Social */
+.bs-post { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: .75rem; padding: 1rem 1.1rem .5rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 8px); background: var(--bs-elevated); color: var(--bs-ink); font-size: .95rem; }
+.bs-post__avatar { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; background: var(--bs-accent-soft); color: var(--bs-accent-text); font-weight: 600; }
+.bs-post__avatar img, .bs-stories__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.bs-post__main { display: grid; gap: .35rem; min-width: 0; }
+.bs-post__head { display: flex; align-items: center; gap: .3rem; min-width: 0; color: var(--bs-muted); font-size: .9rem; white-space: nowrap; }
+.bs-post__name { overflow: hidden; text-overflow: ellipsis; color: var(--bs-ink); font-weight: 700; }
+.bs-post__handle { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bs-post__verified { flex: none; color: var(--bs-accent); }
+.bs-post__body { line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; text-wrap: pretty; }
+.bs-post__link { color: var(--bs-accent-text); text-decoration: none; }
+a.bs-post__link:hover { text-decoration: underline; }
+.bs-post__media { margin-top: .4rem; aspect-ratio: 16 / 10; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 6px); }
+.bs-post__actions { display: flex; justify-content: space-between; max-width: 26rem; margin-inline-start: -.5rem; color: var(--bs-muted); }
+.bs-post__action, .bs-post__stat { display: inline-flex; align-items: center; gap: .3rem; min-height: 2.25rem; padding: 0 .5rem; border: 0; border-radius: 999px; background: transparent; color: inherit; font: 500 .8rem/1 var(--bs-font); font-variant-numeric: tabular-nums; }
+.bs-post__action { cursor: pointer; transition: color var(--bs-duration-fast) var(--bs-ease), background-color var(--bs-duration-fast) var(--bs-ease); }
+.bs-post__action:hover, .bs-post__action[aria-pressed="true"] { color: var(--bs-accent-text); }
+.bs-post__action:hover { background: var(--bs-accent-soft); }
+.bs-post__action[aria-pressed="true"] svg { animation: bs-like-pop 450ms var(--bs-ease-spring); }
+.bs-post__action[data-kind="like"][aria-pressed="true"] svg { fill: currentColor; }
+@keyframes bs-like-pop { 40% { scale: 1.35; } }
+
+.bs-post-thread { margin: 0; padding: 0; list-style: none; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) + 8px); background: var(--bs-elevated); }
+.bs-post-thread > li { position: relative; }
+.bs-post-thread .bs-post { border: 0; border-radius: 0; background: transparent; }
+/* The line runs from under one avatar to just above the next. */
+.bs-post-thread > li:not(:last-child)::after { content: ''; position: absolute; left: calc(1.1rem + 1.25rem - 1px); top: 3.8rem; bottom: -.7rem; width: 2px; border-radius: 2px; background: var(--bs-line); }
+
+.bs-stories { position: relative; isolation: isolate; width: 100%; max-width: 24rem; aspect-ratio: 9 / 16; overflow: hidden; border-radius: calc(var(--bs-radius) + 16px); background: var(--bs-ink); color: #fff; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; box-shadow: 0 30px 60px -30px rgb(0 0 0 / .55); }
+.bs-stories:focus-visible { outline-offset: 4px; }
+.bs-stories__slides, .bs-stories__slide { position: absolute; inset: 0; }
+.bs-stories__slide .bs-picture { height: 100%; }
+.bs-stories__slide:not([hidden]) { animation: bs-story-in var(--bs-duration) var(--bs-ease-out); }
+.bs-stories__slide:not([hidden]) img { animation: bs-story-drift var(--bs-story-duration) linear forwards; }
+@keyframes bs-story-in { from { opacity: 0; } }
+@keyframes bs-story-drift { to { scale: 1.08; } }
+.bs-stories__caption { position: absolute; inset: auto 0 0; display: grid; gap: .35rem; padding: 4rem 1.25rem 1.4rem; background: linear-gradient(transparent, rgb(0 0 0 / .72)); font-size: .92rem; line-height: 1.45; text-wrap: pretty; }
+.bs-stories__caption p { margin: 0; }
+.bs-stories__title { font: 600 1.45rem/1.15 var(--bs-voice-font); text-wrap: balance; }
+.bs-stories__tap { position: absolute; inset-block: 0; z-index: 1; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.bs-stories__tap[data-side="previous"] { left: 0; width: 33%; }
+.bs-stories__tap[data-side="next"] { right: 0; width: 67%; }
+.bs-theme .bs-stories__tap:focus-visible { outline: 3px solid #fff; outline-offset: -6px; border-radius: inherit; }
+.bs-stories__top { position: absolute; inset: 0 0 auto; z-index: 2; display: grid; gap: .7rem; padding: .75rem .75rem 2.75rem; background: linear-gradient(rgb(0 0 0 / .5), transparent); pointer-events: none; }
+.bs-stories__top, .bs-stories__caption { transition: opacity var(--bs-duration) var(--bs-ease); }
+.bs-stories[data-holding] :is(.bs-stories__top, .bs-stories__caption) { opacity: 0; }
+.bs-stories__bars { display: flex; gap: 4px; }
+.bs-stories__bar { flex: 1; height: 3px; overflow: hidden; border-radius: 3px; background: rgb(255 255 255 / .35); }
+.bs-stories__fill { display: block; height: 100%; background: #fff; transform-origin: left; }
+.bs-stories__fill[data-current] { animation: bs-story-fill var(--bs-story-duration) linear forwards; }
+@keyframes bs-story-fill { from { scale: 0 1; } }
+.bs-stories[data-paused] :is(.bs-stories__fill, .bs-stories__slide img) { animation-play-state: paused; }
+.bs-stories__head { display: flex; align-items: center; gap: .55rem; font-size: .85rem; }
+.bs-stories__avatar { display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; overflow: hidden; border-radius: 50%; background: var(--bs-accent); color: var(--bs-on-accent); box-shadow: 0 0 0 2px var(--bs-ink), 0 0 0 4px var(--bs-accent); font-weight: 600; }
+.bs-stories__name { font-weight: 600; }
+.bs-stories__time { opacity: .75; }
+.bs-stories__toggle { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; margin-inline-start: auto; padding: 0; border: 0; border-radius: 50%; background: rgb(255 255 255 / .16); color: #fff; cursor: pointer; pointer-events: auto; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.bs-theme .bs-stories__toggle:focus-visible { outline-color: #fff; outline-offset: 2px; }
+/* The bar is the only way to see time pass, so it keeps running when motion is reduced; the viewer starts paused instead. */
+@media (prefers-reduced-motion: reduce) {
+  .bs-theme .bs-stories__fill[data-current] { animation: bs-story-fill var(--bs-story-duration) linear forwards !important; }
+  .bs-theme .bs-stories[data-paused] .bs-stories__fill[data-current] { animation-play-state: paused !important; }
+}

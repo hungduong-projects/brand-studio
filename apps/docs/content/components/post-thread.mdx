@@ -1,0 +1,35 @@
+---
+title: Post Thread
+description: "Posts that answer one another, in order, joined by a line between their avatars."
+---
+
+<Preview name="post-thread/default" />
+
+## Installation
+
+<Install name="PostThread" />
+
+## Usage
+
+```tsx
+import { PostThread, SocialPost } from '@brand-studio/ui';
+```
+
+```tsx
+<PostThread label="Brewing the Huila lot">
+  <SocialPost author={still} time="3h">Two changes for the Huila lot, from this morning's cupping.</SocialPost>
+  <SocialPost author={still} time="3h">Grind one step coarser.</SocialPost>
+  <SocialPost author={maren} time="1h">{'@stillcoffee Tried both at home. Sweeter, less bite.'}</SocialPost>
+</PostThread>
+```
+
+Put `SocialPost` items inside, oldest first. The thread draws one frame around them and a line from each avatar down to the next, so a reader can follow who answered whom.
+
+## Accessibility
+
+- The thread is an ordered list named by `label`, so screen readers announce how many posts it holds and where each one sits.
+- Each post keeps its own article name, buttons and links.
+
+## API Reference
+
+<Props name="PostThread" />
