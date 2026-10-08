@@ -12,7 +12,7 @@ export default function VoiceOrbDemo() {
   const [level, setLevel] = useState(0);
   // Without the microphone, a made-up voice drives the level.
   useEffect(() => {
-    if (mic || state !== 'listening') { if (!mic) setLevel(0); return; }
+    if (mic || (state !== 'listening' && state !== 'speaking')) { if (!mic) setLevel(0); return; }
     let frame = 0;
     const tick = (time: number) => { setLevel(Math.max(0, Math.sin(time / 180) * Math.sin(time / 530)) * 0.9); frame = requestAnimationFrame(tick); };
     frame = requestAnimationFrame(tick);

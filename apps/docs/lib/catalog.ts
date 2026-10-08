@@ -57,7 +57,7 @@ export const catalog: Entry[] = [
   { slug: 'source-cards', exports: ['SourceCards'], title: 'Source Cards', category: 'AI agents', description: 'What the agent retrieved, numbered to match its citations.' },
   { slug: 'selection-actions', exports: ['SelectionActions'], title: 'Selection Actions', category: 'AI agents', description: 'Select text and a bar of agent actions appears under it.' },
   { slug: 'recommendation-card', exports: ['RecommendationCard'], title: 'Recommendation Card', category: 'AI agents', description: 'The agent’s pick with how sure it is, why, and the alternatives you can promote.' },
-  { slug: 'voice-orb', exports: ['VoiceOrb'], title: 'Voice Orb', category: 'AI agents', description: 'The face of a voice agent: rings that swell with the voice, circle while thinking and ripple while speaking.' },
+  { slug: 'voice-orb', exports: ['VoiceOrb'], title: 'Voice Orb', category: 'AI agents', description: 'The face of a voice agent: a sphere of ink dots that waves with the voice, orbits while thinking and ripples while speaking.' },
   { slug: 'dictation-button', exports: ['DictationButton'], title: 'Dictation Button', category: 'AI agents', description: 'A microphone button whose bars follow your voice, to toggle or hold to talk.' },
   { slug: 'live-transcript', exports: ['LiveTranscript'], title: 'Live Transcript', category: 'AI agents', description: 'Words as they are spoken, with the unsettled guess faded after them.' },
   { slug: 'border-beam', exports: ['BorderBeam'], title: 'Border Beam', category: 'Effects', description: 'A light that travels around the edge of a card.', base: 'HTMLAttributes<HTMLDivElement>' },
