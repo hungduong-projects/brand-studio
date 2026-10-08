@@ -35,6 +35,7 @@ Read only the references required by the task:
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
 - Mascot or brand character with expression states: [mascot.md](references/mascot.md), with its drawing style from [mascot-styles.md](references/mascot-styles.md).
 - UI icon set in an outline, solid or duotone style, app icon or favicon: [icons.md](references/icons.md).
+- Proportion, curves, symmetry, detail or novelty in a mascot, icon or 3D object: [aesthetics.md](references/aesthetics.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - Mobile app for iOS and Android: [mobile-app.md](references/mobile-app.md).
