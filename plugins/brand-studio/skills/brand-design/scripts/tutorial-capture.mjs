@@ -39,7 +39,7 @@ try { ({ chromium } = fromProject('playwright-core')); } catch { console.error('
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
-// Native date inputs and locale-formatted text follow the browser's locale, so the film shows the audience's format, not the capture machine's.
+// Locale-formatted text (Intl, toLocaleDateString) follows the context's locale, so the film shows the audience's format. On macOS a native date input still follows the system's short date format.
 const context = await browser.newContext({ viewport, deviceScaleFactor: 2, reducedMotion: 'reduce', locale: script.locale });
 if (setup) await (await import(pathToFileURL(path.resolve(setup)).href)).default(context, base);
 const page = await context.newPage();
