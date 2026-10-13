@@ -39,7 +39,9 @@ test('streamed and revealed text is complete in server HTML and read once', () =
   assert.match(reveal, />Every<\/span> <span[^>]*>cup<\/span> <span[^>]*>starts<\/span> <span[^>]*>here<\/span>/);
 });
 test('agent states announce status in words, not only colour or motion', () => {
-  assert.match(render(h(AgentThinking, { state: 'listening' })), /role="status".*Listening/);
+  const agent = render(h(AgentThinking, { state: 'listening', size: 28 }));
+  assert.match(agent, /role="status".*Listening/);
+  assert.match(agent, /--bs-agent-size:28px.*<canvas class="bs-agent__orb" aria-hidden="true"/);
   const trace = render(h(ThinkingTrace, { steps: [{ id: 'a', title: 'Read brief', status: 'done' }, { id: 'b', title: 'Draft', status: 'active' }] }));
   assert.match(trace, /<details/);
   assert.match(trace, /Thinking/);
