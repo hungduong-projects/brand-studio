@@ -215,7 +215,8 @@
 @media (prefers-reduced-motion: reduce) { .bs-panels__item { transition: none; } }
 
 .bs-deck { display: grid; gap: 1.5rem; justify-items: center; outline: none; }
-.bs-deck__stack { position: relative; list-style: none; margin: 0; padding: 0; width: min(100%, 22rem); aspect-ratio: 3/4; }
+/* The two cards behind hang up to 2.1rem below the stack; the bottom margin keeps them clear of the buttons. */
+.bs-deck__stack { position: relative; list-style: none; margin: 0 0 2.1rem; padding: 0; width: min(100%, 22rem); aspect-ratio: 3/4; }
 .bs-deck__card { --dx: 0px; --depth: 0; position: absolute; inset: 0; display: grid; grid-template-rows: 1fr auto; overflow: hidden; border: 1px solid var(--bs-line-soft); border-radius: calc(var(--bs-radius) + 10px); background: var(--bs-elevated); box-shadow: 0 20px 40px -24px rgb(0 0 0 / .35);
   translate: calc(var(--dx)) calc(var(--depth) * .75rem); rotate: var(--rot, 0deg); scale: calc(1 - var(--depth) * .05); transform-origin: 50% 120%;
   transition: translate 420ms var(--bs-ease-spring), rotate 420ms var(--bs-ease-spring), scale 420ms var(--bs-ease-out); user-select: none; touch-action: pan-y; }
