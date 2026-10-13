@@ -1,6 +1,6 @@
 ---
 title: Agent Thinking
-description: "A square dot matrix that shows whether an agent is idle, listening, thinking or speaking."
+description: "A small orb of ink dots with a status line beside it, for an agent that is idle, listening, thinking or speaking."
 ---
 
 <Preview name="agent-thinking/default" />
@@ -23,14 +23,14 @@ import { AgentThinking } from '@brand-studio/ui';
 
 ### Sizes
 
-`size` sets the width in pixels. Below 40 pixels the grid uses fewer, larger dots so it stays legible next to text.
+`size` sets the orb's width in pixels. Below 64 pixels it draws fewer dots so it stays crisp next to text.
 
 <Preview name="agent-thinking/sizes" />
 
 ## Accessibility
 
 - The component has `role="status"`. With `label` it shows and announces that text; without it, screen readers hear the state name.
-- Each state moves differently, so it does not rely on colour alone. Under reduced motion the dots hold still and the label stays.
+- Each state has its own shape and motion, so it does not rely on colour alone. The orb pauses off screen. Under reduced motion the dots hold still and the label stays.
 
 ## API Reference
 
