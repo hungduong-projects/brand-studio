@@ -1,34 +1,21 @@
 "use client";
 
 import type { CSSProperties, ElementType, ReactNode } from 'react';
+import { useOrb } from './orb.js';
 
 type AgentState = 'idle' | 'listening' | 'thinking' | 'speaking';
 const agentLabels: Record<AgentState, string> = { idle: 'Idle', listening: 'Listening', thinking: 'Thinking', speaking: 'Speaking' };
 
-/** Dot positions on a square grid, with each dot's column, ring and angle normalised to 0..1 so CSS can stagger it per state. Rings are square too. */
-function discDots(columns: number) {
-  const centre = (columns - 1) / 2;
-  const dots: CSSProperties[] = [];
-  for (let row = 0; row < columns; row++) for (let column = 0; column < columns; column++) {
-    const x = column - centre, y = row - centre;
-    const distance = Math.max(Math.abs(x), Math.abs(y)) / centre;
-    dots.push({ left: `${((column + .5) / columns * 100).toFixed(2)}%`, top: `${((row + .5) / columns * 100).toFixed(2)}%`, '--x': (column / (columns - 1)).toFixed(3), '--r': distance.toFixed(3), '--a': ((Math.atan2(y, x) / (2 * Math.PI) + 1) % 1).toFixed(3) } as CSSProperties);
-  }
-  return dots;
-}
-const smallDisc = discDots(5);
-const largeDisc = discDots(9);
-
 /**
- * A square dot matrix that shows what an agent is doing: a sweep while thinking, a wave while listening,
- * rings while speaking and a slow breath when idle. CSS only; reduced motion shows still dots and the label.
+ * An agent's status line: a small sphere of ink dots with a label beside it. A wave runs through the dots while listening,
+ * they orbit while thinking, ripples spread while speaking and a ring breathes when idle. It pauses off screen; reduced
+ * motion shows still dots and the label.
  */
 export function AgentThinking({ state = 'thinking', size = 64, label, className = '' }: { state?: AgentState; size?: number; label?: string; className?: string }) {
-  const dots = size < 40 ? smallDisc : largeDisc;
-  return <div role="status" className={`bs-agent ${className}`} data-state={state}>
-    <span className="bs-agent__disc" aria-hidden="true" style={{ '--bs-agent-size': `${size}px`, '--bs-agent-columns': dots === smallDisc ? 5 : 9 } as CSSProperties}>
-      {dots.map((style, index) => <i key={index} style={style} />)}
-    </span>
+  // There is no microphone here, so a steady middle level keeps the listening wave and the speaking ripples easy to tell apart.
+  const canvas = useOrb(state, .5);
+  return <div role="status" className={`bs-agent ${className}`} data-state={state} style={{ '--bs-agent-size': `${size}px` } as CSSProperties}>
+    <canvas ref={canvas} className="bs-agent__orb" aria-hidden="true" />
     {label ? <span className="bs-agent__label">{label}</span> : <span className="bs-sr-only">{agentLabels[state]}</span>}
   </div>;
 }
