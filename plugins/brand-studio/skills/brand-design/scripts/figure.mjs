@@ -2,15 +2,17 @@
 // Check and export an explainer figure: an isometric drawing of a working object, built from a parts list, that steps
 // through how a system works in the brand's tokens.
 //
-//   node figure.mjs <dir>/figure.json [--out DIR]
+//   node figure.mjs <dir>/figure.json [--out DIR] [--video]
 //
 // Paths in the spec resolve from its folder. Writes figure.html (standalone, light and dark, keyboard and touch),
 // figure.svg (the poster step in presentation attributes), poster.png, phone.png and sheet.png (every step in both
-// themes) to <dir>/out. Exits with an error after writing them when parts pass through each other at a step or during a
-// move, a part floats, the depth order has a cycle, the lit part is too small on a 390 px phone, or the page
-// overflows, clips text, has a small tap target or draws a step differently from the audit.
+// themes) to <dir>/out. --video adds figure.mp4, the page walking through every step. Exits with an error after writing
+// them when parts pass through each other at a step or during a move, a part floats, the depth order has a cycle, the
+// lit part is too small on a 390 px phone, or the page overflows, clips text, has a small tap target, draws a step
+// differently from the audit or does not follow a swipe, Play or a seek.
 //
-// Needs playwright-core and a Chromium (`npx playwright-core install chromium`).
+// Needs playwright-core and a Chromium (`npx playwright-core install chromium`). --video needs ffmpeg on the PATH.
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -31,6 +33,8 @@ const LEVELS = 16;
 /** Stage width on a 390 px phone: the viewport less the page and card padding the page CSS sets. */
 export const PHONE_STAGE = 326;
 const MIN_LIT = 24;
+/** The film of the tour: seconds a step holds, seconds it takes to reach the next, and frames per second. */
+const HOLD = 1.6, MOVE = 0.9, FPS = 30;
 
 const num = v => typeof v === 'number' && Number.isFinite(v);
 const vec = v => Array.isArray(v) && v.length === 3 && v.every(num);
@@ -359,7 +363,16 @@ export function figureCss(brand) {
 .bsf *{box-sizing:border-box}
 .bsf-card{background:var(--bsf-elevated);border:1px solid var(--bsf-line);border-radius:var(--bsf-radius);padding:15px}
 .bsf-head{display:flex;justify-content:space-between;gap:12px;margin:0 0 4px;font:11px/1.3 var(--bsf-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--bsf-muted)}
+.bsf-stage{touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+.bsf-stage:active{cursor:grabbing}
 .bsf-stage svg{display:block;width:100%;height:auto;overflow:visible}
+.bsf-play{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 10px;margin:4px 0 -6px -10px;border-radius:calc(var(--bsf-radius)*.66);font:11px/1 var(--bsf-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--bsf-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bsf-play[hidden]{display:none}
+.bsf-play:hover{color:var(--bsf-ink)}
+.bsf-play:focus-visible{outline:2px solid var(--bsf-ink);outline-offset:-2px}
+.bsf-play svg{width:12px;height:12px;fill:currentColor}
+.bsf-play path:last-child,.bsf-play.is-on path:first-child{display:none}
+.bsf-play.is-on path:last-child{display:inline}
 .bsf-steps{display:grid;gap:2px;margin:10px 0 0}
 .bsf-steps button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:22px 1fr;gap:1px 10px;align-items:center;width:100%;min-height:44px;padding:7px 10px;border-radius:calc(var(--bsf-radius)*.66);color:var(--bsf-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .bsf-steps button:focus-visible{outline:2px solid var(--bsf-ink);outline-offset:2px}
@@ -404,15 +417,17 @@ function pageData(spec, model) {
 
 // The step list is a tablist: arrow keys, Home and End move between steps. The drawing follows the selected step on a
 // critically damped spring, so a jump over several steps plays each one in between and never cuts through a part.
+// A sideways drag on the drawing scrubs between steps and settles on the nearest. Play walks to the last step and stops.
+// A host page can scrub it too: dispatch a figure:seek event on the <figure> with detail 0 to steps - 1.
 function live(id, data) {
-  const fig = document.getElementById(id), art = fig.querySelector('.bsf-art'), tabs = [...fig.querySelectorAll('[role=tab]')];
-  const parts = data.parts.map(p => document.getElementById(`${id}-${p}`)), still = matchMedia('(prefers-reduced-motion: reduce)');
-  const last = data.steps.length - 1;
-  let pos = 0, speed = 0, target = 0, frame = 0, then = 0, drawn = -1;
+  const fig = document.getElementById(id), art = fig.querySelector('.bsf-art'), stage = fig.querySelector('.bsf-stage'), play = fig.querySelector('.bsf-play');
+  const tabs = [...fig.querySelectorAll('[role=tab]')], parts = data.parts.map(p => document.getElementById(id + '-' + p));
+  const still = matchMedia('(prefers-reduced-motion: reduce)'), last = data.steps.length - 1, clamp = v => Math.max(0, Math.min(last, v));
+  let pos = 0, speed = 0, target = 0, frame = 0, then = 0, drawn = -1, tour = 0, grip = null;
   const paint = () => {
     const a = Math.min(Math.floor(pos), last - 1), t = pos - a, from = data.steps[a].at, to = data.steps[a + 1].at, near = data.steps[Math.round(pos)];
     parts.forEach((el, i) => {
-      el.setAttribute('transform', `translate(${from[i][0] * (1 - t) + to[i][0] * t} ${from[i][1] * (1 - t) + to[i][1] * t})`);
+      el.setAttribute('transform', 'translate(' + (from[i][0] * (1 - t) + to[i][0] * t) + ' ' + (from[i][1] * (1 - t) + to[i][1] * t) + ')');
       el.classList.toggle('is-lit', near.lit.includes(i));
       el.classList.toggle('is-hidden', near.hide.includes(i));
     });
@@ -423,24 +438,60 @@ function live(id, data) {
     const dt = then ? Math.min((now - then) / 1000, 1 / 30) : 0;
     then = now;
     speed += (-81 * (pos - target) - 18 * speed) * dt;
-    pos = Math.max(0, Math.min(last, pos + speed * dt));
+    pos = clamp(pos + speed * dt);
     if (Math.abs(target - pos) < 0.002 && Math.abs(speed) < 0.02) { pos = target; speed = 0; frame = 0; then = 0; paint(); return; }
     paint();
     frame = requestAnimationFrame(tick);
   };
-  const select = (step, focus) => {
-    target = Math.max(0, Math.min(last, step));
+  const hold = () => { cancelAnimationFrame(frame); frame = 0; then = 0; speed = 0; };
+  const mark = step => {
+    target = clamp(step);
     tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === target)); tab.tabIndex = i === target ? 0 : -1; });
-    if (focus) tabs[target].focus();
-    if (still.matches) { pos = target; speed = 0; paint(); } else if (!frame) frame = requestAnimationFrame(tick);
   };
-  tabs.forEach((tab, i) => tab.addEventListener('click', () => select(i)));
+  const select = (step, focus) => {
+    mark(step);
+    if (focus) tabs[target].focus();
+    if (still.matches) { hold(); pos = target; paint(); } else if (!frame) frame = requestAnimationFrame(tick);
+  };
+  const stop = () => { clearInterval(tour); tour = 0; play.classList.remove('is-on'); play.lastChild.textContent = 'Play'; };
+  play.hidden = false;
+  play.addEventListener('click', () => {
+    if (tour) return stop();
+    select(target === last ? 0 : target + 1);
+    if (target === last) return;
+    play.classList.add('is-on');
+    play.lastChild.textContent = 'Pause';
+    tour = setInterval(() => { select(target + 1); if (target === last) stop(); }, 2400);
+  });
+  tabs.forEach((tab, i) => tab.addEventListener('click', () => { stop(); select(i); }));
   fig.querySelector('[role=tablist]').addEventListener('keydown', event => {
     const to = { ArrowRight: target + 1, ArrowDown: target + 1, ArrowLeft: target - 1, ArrowUp: target - 1, Home: 0, End: last }[event.key];
     if (to === undefined) return;
     event.preventDefault();
+    stop();
     select(to, true);
   });
+  stage.addEventListener('pointerdown', event => { if (!event.button) grip = { id: event.pointerId, x: event.clientX, pos, moved: false }; });
+  stage.addEventListener('pointermove', event => {
+    if (!grip || event.pointerId !== grip.id) return;
+    const dx = event.clientX - grip.x;
+    if (!grip.moved && Math.abs(dx) < 8) return;
+    if (!grip.moved) { grip.moved = true; stop(); stage.setPointerCapture(grip.id); }
+    if (still.matches) return;
+    hold();
+    pos = clamp(grip.pos - dx / (stage.clientWidth * 0.45));
+    if (Math.round(pos) !== target) mark(Math.round(pos));
+    paint();
+  });
+  stage.addEventListener('pointerup', event => {
+    if (!grip || event.pointerId !== grip.id) return;
+    const dx = event.clientX - grip.x, moved = grip.moved;
+    grip = null;
+    // A short flick is enough: a quarter of the way to the next step carries it over.
+    if (moved) select(still.matches ? target - (Math.abs(dx) < 40 ? 0 : Math.sign(dx)) : Math.round(pos - Math.sign(dx) * 0.25));
+  });
+  stage.addEventListener('pointercancel', () => { if (grip && grip.moved) select(target); grip = null; });
+  fig.addEventListener('figure:seek', event => { stop(); hold(); pos = clamp(Number(event.detail) || 0); mark(Math.round(pos)); paint(); });
 }
 
 /** The figure as an HTML fragment: card, step list, legend, caption, styles and script. */
@@ -451,7 +502,7 @@ export function figureHtml(spec, brand, model) {
   const data = JSON.stringify(pageData(spec, model)).replace(/</g, '\\u003c');
   return `<style>${figureCss(brand)}</style>
 <figure class="bsf" id="${id}">
-<div class="bsf-card"><p class="bsf-head"><span>${esc(spec.fig)}</span><span>${esc(spec.title)}</span></p><div class="bsf-stage" id="${panel}" role="tabpanel" aria-label="${esc(spec.alt)}">${figureSvg(spec, model, { id })}</div></div>
+<div class="bsf-card"><p class="bsf-head"><span>${esc(spec.fig)}</span><span>${esc(spec.title)}</span></p><div class="bsf-stage" id="${panel}" role="tabpanel" aria-label="${esc(spec.alt)}">${figureSvg(spec, model, { id })}</div><button type="button" class="bsf-play" hidden><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5v9l7.5-4.5z"/><path d="M2.5 1.5H5v9H2.5zM7 1.5h2.5v9H7z"/></svg><span>Play</span></button></div>
 <div class="bsf-steps" role="tablist" aria-label="${esc(spec.title)}: steps" aria-orientation="vertical">${steps}</div>
 <ul class="bsf-legend">${legend}</ul>
 <figcaption>${esc(spec.caption)}</figcaption>
@@ -477,11 +528,11 @@ async function review(browser, file, spec, model, { width, height, scheme, shot,
   if (shot) await page.locator('.bsf').screenshot({ path: shot });
   const layout = await page.evaluate(() => ({
     wide: document.documentElement.scrollWidth - innerWidth,
-    small: [...document.querySelectorAll('.bsf [role=tab]')].filter(b => b.getBoundingClientRect().height < 44 || b.getBoundingClientRect().width < 44).length,
+    small: [...document.querySelectorAll('.bsf [role=tab], .bsf-play')].filter(b => b.getBoundingClientRect().height < 44 || b.getBoundingClientRect().width < 44).length,
     clipped: [...document.querySelectorAll('.bsf-head span, .bsf-steps span, .bsf-steps small, .bsf-legend li, .bsf figcaption')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.slice(0, 30)),
   }));
   if (layout.wide > 0) problems.push(`${at}: the page scrolls sideways by ${layout.wide} px`);
-  if (layout.small) problems.push(`${at}: ${layout.small} step buttons are under 44 px`);
+  if (layout.small) problems.push(`${at}: ${layout.small} buttons are under 44 px`);
   for (const t of layout.clipped) problems.push(`${at}: text is clipped: ${t}`);
   const data = pageData(spec, model);
   for (const [s, step] of spec.steps.entries()) {
@@ -494,9 +545,57 @@ async function review(browser, file, spec, model, { width, height, scheme, shot,
   return problems;
 }
 
+/** Use the page as a person would, with motion on: a swipe settles on the next step, Play moves on and a seek lands on its pose. */
+async function drive(browser, file, spec, model) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } }), problems = [], data = pageData(spec, model), last = spec.steps.length - 1, id = `bsf-${spec.id}`;
+  await page.goto(pathToFileURL(file).href);
+  const settled = step => page.waitForFunction(([id, parts, want, step]) => document.querySelectorAll(`#${id} [role=tab]`)[step].getAttribute('aria-selected') === 'true' && parts.every((p, i) => document.getElementById(`${id}-${p}`).getAttribute('transform') === want[i]),
+    [id, data.parts, data.steps[step].at.map(([x, y]) => `translate(${x} ${y})`), step], { timeout: 4000 }).then(() => true, () => false);
+  const box = await page.locator('.bsf-stage').boundingBox(), y = box.y + box.height / 2;
+  await page.mouse.move(box.x + box.width * 0.8, y);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.3, y, { steps: 8 });
+  await page.mouse.up();
+  if (!await settled(1)) problems.push('a swipe to the left does not settle on step 2');
+  const next = last === 1 ? 0 : 2;
+  await page.locator('.bsf-play').click();
+  if (!await settled(next)) problems.push(`Play does not move on to step ${next + 1}`);
+  await page.evaluate(id => document.getElementById(id).dispatchEvent(new CustomEvent('figure:seek', { detail: 0 })), id);
+  if (!await settled(0)) problems.push('a figure:seek event to 0 does not draw step 1');
+  await page.close();
+  return problems;
+}
+
+/** Seconds the film of the tour runs: every step holds, then eases to the next. */
+export const tourSeconds = steps => steps * HOLD + (steps - 1) * MOVE;
+/** Where the tour is at t seconds, from 0 on the first step to steps - 1 on the last. */
+export function tourAt(t, steps) {
+  const i = Math.max(0, Math.min(Math.floor(t / (HOLD + MOVE)), steps - 1)), u = Math.max(0, Math.min(1, (t - i * (HOLD + MOVE) - HOLD) / MOVE));
+  return i === steps - 1 ? i : i + (u < 0.5 ? 4 * u ** 3 : 1 - (2 - 2 * u) ** 3 / 2);
+}
+
+/** Film the tour: seek the page frame by frame and pipe the screenshots to ffmpeg. */
+async function film(browser, file, spec, target) {
+  const page = await browser.newPage({ viewport: { width: 540, height: 800 }, deviceScaleFactor: 2, colorScheme: 'light' });
+  await page.goto(pathToFileURL(file).href);
+  await page.addStyleTag({ content: '.bsf-play{display:none!important}.bsf-p,.bsf-p path{transition:none!important}' });
+  await page.setViewportSize({ width: 540, height: await page.evaluate(() => Math.ceil(document.body.getBoundingClientRect().height)) });
+  const ffmpeg = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', target], { stdio: ['pipe', 'ignore', 'inherit'] });
+  const done = new Promise((resolve, reject) => ffmpeg.on('close', code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited with ${code}`))));
+  for (let n = 0; n <= Math.round(tourSeconds(spec.steps.length) * FPS); n++) {
+    await page.evaluate(([id, at]) => document.getElementById(id).dispatchEvent(new CustomEvent('figure:seek', { detail: at })), [`bsf-${spec.id}`, tourAt(n / FPS, spec.steps.length)]);
+    if (!ffmpeg.stdin.write(await page.screenshot({ type: 'jpeg', quality: 95 }))) await new Promise(resolve => ffmpeg.stdin.once('drain', resolve));
+  }
+  ffmpeg.stdin.end();
+  await done;
+  await page.close();
+}
+
 async function main() {
   const argv = process.argv.slice(2), input = argv[0];
-  if (!input || input.startsWith('--')) throw new Error('Usage: node figure.mjs <dir>/figure.json [--out DIR]');
+  if (!input || input.startsWith('--')) throw new Error('Usage: node figure.mjs <dir>/figure.json [--out DIR] [--video]');
+  const video = argv.includes('--video');
+  if (video && spawnSync('ffmpeg', ['-version']).status !== 0) throw new Error('ffmpeg is not on the PATH. Install it (brew install ffmpeg) and run again, or leave out --video.');
   const dir = path.dirname(path.resolve(input)), spec = JSON.parse(readFileSync(input, 'utf8'));
   const { errors, warnings } = validateFigure(spec, { root: dir });
   if (errors.length) throw new Error(errors.join('\n'));
@@ -513,6 +612,8 @@ async function main() {
     problems.push(...await review(browser, file, spec, model, { width: 390, height: 844, scheme: 'light', shot: path.join(out, 'phone.png'), scale: 2 }));
     problems.push(...await review(browser, file, spec, model, { width: 390, height: 844, scheme: 'dark' }));
     problems.push(...await review(browser, file, spec, model, { width: 1280, height: 900, scheme: 'light' }));
+    problems.push(...await drive(browser, file, spec, model));
+    if (video) await film(browser, file, spec, path.join(out, 'figure.mp4'));
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
     await page.setContent(`<!doctype html><style>body{margin:0}div{box-sizing:border-box;width:1200px;padding:32px;background:${brand.tokens.light.elevated}}svg{display:block;width:100%;height:auto}</style><div>${still}</div>`);
     await page.locator('div').screenshot({ path: path.join(out, 'poster.png') });

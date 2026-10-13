@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } fro
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureSvg, nearer, paintOrder, palette, touch, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
+import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureSvg, nearer, paintOrder, palette, touch, tourAt, tourSeconds, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
 import { contrast } from '../plugins/brand-studio/skills/brand-design/scripts/brand-check.mjs';
 import { unsafe } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
 
@@ -179,6 +179,15 @@ test('the page lists every step as a tab with its readout as text, and escapes t
   assert.match(html, /<g id="bsf-slide-card" class="bsf-p is-lit" data-tone="subject"/);
   assert.ok(!html.includes('<left>'));
   assert.match(html, /<figcaption>The card moves from left to right\.<\/figcaption>/);
+  assert.match(html, /<button type="button" class="bsf-play" hidden>.*<span>Play<\/span><\/button>/, 'Play shows only once the script runs');
+});
+
+test('the film of the tour holds on each step and eases to the next', () => {
+  assert.ok(Math.abs(tourSeconds(3) - 6.6) < 1e-9 && Math.abs(tourSeconds(2) - 4.1) < 1e-9);
+  assert.deepEqual([0, 1.6, 2.5, 4.1, 5, 6.6, 99].map(t => tourAt(t, 3)), [0, 0, 1, 1, 2, 2, 2]);
+  assert.ok(Math.abs(tourAt(2.05, 3) - 0.5) < 1e-9, 'halfway through a move');
+  const path = Array.from({ length: 67 }, (_, i) => tourAt(i / 10, 3));
+  assert.ok(path.every((v, i) => i === 0 || v >= path[i - 1]), 'never runs backwards');
 });
 
 test('the CSS carries both themes from the contract and stops motion on request', () => {
@@ -188,6 +197,8 @@ test('the CSS carries both themes from the contract and stops motion on request'
   assert.match(css, /@media \(prefers-color-scheme:dark\)\{\.bsf:not\(\[data-theme="light"\]\)/);
   assert.match(css, /@media \(prefers-reduced-motion:reduce\)\{[^}]*transition:none/);
   assert.match(css, /\.bsf-steps button\{[^}]*min-height:44px/);
+  assert.match(css, /\.bsf-play\{[^}]*min-height:44px/);
+  assert.match(css, /\.bsf-stage\{touch-action:pan-y/, 'a sideways drag scrubs; an up or down drag still scrolls the page');
 });
 
 test('the Deskhand figure passes its checks and its committed still matches the script', () => {
@@ -207,6 +218,23 @@ test('CLI: exports the page and stills, also when started through a symlink', ()
   assert.match(run.stdout, /8 parts, 2 steps/);
   for (const file of ['figure.html', 'figure.svg', 'poster.png', 'phone.png', 'sheet.png']) assert.ok(existsSync(path.join(dir, 'out', file)), file);
   assert.deepEqual(unsafe(readFileSync(path.join(dir, 'out/figure.svg'), 'utf8')), []);
+});
+
+test('CLI: --video adds an MP4 of the tour', { skip: spawnSync('ffmpeg', ['-version']).status !== 0 && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'figure-'));
+  writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'figure.json'), '--video'], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(readFileSync(path.join(dir, 'out/figure.mp4')).subarray(4, 8).toString(), 'ftyp');
+});
+
+test('CLI: --video without ffmpeg says so before it exports', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'figure-'));
+  writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'figure.json'), '--video'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /ffmpeg is not on the PATH/);
+  assert.ok(!existsSync(path.join(dir, 'out')));
 });
 
 test('CLI: a spec error stops before export; a geometry problem fails after it', () => {
