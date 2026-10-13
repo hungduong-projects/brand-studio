@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure, Markdown } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure, Markdown, Chart, FlowDiagram, visualBlocks } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -115,6 +115,76 @@ test('stat card states the direction of change in words', () => {
   const html = render(h(StatCard, { label: 'Subscribers', value: '1,284', change: '+6%', trend: 'up', series: [1, 2, 3] }));
   assert.match(html, /<span class="bs-sr-only">Up <\/span>\+6%/);
   assert.match(html, /<svg[^>]*aria-hidden="true"/);
+});
+test('chart measures bars from zero, lights one of them and keeps every value in a table', () => {
+  const html = render(h(Chart, { title: 'Cups sold', labels: ['Fri', 'Sat', 'Sun'], series: [{ name: 'Hot', values: [20, 80, 40] }], lit: 'Sat', note: 'Saturday was busiest.', format: (value) => `${value} cups` }));
+  assert.match(html, /<figure class="bs-chart " data-kind="bar" aria-labelledby="[^"]+-title">/);
+  assert.match(html, /<div class="bs-chart__y" aria-hidden="true"><span>80 cups<\/span><span>60 cups<\/span><span>40 cups<\/span><span>20 cups<\/span><span>0 cups<\/span><\/div>/);
+  const bars = [...html.matchAll(/<span class="bs-chart__bar" data-tone="(\d)" style="top:([\d.]+)%;height:([\d.]+)%"/g)].map(([, tone, top, height]) => [Number(tone), Number(top), Number(height)]);
+  assert.deepEqual(bars, [[2, 75, 25], [0, 0, 100], [2, 50, 50]]);
+  assert.match(html, /<p>Saturday was busiest\.<\/p><p id="[^"]+" role="status"><\/p>/);
+  assert.match(html, /role="group" tabindex="0" aria-label="Cups sold\. Use the arrow keys to read each point"/);
+  assert.match(html, /<table class="bs-sr-only"[^>]*><thead><tr><td><\/td><th scope="col">Hot<\/th><\/tr><\/thead><tbody><tr><th scope="row">Fri<\/th><td>20 cups<\/td><\/tr>/);
+  assert.ok(!html.includes('bs-chart__legend'), 'one series needs no legend');
+
+  // Below zero a bar hangs from the zero line, which is drawn heavier than the other rules.
+  const loss = render(h(Chart, { title: 'Profit', labels: ['May', 'Jun'], series: [{ name: 'Profit', values: [-20, 20] }] }));
+  assert.match(loss, /<span class="bs-chart__rule" data-zero="true" style="top:50%"><\/span>/);
+  assert.match(loss, /<span class="bs-chart__bar" data-tone="0" data-down="true" style="top:50%;height:50%"><\/span>/);
+  assert.match(loss, /<span class="bs-chart__bar" data-tone="0" style="top:0%;height:50%"><\/span>/);
+  assert.match(render(h(Chart, { title: 'Cups sold', labels: [], series: [] })), /<p class="bs-chart__empty">Nothing to chart yet\.<\/p>/);
+});
+test('chart lines break at a missing value, fit their axis to the data and give the lit series the accent', () => {
+  const html = render(h(Chart, { title: 'Margin', kind: 'line', labels: ['Q1', 'Q2', 'Q3', 'Q4'], series: [{ name: 'Shop', values: [10, null, 30, 20] }, { name: 'Online', values: [20, 20, 10, 30] }], lit: 'Online' }));
+  assert.match(html, /<span>30<\/span><span>25<\/span><span>20<\/span><span>15<\/span><span>10<\/span>/);
+  assert.match(html, /<path class="bs-chart__line" data-tone="1" d="M12\.50 100\.00M62\.50 0\.00L87\.50 50\.00"><\/path>/);
+  assert.match(html, /<path class="bs-chart__line" data-tone="0" d="M12\.50 50\.00L37\.50 50\.00L62\.50 100\.00L87\.50 0\.00"><\/path>/);
+  assert.match(html, /<ul class="bs-chart__legend"><li><span class="bs-chart__key" data-tone="1"><\/span>Shop<\/li><li><span class="bs-chart__key" data-tone="0"><\/span>Online<\/li><\/ul>/);
+  assert.match(html, /<th scope="row">Q2<\/th><td>No value<\/td><td>20<\/td>/);
+  // Until the page measures them, labels are thinned for a narrow phone: twelve keep every second, and longer ones keep fewer.
+  const year = render(h(Chart, { title: 'Year', kind: 'area', labels: Array.from({ length: 12 }, (_, month) => `M${month + 1}`), series: [{ name: 'Cups', values: Array.from({ length: 12 }, (_, month) => month) }] }));
+  assert.deepEqual([...year.matchAll(/<span data-show="true">(M\d+)<\/span>/g)].map(match => match[1]), ['M1', 'M3', 'M5', 'M7', 'M9', 'M11']);
+  assert.equal((html.match(/data-show="true"/g) ?? []).length, 4);
+  const days = render(h(Chart, { title: 'Days', labels: Array.from({ length: 30 }, (_, day) => `${day + 1} September`), series: [{ name: 'Cups', values: Array.from({ length: 30 }, (_, day) => day) }] }));
+  assert.deepEqual([...days.matchAll(/<span data-show="true">(\d+) September<\/span>/g)].map(match => match[1]), ['1', '14', '27']);
+  assert.match(year, /<path class="bs-chart__area" d="M4\.17 100\.00L4\.17 100\.00L/);
+});
+test('flow diagram ranks nodes by their longest path, gives a skipping link its own lane and says what comes next', () => {
+  const nodes = [{ id: 'a', label: 'Read' }, { id: 'b', label: 'Found?', kind: 'decision' }, { id: 'c', label: 'Refund', tag: 'Agent' }, { id: 'd', label: 'Send' }];
+  const edges = [{ from: 'a', to: 'b' }, { from: 'b', to: 'c', label: 'Yes' }, { from: 'c', to: 'd' }, { from: 'b', to: 'd', label: 'No' }, { from: 'd', to: 'a', label: 'Again' }];
+  const html = render(h(FlowDiagram, { title: 'Refunds', nodes, edges, lit: ['a', 'b'] }));
+  assert.match(html, /<div class="bs-flow__frame" data-fit="medium" style="--bs-flow-lanes:6;--bs-flow-depth:4">/);
+  const placed = [...html.matchAll(/<li class="bs-flow__(node|gap)"[^>]*style="--bs-flow-rank:(\d+);--bs-flow-lane:(\d+)">(?:<span class="bs-flow__tag">[^<]*<\/span>)?(?:<strong>([^<]*))?/g)].map(([, kind, rank, lane, label]) => `${label ?? kind} ${rank}/${lane}`);
+  // The link that skips Refund and the loop back from Send each get a lane beside the nodes they pass.
+  assert.deepEqual(placed, ['Read 1/3', 'Found? 2/2', 'gap 2/4', 'Refund 3/1', 'gap 3/3', 'gap 3/5', 'Send 4/3']);
+  assert.match(html, /<li class="bs-flow__node" data-kind="decision" data-lit="true"[^>]*><strong>Found\?<\/strong><span class="bs-sr-only">Next: Refund \(Yes\), Send \(No\)<\/span><\/li>/);
+  assert.match(html, /<strong>Send<\/strong><span class="bs-sr-only">Next: Read \(Again\)<\/span>/);
+  assert.equal((html.match(/data-lit="true"/g) ?? []).length, 2);
+  // Two steps that point at each other still get one rank each.
+  const pair = render(h(FlowDiagram, { title: 'Loop', nodes: [{ id: 'a', label: 'Draft' }, { id: 'b', label: 'Review' }], edges: [{ from: 'a', to: 'b' }, { from: 'b', to: 'a' }, { from: 'b', to: 'missing' }] }));
+  assert.match(pair, /data-fit="short" style="--bs-flow-lanes:2;--bs-flow-depth:2"/);
+});
+test('visual blocks draw a chart or a flow from a fenced block of data and show data that does not fit as code', () => {
+  const fence = (name, data) => `Here:\n\n\`\`\`${name}\n${typeof data === 'string' ? data : JSON.stringify(data)}\n\`\`\`\n`;
+  const chart = { title: 'Cups <img src=x onerror=alert(1)>', unit: ' cups', labels: ['Fri', 'Sat'], series: [{ name: 'Hot', values: [58, 74] }], lit: 'Sat', note: 'Saturday was busiest.' };
+  const drawn = render(h(Markdown, { text: fence('chart', chart), blocks: visualBlocks }));
+  assert.match(drawn, /<figure class="bs-chart " data-kind="bar"/);
+  assert.match(drawn, /<td>74 cups<\/td>/);
+  assert.match(drawn, /Cups &lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.ok(!drawn.includes('<img'), 'a title is text, never markup');
+  assert.match(render(h(Markdown, { text: fence('chart', { ...chart, unit: '$', kind: 'line' }), blocks: visualBlocks })), /<td>\$74<\/td>/);
+  const flow = { title: 'Plan', nodes: [{ id: 'a', label: 'Roast' }, { id: 'b', label: 'Enough?', kind: 'decision' }], edges: [{ from: 'a', to: 'b', label: 'Then' }], lit: ['a', 'b'] };
+  assert.match(render(h(Markdown, { text: fence('flow', flow), blocks: visualBlocks })), /<figure class="bs-flow "[\s\S]*Next: Enough\? \(Then\)/);
+  const many = Array.from({ length: 25 }, (_, index) => ({ id: `n${index}`, label: 'Step' }));
+  const bad = [
+    ['chart', { ...chart, series: [{ name: 'Hot', values: ['58', 74] }] }], ['chart', { ...chart, series: [{ name: 'Hot', values: [58] }] }], ['chart', { ...chart, kind: 'pie' }],
+    ['chart', { ...chart, unit: ' cups each day' }], ['chart', { ...chart, title: { text: 'Cups' } }], ['chart', { ...chart, labels: [] }], ['chart', 'null'], ['chart', '[1]'], ['chart', '{"title":'],
+    ['flow', { ...flow, edges: [{ from: 'a', to: 'z' }] }], ['flow', { ...flow, nodes: many }], ['flow', { ...flow, nodes: [flow.nodes[0], flow.nodes[0]] }], ['flow', { ...flow, nodes: [{ id: 'a', label: 'Roast', kind: 'cloud' }] }], ['flow', { ...flow, lit: ['z'] }],
+  ];
+  for (const [name, data] of bad) {
+    const html = render(h(Markdown, { text: fence(name, data), blocks: visualBlocks }));
+    assert.ok(html.includes('<figure class="bs-code') && !/bs-chart|bs-flow/.test(html), `${name} ${JSON.stringify(data)} must fall back to code`);
+  }
 });
 test('navigation marks the current page and names each group', () => {
   const sidebar = render(h(Sidebar, { label: 'Roastery', sections: [{ label: 'Stock', items: [{ label: 'Beans', href: '/beans', current: true }] }] }));

@@ -33,3 +33,85 @@
 .bs-stat__spark { display: block; width: calc(100% + 2.5rem); height: 3.5rem; margin: .75rem -1.25rem -1.25rem; }
 .bs-stat__line { fill: none; stroke: var(--bs-accent); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .bs-stat__area { fill: var(--bs-accent-soft); }
+
+/* Chart */
+.bs-chart { display: grid; gap: .35rem; width: 100%; min-width: 0; margin: 0; padding: 1.25rem; border: 1px solid var(--bs-line-soft); border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-elevated); color: var(--bs-ink); }
+.bs-chart__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem 1rem; }
+.bs-chart__title { font-size: .95rem; font-weight: 600; line-height: 1.3; }
+.bs-chart__legend { display: flex; flex-wrap: wrap; gap: .2rem .9rem; margin: 0; padding: 0; list-style: none; color: var(--bs-muted); font-size: .8rem; }
+.bs-chart__legend li { display: inline-flex; align-items: center; gap: .4rem; }
+/* Tone 0 is the accent, 1 the ink and 2 the quiet one. Each fill carries an edge dark enough to stand against the card. */
+.bs-chart [data-tone="0"] { --bs-chart-fill: var(--bs-accent); --bs-chart-edge: var(--bs-accent-text); }
+.bs-chart [data-tone="1"] { --bs-chart-fill: var(--bs-ink); --bs-chart-edge: var(--bs-ink); }
+.bs-chart [data-tone="2"] { --bs-chart-fill: color-mix(in srgb, var(--bs-muted) 38%, var(--bs-elevated)); --bs-chart-edge: var(--bs-muted); }
+.bs-chart__key { width: .7rem; height: .7rem; border-radius: 3px; background: var(--bs-chart-fill); box-shadow: inset 0 0 0 1px var(--bs-chart-edge); }
+/* The note and the reading share one cell, so swapping them never moves the chart. */
+.bs-chart__readout { display: grid; min-height: 1.5em; color: var(--bs-muted); font-size: .875rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.bs-chart__readout p { grid-area: 1 / 1; display: flex; flex-wrap: wrap; gap: 0 .75rem; margin: 0; }
+.bs-chart__readout [data-off] { visibility: hidden; }
+.bs-chart__readout strong { color: var(--bs-ink); font-weight: 600; }
+.bs-chart__frame { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .45rem .6rem; margin-top: .6rem; }
+.bs-chart__y { display: flex; flex-direction: column; justify-content: space-between; color: var(--bs-muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.bs-chart__y span { display: flex; align-items: center; justify-content: flex-end; height: 0; white-space: nowrap; }
+.bs-chart__plot { position: relative; height: var(--bs-chart-height, 12rem); border-radius: 4px; touch-action: pan-y; cursor: crosshair; }
+.bs-theme .bs-chart__plot:focus-visible { outline: 3px solid var(--bs-accent); outline-offset: 4px; }
+.bs-chart__rule { position: absolute; inset-inline: 0; border-top: 1px solid var(--bs-line-soft); }
+.bs-chart__rule[data-zero] { border-top-color: var(--bs-muted); }
+.bs-chart__bars { position: absolute; inset: 0; display: flex; }
+.bs-chart__slot { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; gap: 2px; border-radius: 4px; transition: opacity var(--bs-duration-fast) var(--bs-ease); }
+/* The bars of one label share about three quarters of its slot; the rest is the space between labels. */
+.bs-chart__bar { position: relative; flex: 0 1 calc(72% / var(--bs-chart-series, 1)); min-width: 0; max-width: 2.75rem; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--bs-chart-fill); box-shadow: inset 0 0 0 1px var(--bs-chart-edge); }
+.bs-chart__bar[data-down] { border-radius: 0 0 4px 4px; }
+.bs-chart__plot[data-active] .bs-chart__slot:not([data-on]) { opacity: .45; }
+.bs-chart__lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bs-chart__line { fill: none; stroke: var(--bs-chart-edge); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.bs-chart__line[data-tone="2"] { stroke-dasharray: 5 4; }
+.bs-chart__area { fill: var(--bs-accent-soft); }
+.bs-chart__cursor { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--bs-muted); }
+.bs-chart__dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--bs-chart-edge); box-shadow: 0 0 0 2px var(--bs-elevated); }
+.bs-chart__x { grid-column: 2; display: grid; grid-template-columns: repeat(var(--bs-chart-count), minmax(0, 1fr)); color: var(--bs-muted); font-size: .75rem; line-height: 1.4; }
+/* Labels are thinned to what fits: the component measures them and marks the ones to show. */
+.bs-chart__x span { display: flex; justify-content: center; min-width: 0; white-space: nowrap; visibility: hidden; }
+.bs-chart__x [data-show] { visibility: visible; }
+.bs-chart__empty { margin: 0; padding: 2.5rem 1rem; color: var(--bs-muted); text-align: center; }
+@media (prefers-reduced-motion: reduce) { .bs-chart__slot { transition: none; } }
+
+/* Flow diagram */
+.bs-flow { container-type: inline-size; display: grid; gap: 1rem; width: 100%; min-width: 0; margin: 0; padding: 1.25rem; border: 1px solid var(--bs-line-soft); border-radius: calc(var(--bs-radius) + 6px); background: var(--bs-elevated); color: var(--bs-ink); }
+.bs-flow__title { font-size: .95rem; font-weight: 600; line-height: 1.3; }
+.bs-flow__frame { position: relative; --bs-flow-across: 0; }
+/* Top to bottom: a rank is a row, and a lane is half a node wide. */
+.bs-flow__nodes { position: relative; display: grid; grid-template-columns: repeat(var(--bs-flow-lanes), minmax(0, 1fr)); gap: 2.25rem .6rem; margin: 0; padding: 0; list-style: none; }
+.bs-flow__node, .bs-flow__gap { grid-row: var(--bs-flow-rank); grid-column: var(--bs-flow-lane) / span 2; min-width: 0; }
+.bs-flow__node { display: grid; align-content: center; gap: .15rem; padding: .65rem .8rem; border: 1px solid var(--bs-line); border-radius: var(--bs-radius); background: var(--bs-surface); font-size: .875rem; line-height: 1.35; overflow-wrap: anywhere; }
+.bs-flow__node strong { font-weight: 600; }
+.bs-flow__node[data-kind="decision"] { justify-items: center; padding-inline: 1.1rem; border-radius: 999px; text-align: center; }
+.bs-flow__node[data-lit] { border-color: var(--bs-accent-text); background: color-mix(in srgb, var(--bs-accent) 14%, var(--bs-surface)); box-shadow: 0 0 0 1px var(--bs-accent-text); }
+.bs-flow__tag { color: var(--bs-muted); font-size: .75rem; font-weight: 600; letter-spacing: .02em; }
+.bs-flow__note { color: var(--bs-muted); font-size: .8rem; }
+/* On the tint of a lit node the quiet text moves halfway to the ink, so it stays readable under any brand's accent. */
+.bs-flow__node[data-lit] :is(.bs-flow__tag, .bs-flow__note) { color: color-mix(in srgb, var(--bs-muted) 50%, var(--bs-ink)); }
+.bs-flow__links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.bs-flow__link { fill: none; stroke: var(--bs-muted); stroke-width: 1.5; }
+.bs-flow__head { fill: var(--bs-muted); }
+[data-loop] > .bs-flow__link { stroke-dasharray: 4 4; }
+[data-lit] > .bs-flow__link { stroke: var(--bs-accent-text); stroke-width: 2; }
+[data-lit] > .bs-flow__head { fill: var(--bs-accent-text); }
+.bs-flow__label { position: absolute; transform: translate(-50%, -50%); padding: 0 .4rem; border-radius: 999px; background: var(--bs-elevated); color: var(--bs-muted); font-size: .75rem; font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.bs-flow__label[data-lit] { color: var(--bs-accent-text); }
+/* Left to right once every rank has room for a readable node: a rank is a column. */
+@container (min-width: 36rem) {
+  .bs-flow__frame[data-fit="short"] { --bs-flow-across: 1; }
+  .bs-flow__frame[data-fit="short"] > .bs-flow__nodes { grid-template-columns: repeat(var(--bs-flow-depth), minmax(0, 1fr)); gap: .6rem 2.75rem; }
+  .bs-flow__frame[data-fit="short"] > .bs-flow__nodes > li { grid-column: var(--bs-flow-rank); grid-row: var(--bs-flow-lane) / span 2; }
+}
+@container (min-width: 56rem) {
+  .bs-flow__frame[data-fit="medium"] { --bs-flow-across: 1; }
+  .bs-flow__frame[data-fit="medium"] > .bs-flow__nodes { grid-template-columns: repeat(var(--bs-flow-depth), minmax(0, 1fr)); gap: .6rem 2.75rem; }
+  .bs-flow__frame[data-fit="medium"] > .bs-flow__nodes > li { grid-column: var(--bs-flow-rank); grid-row: var(--bs-flow-lane) / span 2; }
+}
+@container (min-width: 76rem) {
+  .bs-flow__frame[data-fit="long"] { --bs-flow-across: 1; }
+  .bs-flow__frame[data-fit="long"] > .bs-flow__nodes { grid-template-columns: repeat(var(--bs-flow-depth), minmax(0, 1fr)); gap: .6rem 2.75rem; }
+  .bs-flow__frame[data-fit="long"] > .bs-flow__nodes > li { grid-column: var(--bs-flow-rank); grid-row: var(--bs-flow-lane) / span 2; }
+}

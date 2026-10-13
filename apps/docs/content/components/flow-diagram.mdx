@@ -1,0 +1,62 @@
+---
+title: Flow Diagram
+description: "Steps and decisions joined by arrows, with the path taken lit."
+---
+
+<Preview name="flow-diagram/default" />
+
+## Installation
+
+<Install name="FlowDiagram" />
+
+## Usage
+
+```tsx
+import { FlowDiagram } from '@brand-studio/ui';
+```
+
+```tsx
+<FlowDiagram
+  title="How a refund request is handled"
+  nodes={[
+    { id: 'read', label: 'Read the ticket', tag: 'Agent' },
+    { id: 'found', label: 'Order found?', kind: 'decision' },
+    { id: 'refund', label: 'Draft a refund', tag: 'Agent' },
+    { id: 'ask', label: 'Ask for the order number', tag: 'Agent' },
+  ]}
+  edges={[
+    { from: 'read', to: 'found' },
+    { from: 'found', to: 'refund', label: 'Yes' },
+    { from: 'found', to: 'ask', label: 'No' },
+  ]}
+  lit={['read', 'found', 'refund']}
+/>
+```
+
+You give the nodes and the links between them; the component places them. A node sits one rank after the furthest step that leads to it, and a link that skips a rank gets a lane of its own so it never runs under a node. A link back to an earlier step is drawn dashed, against the flow.
+
+## Direction
+
+The diagram runs top to bottom on a narrow screen and turns left to right when every rank has room for a readable node. A short flow turns sooner than a long one.
+
+<Preview name="flow-diagram/across" />
+
+## Nodes
+
+- `kind: 'decision'` draws a pill for a question. Label the links that leave it.
+- `tag` says who or what does the step, such as "Agent", "Tool" or "You".
+- `note` adds a second line.
+
+## The path taken
+
+`lit` lists the ids of the nodes on one path. Those nodes and the links between them take the accent, which shows the route an agent took through its own rules.
+
+## Accessibility
+
+- The nodes are an ordered list in reading order, and each one says in words which steps come next, with the link's label.
+- The arrows are decoration for screen readers and are drawn once the nodes have a size, so the steps read before JavaScript runs.
+- A lit node has a heavier border as well as the accent, so the path does not depend on colour alone.
+
+## API Reference
+
+<Props name="FlowDiagram" />

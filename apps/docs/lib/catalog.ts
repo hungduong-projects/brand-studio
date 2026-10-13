@@ -41,6 +41,8 @@ export const catalog: Entry[] = [
   { slug: 'mobile-navigation', exports: ['MobileNavigation'], title: 'Mobile Navigation', category: 'Navigation', description: 'A menu button that opens the links in a full-screen panel.' },
   { slug: 'data-table', exports: ['DataTable'], title: 'Data Table', category: 'Data', description: 'A captioned table with sortable columns, loading rows and an empty message.' },
   { slug: 'stat-card', exports: ['StatCard'], title: 'Stat Card', category: 'Data', description: 'One key number with its change and a sparkline.' },
+  { slug: 'chart', exports: ['Chart'], title: 'Chart', category: 'Data', description: 'A bar, line or area chart that gives one reading at a time and one thing to take from it.' },
+  { slug: 'flow-diagram', exports: ['FlowDiagram'], title: 'Flow Diagram', category: 'Data', description: 'Steps and decisions joined by arrows, with the path taken lit.' },
   { slug: 'agent-thinking', exports: ['AgentThinking'], title: 'Agent Thinking', category: 'AI agents', description: 'A small orb of ink dots with a status line beside it, for an agent that is idle, listening, thinking or speaking.' },
   { slug: 'thinking-trace', exports: ['ThinkingTrace'], title: 'Thinking Trace', category: 'AI agents', description: 'Collapsible reasoning steps with a live status for each.' },
   { slug: 'streaming-text', exports: ['StreamingText'], title: 'Streaming Text', category: 'AI agents', description: 'Text that arrives word by word, as a model writes it.' },
