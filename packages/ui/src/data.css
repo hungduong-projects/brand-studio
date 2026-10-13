@@ -89,6 +89,8 @@
 .bs-flow__node[data-lit] { border-color: var(--bs-accent-text); background: color-mix(in srgb, var(--bs-accent) 14%, var(--bs-surface)); box-shadow: 0 0 0 1px var(--bs-accent-text); }
 .bs-flow__tag { color: var(--bs-muted); font-size: .75rem; font-weight: 600; letter-spacing: .02em; }
 .bs-flow__note { color: var(--bs-muted); font-size: .8rem; }
+/* On the tint of a lit node the quiet text moves halfway to the ink, so it stays readable under any brand's accent. */
+.bs-flow__node[data-lit] :is(.bs-flow__tag, .bs-flow__note) { color: color-mix(in srgb, var(--bs-muted) 50%, var(--bs-ink)); }
 .bs-flow__links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .bs-flow__link { fill: none; stroke: var(--bs-muted); stroke-width: 1.5; }
 .bs-flow__head { fill: var(--bs-muted); }
