@@ -1,0 +1,69 @@
+---
+title: Markdown
+description: "An answer written in Markdown, drawn as headings, lists, tables and code while it is still arriving."
+---
+
+<Preview name="markdown/default" />
+
+## Installation
+
+<Install name="Markdown" />
+
+## Usage
+
+```tsx
+import { Markdown } from '@brand-studio/ui';
+```
+
+```tsx
+<Markdown text={answer} streaming={busy} />
+```
+
+It reads CommonMark and GitHub's additions: tables, task lists, strikethrough, bare links and footnotes. Fenced code goes to [Code Block](/docs/components/code-block/) and a table scrolls sideways inside its own frame.
+
+## Streaming
+
+Pass the text you have so far and set `streaming` until the last piece lands. Text that stops mid-sentence ends inside a bold run, a link or a table, so the component closes what is open at the end: half a bold run shows bold, an unfinished link shows its words, and an image, table or list marker waits until it is whole. Raw symbols never flash on screen.
+
+Each top-level block redraws only when its own source changes, so a long answer costs the same per token at the end as at the start.
+
+## Safe by default
+
+Treat a model's answer as text from a stranger.
+
+- HTML in the source is shown as written. It never becomes elements.
+- A link is used only when it is relative or starts with `http`, `https`, `mailto` or `tel`. Anything else, `javascript:` included, renders as plain words. Links to another site open in a new tab.
+- An image loads only from a relative address or an origin you list in `imageOrigins`. Others show as a link. A remote image is a request to someone else's server, and a prompt hidden in a document can make a model put private text in that address.
+
+```tsx
+<Markdown text={answer} imageOrigins={['https://cdn.example.com']} />
+```
+
+## Drawn blocks
+
+`blocks` hands a fenced block to your own renderer, keyed by the word after the fence. Use it for maths, a diagram or a chart the model describes as data.
+
+```tsx
+const blocks = {
+  chart: (source: string) => <SalesChart {...JSON.parse(source)} />,
+};
+
+<Markdown text={answer} streaming={busy} blocks={blocks} />
+```
+
+While the fence is still open the block shows a placeholder, so your renderer only ever gets the whole source. If it throws, for example on JSON the model got wrong, the source shows as a code block. Define `blocks` outside the component or memoise it, so finished blocks are not redrawn.
+
+## Headings
+
+A single `#` becomes an `h2` and deeper headings follow, which keeps an answer under the page's own title. Set `headings={1}` when the text is the page.
+
+## Accessibility
+
+- Headings, lists, tables and quotes are the native elements, so screen readers can move by them.
+- A table's scroll frame takes focus and is named by its column headings.
+- A task shows a drawn box that reads "Done" or "To do"; change the words with `doneLabel` and `todoLabel`.
+- The container is marked busy while `streaming` is set.
+
+## API Reference
+
+<Props name="Markdown" />

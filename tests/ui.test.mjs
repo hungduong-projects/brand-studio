@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure, Markdown } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -294,6 +294,70 @@ test('code block keeps every line in the HTML, focusable for scrolling, with a w
   assert.match(html, /brew.ts<\/span><span class="bs-code__lang">TypeScript/);
   assert.match(html, /<span>Copy code<\/span>/);
   assert.match(html, /animation-delay:0.042s/);
+});
+
+const answer = 'The **Aeropress** makes a *clean* cup. See the [brew guide](https://example.com/brew?a=1&amp;b=2) or `brewRatio(15)`.\n\n## Steps\n\n1. Heat ~~cold~~ water to **92 &deg;C**\n2. Add _15 g_ of coffee[^1]\n\n- [x] Rinse the filter\n- [ ] Press slowly\n\n| Step | Time |\n|---|--:|\n| Bloom | 30 s |\n\n![Press](/press.png)\n\n> Keep the **plunger** dry.\n\n---\n\n```ts\nbrewRatio(15);\n```\n\n[^1]: Medium-fine *grind*.\n';
+
+test('markdown draws each kind of block as its own element and shifts headings under the page title', () => {
+  const html = render(h(Markdown, { text: answer }));
+  assert.match(html, /<p>The <strong>Aeropress<\/strong> makes a <em>clean<\/em> cup\. See the <a href="https:\/\/example\.com\/brew\?a=1&amp;b=2" target="_blank" rel="noopener noreferrer">brew guide<\/a> or <code>brewRatio\(15\)<\/code>\.<\/p>/);
+  assert.match(html, /<h3 data-depth="2">Steps<\/h3>/);
+  assert.match(html, /<ol><li>Heat <del>cold<\/del> water to <strong>92 °C<\/strong><\/li><li>Add <em>15 g<\/em> of coffee<sup><a href="#[^"]+-note-1">1<\/a><\/sup><\/li><\/ol>/);
+  assert.match(html, /<li data-task="true"><span class="bs-md__check" data-checked="true" role="img" aria-label="Done"><\/span>Rinse the filter<\/li><li data-task="true"><span class="bs-md__check" role="img" aria-label="To do"><\/span>Press slowly<\/li>/);
+  assert.match(html, /<div class="bs-table bs-md__table" role="region" aria-label="Step, Time" tabindex="0"><table><thead><tr><th scope="col">Step<\/th><th scope="col" data-align="end">Time<\/th>/);
+  assert.match(html, /<td>Bloom<\/td><td data-align="end">30 s<\/td>/);
+  assert.match(html, /<img src="\/press\.png" alt="Press" loading="lazy"\/>/);
+  assert.match(html, /<blockquote><p>Keep the <strong>plunger<\/strong> dry\.<\/p><\/blockquote><hr\/>/);
+  assert.match(html, /<figure class="bs-code[^>]*>.*<span class="bs-code__name">ts<\/span>.*brewRatio\(15\);/);
+  assert.match(html, /<section class="bs-md__notes" aria-label="Notes"><ol><li id="[^"]+-note-1">Medium-fine <em>grind<\/em>\.<\/li><\/ol><\/section>/);
+  assert.ok(!html.includes('[^1]'), 'the note is not also printed as a paragraph');
+  assert.match(render(h(Markdown, { text: '# Title', headings: 1 })), /<h1 data-depth="1">Title<\/h1>/);
+});
+
+test('markdown shows HTML as text and uses only addresses it has checked', () => {
+  const html = render(h(Markdown, { text: 'Hi <b>there</b> <script>alert(1)</script> <img src=x onerror=alert(1)>\n\n<div onclick="x()">block</div>' }));
+  assert.ok(!/<(?:b|script|img|div onclick)/.test(html), html);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  for (const address of ['javascript:alert(1)', 'JaVaScRiPt:alert(1)', 'java&#x09;script:alert(1)', 'data:text/html,<script>1</script>', 'vbscript:x', 'file:///etc/passwd']) {
+    const link = render(h(Markdown, { text: `[tap](<${address}>)` }));
+    assert.ok(!link.includes('href'), `${address} must not become a link: ${link}`);
+    assert.match(link, /tap/);
+  }
+  assert.match(render(h(Markdown, { text: '[docs](/docs/) and [mail](mailto:hi@example.com)' })), /<a href="\/docs\/">docs<\/a> and <a href="mailto:hi@example\.com">mail<\/a>/);
+  // A remote image is a request that can carry private text in its address, so it stays a link until its origin is listed.
+  const remote = '![chart](https://cdn.example.com/a.png?q=secret)';
+  assert.match(render(h(Markdown, { text: remote })), /^<div class="bs-md "><p><a href="https:\/\/cdn\.example\.com\/a\.png\?q=secret" target="_blank" rel="noopener noreferrer">chart<\/a><\/p><\/div>$/);
+  assert.match(render(h(Markdown, { text: remote, imageOrigins: ['https://cdn.example.com'] })), /<img src="https:\/\/cdn\.example\.com\/a\.png\?q=secret" alt="chart"/);
+  for (const address of ['https://cdn.example.com.evil.test/a.png', '//evil.test/a.png', '/\\evil.test/a.png', 'data:image/svg+xml,<svg/>']) {
+    assert.ok(!render(h(Markdown, { text: `![x](<${address}>)`, imageOrigins: ['https://cdn.example.com'] })).includes('<img'), address);
+  }
+});
+
+test('markdown never shows a raw mark while the text is still arriving', () => {
+  for (let end = 1; end <= answer.length; end++) {
+    const html = render(h(Markdown, { text: answer.slice(0, end), streaming: true }));
+    const seen = html.replace(/<figure class="bs-code[\s\S]*?<\/figure>/g, '').replace(/<[^>]+>/g, '');
+    assert.ok(!/[*`~_|[\]#]|!\(|^-|\n-/.test(seen), `after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}: ${seen}`);
+    assert.ok(!/<h[1-6][^>]*>(?!S)/.test(html), `a paragraph turned into a heading after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}`);
+    assert.ok(!(html.match(/<figure class="bs-code[\s\S]*?<\/figure>/g) ?? []).some(code => code.includes('`')), `half a closing fence shown as code after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}`);
+  }
+  const strip = (html) => html.replace(/ aria-busy="true"/, '');
+  assert.equal(strip(render(h(Markdown, { text: answer, streaming: true }))), render(h(Markdown, { text: answer })));
+  // Marks inside code are left as written, and a sum is not mistaken for emphasis.
+  assert.match(render(h(Markdown, { text: 'Run `a * b` then 2 * 3 and snake_case_name', streaming: true })), /<p>Run <code>a \* b<\/code> then 2 \* 3 and snake_case_name<\/p>/);
+  assert.match(render(h(Markdown, { text: '**bold *both', streaming: true })), /<strong>bold <em>both<\/em><\/strong>/);
+});
+
+test('markdown hands a fenced block to its renderer once the fence closes and falls back to code on bad data', () => {
+  const blocks = { chart: (source) => h('output', null, JSON.parse(source).title) };
+  const done = '```chart\n{"title":"Cups per day"}\n```\n';
+  assert.match(render(h(Markdown, { text: done, blocks })), /<output>Cups per day<\/output>/);
+  const open = render(h(Markdown, { text: '```chart\n{"title":"Cups', blocks, streaming: true }));
+  assert.match(open, /<div class="bs-md__pending" role="status"><span class="bs-sr-only">Drawing<\/span><\/div>/);
+  assert.ok(!open.includes('Cups'), 'half a block of data is not drawn');
+  const broken = render(h(Markdown, { text: '```chart\n{"title":\n```\n', blocks }));
+  assert.match(broken, /<figure class="bs-code/);
+  assert.match(broken, /\{&quot;title&quot;:/);
 });
 
 test('source cards are a named ordered list, linked when they have an address', () => {

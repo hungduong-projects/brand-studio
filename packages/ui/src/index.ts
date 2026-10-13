@@ -7,5 +7,6 @@ export * from './nav.js';
 export * from './data.js';
 export * from './product.js';
 export * from './chat.js';
+export * from './markdown.js';
 export * from './voice.js';
 export * from './social.js';

@@ -66,6 +66,7 @@ Start from the job the person is doing on this screen, not from a component you 
 | See which tools the agent called and whether they worked | `ToolChips` | The person must allow the call first: use `ApprovalCard` |
 | Allow or deny an action before the agent takes it | `ApprovalCard` | The action is harmless and reversible: let it run and report it |
 | Read an answer as the model writes it | `StreamingText` | The text is complete: render it directly |
+| Read an answer that has structure: headings, lists, a table, code, links, notes | `Markdown` | The answer is one plain sentence: use `StreamingText` |
 | Read a conversation that follows the newest message | `ChatThread` with `ChatMessage` | There is one answer and no back-and-forth: show it in a `Card` |
 | Type a message, send it and stop a running answer | `ChatComposer` | The person adds sources or commands: use `PromptBar` |
 | Point the agent at sources, run a command or pick a model while typing | `PromptBar` | The people using it only chat: use `ChatComposer` |
