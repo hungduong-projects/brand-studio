@@ -85,6 +85,7 @@ Review these on `sheet.png` and `phone.png`, because the script can't judge them
 | `phone.png` | The page at 390 px |
 | `sheet.png` | Every step in light and dark |
 | `figure.mp4` | With `--video`: the page walking through every step, 1080 px wide and silent, for a social post, a slide or a README. Needs ffmpeg |
+| `3d/<step>.png`, `3d/<step>-dark.png` | With `--3d`: each step as lit solids with cast shadows, 2000 px wide on the page colour, for a hero, a campaign or a social post. The view matches the flat drawing, so a render can replace `figure.svg` in a layout. Needs `three` installed where you run the script |
 
 A reader moves through the figure four ways:
 
@@ -98,7 +99,7 @@ The drawing follows the selected step on a spring; with reduced motion it change
 ## Run and review
 
 ```sh
-node <this-skill>/scripts/figure.mjs <project>/brand/figure.json [--out DIR] [--video]
+node <this-skill>/scripts/figure.mjs <project>/brand/figure.json [--out DIR] [--video] [--3d]
 ```
 
 The script exits with an error after writing the files when a geometry or page check fails, so you can see the problem. `examples/deskhand/figure/` in the Brand Studio repository is a complete figure.

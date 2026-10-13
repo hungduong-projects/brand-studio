@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureModel, figureSvg, nearer, paintOrder, palette, touch, tourAt, tourSeconds, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
+import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureModel, figureSolids, figureSvg, nearer, paintOrder, palette, touch, tourAt, tourSeconds, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
 import { contrast } from '../plugins/brand-studio/skills/brand-design/scripts/brand-check.mjs';
 import { unsafe } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
 
@@ -227,6 +228,19 @@ test('the Deskhand model on disk, and the copy the docs demo draws, match the sc
   assert.equal(readFileSync(new URL('../apps/docs/demos/explainer-figure/reply-desk.json', import.meta.url), 'utf8'), expected);
 });
 
+test('the solids for a 3D render carry each shown part\'s outline, height, offset, colours and marks', () => {
+  const spec = figure(), colors = palette(brand.tokens.light), solids = figureSolids(spec, audit(spec), 1, colors);
+  assert.deepEqual(solids.map(s => s.id), spec.parts.map(p => p.id));
+  const card = solids.find(s => s.id === 'card'), knob = solids.find(s => s.id === 'knob');
+  assert.deepEqual([card.plan.length, card.base, card.height, card.offset], [4, 4, 2, [40, 0, 0]]);
+  // The three rules lie on the card's top face.
+  assert.deepEqual(card.marks.map(m => [m.paint, m.points.length, ...new Set(m.points.map(p => p[2]))]), [['rule', 2, 6], ['rule', 2, 6], ['rule', 2, 6]]);
+  assert.deepEqual([knob.lit, knob.fill, card.lit, card.fill], [true, colors.lit.top, false, colors.subject.top]);
+  assert.ok(knob.plan.length > 48, 'a round part carries more points than the flat drawing');
+  const hidden = figure(s => ({ ...s, steps: [{ ...s.steps[0], hide: ['lid'] }, s.steps[1]] }));
+  assert.ok(!figureSolids(hidden, audit(hidden), 0, colors).some(s => s.id === 'lid'));
+});
+
 test('CLI: exports the page and stills, also when started through a symlink', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'figure-')), link = path.join(dir, 'figure-link.mjs');
   writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
@@ -244,6 +258,30 @@ test('CLI: --video adds an MP4 of the tour', { skip: spawnSync('ffmpeg', ['-vers
   const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'figure.json'), '--video'], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   assert.equal(readFileSync(path.join(dir, 'out/figure.mp4')).subarray(4, 8).toString(), 'ftyp');
+});
+
+const three = (() => { try { createRequire(path.join(process.cwd(), 'index.js')).resolve('three'); return true; } catch { return false; } })();
+test('CLI: --3d adds a lit render of every step in both themes', { skip: !three && 'three is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'figure-'));
+  writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'figure.json'), '--3d'], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  const sizes = ['start', 'end', 'start-dark', 'end-dark'].map(name => {
+    const png = readFileSync(path.join(dir, `out/3d/${name}.png`));
+    assert.equal(png.subarray(1, 4).toString(), 'PNG', name);
+    return png.length;
+  });
+  // The card moves between the steps and the themes differ, so no two renders are the same file size by chance of a blank frame.
+  assert.equal(new Set(sizes).size, 4);
+});
+
+test('CLI: --3d without three says so before it exports', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'figure-'));
+  writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
+  const run = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'figure.json'), '--3d'], { encoding: 'utf8', cwd: dir });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /Install three to use --3d/);
+  assert.ok(!existsSync(path.join(dir, 'out')));
 });
 
 test('CLI: --video without ffmpeg says so before it exports', () => {
