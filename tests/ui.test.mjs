@@ -350,6 +350,11 @@ test('markdown never shows a raw mark while the text is still arriving', () => {
   assert.match(render(h(Markdown, { text: 'Run `a * b` then 2 * 3 and snake_case_name', streaming: true })), /<p>Run <code>a \* b<\/code> then 2 \* 3 and snake_case_name<\/p>/);
   assert.match(render(h(Markdown, { text: '**bold *both', streaming: true })), /<strong>bold <em>both<\/em><\/strong>/);
   assert.match(render(h(Markdown, { text: 'Use ``a ` b`` and **bo', streaming: true })), /<code>a ` b<\/code> and <strong>bo<\/strong>/);
+  // Half a link shows its words at every stage; half an image, and anything after it, waits.
+  for (const text of ['See the [brew guide', 'See the [brew guide]', 'See the [brew guide](https://example.com/a (b', 'See the [brew guide](/a) and [brew']) assert.match(render(h(Markdown, { text, streaming: true })), /^<div[^>]*><p>See the (?:<a href="\/a">brew guide<\/a> and brew|brew guide)<\/p><\/div>$/, text);
+  for (const text of ['Look ![a', 'Look ![a](/b', 'Look ![a [b', 'Look ![a](/b) then ![c](']) assert.match(render(h(Markdown, { text, streaming: true })), /^<div[^>]*><p>Look (?:<img src="\/b" alt="a" loading="lazy"\/> then ?)?<\/p><\/div>$/, text);
+  assert.match(render(h(Markdown, { text: 'An [open link ![with a picture', streaming: true })), /<p>An open link ?<\/p>/);
+  assert.match(render(h(Markdown, { text: 'A stray ]( then [brew', streaming: true })), /<p>A stray \]\( then brew<\/p>/);
 });
 
 test('markdown draws hostile text without stalling or failing', () => {

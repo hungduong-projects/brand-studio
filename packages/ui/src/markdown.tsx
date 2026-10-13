@@ -58,6 +58,21 @@ function blank(value: string) {
 }
 
 /**
+ * A link left unfinished at the end of `text`: "[words", "[words]" or "[words](address". It gives where the link starts
+ * and the words in its brackets; `whole` says the brackets are closed with nothing after them. Found by position, in
+ * one pass.
+ */
+function unfinished(text: string) {
+  const address = text.lastIndexOf('](');
+  // An open address is tried first; "](" with no bracket before it is plain text, and the end of the text is tried instead.
+  for (const end of [address >= 0 && !text.includes(')', address + 2) ? address : -1, text.endsWith(']') ? text.length - 1 : text.length]) {
+    const start = end < 0 ? -1 : text.indexOf('[', text.lastIndexOf(']', end - 1) + 1);
+    if (start >= 0 && start < end) return { start, words: text.slice(start + 1, end), whole: end === text.length - 1 };
+  }
+  return null;
+}
+
+/**
  * Text that is still arriving ends mid-mark. This closes the bold, italic, code and strikethrough left open in the last
  * block, shows an unfinished link as its words and holds back an unfinished image, table or list marker, so raw symbols
  * never flash on screen.
@@ -86,13 +101,13 @@ function settle(text: string) {
   }
   // A task box with nothing after it yet waits with its list marker.
   tail = tail.replace(/((?:^|\n)[ \t]*(?:[-*+]|\d{1,9}[.)])[ \t]+)\[[ xX]?\]?[ \t]*$/, '$1');
-  // An unfinished link or image is looked for in the last stretch only, which keeps the search short on any text.
-  const from = Math.max(0, tail.length - 1000), plain = blank(tail).slice(from);
-  const image = /!\[[^\]]*(?:\](?:\([^)]*)?)?$/.exec(plain), link = /\[([^\]]*)(?:\](?:\([^)]*)?)?$/.exec(plain);
-  if (image) tail = tail.slice(0, from + image.index);
+  // An unfinished image has nothing to show until its address is whole, so it waits.
+  let plain = blank(tail), link = unfinished(plain);
+  const picture = link ? plain.indexOf('![', Math.max(0, link.start - 1)) : -1;
+  if (picture >= 0) { tail = tail.slice(0, picture); plain = plain.slice(0, picture); link = unfinished(plain); }
   // An unfinished link shows its words; a footnote mark is held back until it is whole.
-  else if (link && !link[1].startsWith('^')) tail = tail.slice(0, from + link.index) + tail.slice(from + link.index + 1, from + link.index + 1 + link[1].length);
-  else if (link && !link[0].endsWith(']')) tail = tail.slice(0, from + link.index);
+  if (link && !link.words.startsWith('^')) tail = tail.slice(0, link.start) + tail.slice(link.start + 1, link.start + 1 + link.words.length);
+  else if (link && !link.whole) tail = tail.slice(0, link.start);
   // A lone list marker, rule or heading mark on the last line waits for what follows it; under a paragraph, "-" would turn it into a heading.
   tail = tail.replace(/(^|\n)[ \t]*(?:[-=*+_]+|\d{1,9}[.)]|#{1,6})[ \t]*$/, '$1').replace(/(^|[\s(])[*_~]+$/, '$1');
   const marks = blank(tail), closing = '_'.repeat(owed(marks, '_')) + '*'.repeat(owed(marks, '*')) + '~'.repeat(owed(marks, '~'));
