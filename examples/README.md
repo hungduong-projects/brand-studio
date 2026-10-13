@@ -44,3 +44,11 @@ node plugins/brand-studio/skills/brand-design/scripts/mascot.mjs examples/deskha
 ```sh
 node plugins/brand-studio/skills/brand-design/scripts/icons.mjs examples/deskhand/icons/icons.json
 ```
+
+## Deskhand figure
+
+`deskhand/figure/` explains how Deskhand answers one ticket as a desk drawn from 36 solid parts: source drawers open, the reply takes its three citations, and it stops at a gate until you approve the refund. Open `out/figure.html` to step through it. Run:
+
+```sh
+node plugins/brand-studio/skills/brand-design/scripts/figure.mjs examples/deskhand/figure/figure.json
+```
