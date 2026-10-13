@@ -42,17 +42,41 @@ Treat a model's answer as text from a stranger.
 
 ## Drawn blocks
 
-`blocks` hands a fenced block to your own renderer, keyed by the word after the fence. Use it for maths, a diagram or a chart the model describes as data.
+`blocks` hands a fenced block to a renderer, keyed by the word after the fence. The model writes data and the page decides how to draw it, so an answer can hold a chart without the model ever sending markup or code.
+
+<Preview name="markdown/blocks" />
+
+`visualBlocks` is a ready-made set: a `chart` block becomes a [Chart](/docs/components/chart/) and a `flow` block a [Flow Diagram](/docs/components/flow-diagram/).
 
 ```tsx
-const blocks = {
-  chart: (source: string) => <SalesChart {...JSON.parse(source)} />,
-};
+import { Markdown, visualBlocks } from '@brand-studio/ui';
 
-<Markdown text={answer} streaming={busy} blocks={blocks} />
+<Markdown text={answer} streaming={busy} blocks={visualBlocks} />
 ```
 
-While the fence is still open the block shows a placeholder, so your renderer only ever gets the whole source. If it throws, for example on JSON the model got wrong, the source shows as a code block. Define `blocks` outside the component or memoise it, so finished blocks are not redrawn.
+Tell the model the shapes in your system prompt:
+
+````md
+```chart
+{ "title": "Cups sold", "kind": "bar", "unit": " cups", "labels": ["Fri", "Sat"],
+  "series": [{ "name": "Hot", "values": [58, 74] }], "lit": "Sat", "note": "Saturday was busiest." }
+```
+
+```flow
+{ "title": "Before Saturday", "nodes": [{ "id": "a", "label": "Roast" }, { "id": "b", "label": "Rest", "kind": "step" }],
+  "edges": [{ "from": "a", "to": "b", "label": "Then" }], "lit": ["a", "b"] }
+```
+````
+
+`kind` is `bar`, `line` or `area` for a chart and `step` or `decision` for a node. A `unit` that starts with a currency sign goes before the number; any other follows it.
+
+Add your own renderers beside them:
+
+```tsx
+const blocks = { ...visualBlocks, map: (source: string) => <StoreMap {...JSON.parse(source)} /> };
+```
+
+While the fence is still open the block shows a placeholder, so a renderer only ever gets the whole source. If it throws, for example on JSON the model got wrong or a field of the wrong shape, the source shows as a code block. Define `blocks` outside the component or memoise it, so finished blocks are not redrawn.
 
 ## Headings
 

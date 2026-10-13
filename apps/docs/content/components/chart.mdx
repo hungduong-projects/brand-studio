@@ -1,0 +1,51 @@
+---
+title: Chart
+description: "A bar, line or area chart that gives one reading at a time and one thing to take from it."
+---
+
+<Preview name="chart/default" />
+
+## Installation
+
+<Install name="Chart" />
+
+## Usage
+
+```tsx
+import { Chart } from '@brand-studio/ui';
+```
+
+```tsx
+<Chart
+  title="Cups sold"
+  labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
+  series={[{ name: 'Hot', values: [42, 38, 45, 51, 58, 74, 61] }]}
+  lit="Sat"
+  note="Saturday was the busiest day: 74 cups."
+  format={value => `${value} cups`}
+/>
+```
+
+Set `kind` to `bar`, `line` or `area`. Bars and areas are measured from zero, so zero is always on their axis; a line's axis fits its values. A `null` value leaves a gap.
+
+## One accent
+
+A brand has one accent, so a chart has one lit thing. `lit` names the series to draw in the accent. With a single series it can name a label, and that point alone takes the accent while the rest step back. Other series are drawn in ink, then in a quiet tone with a dashed line. Three series is the most that reads clearly; past that, use a [Data Table](/docs/components/data-table/).
+
+## Note and reading
+
+`note` is the one thing to take from the chart, in a sentence. It shows until someone points at the chart, drags across it or moves through it with the arrow keys; then the same line shows that point's values. The line keeps its height, so the chart never jumps.
+
+## Size
+
+The chart fills the width it is given and thins its bottom labels when there is no room for all of them. Set `--bs-chart-height` to change the height of the plot.
+
+## Accessibility
+
+- Every value is also in a table that screen readers reach. The drawing itself is hidden from them.
+- The plot takes focus. Left and right arrows move one point, Home and End jump to the ends, and Escape clears the reading.
+- A fill never carries meaning by colour alone: each tone has its own edge, the quiet line is dashed, and the reading names each series.
+
+## API Reference
+
+<Props name="Chart" />

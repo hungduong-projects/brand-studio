@@ -52,7 +52,9 @@ Start from the job the person is doing on this screen, not from a component you 
 | The person needs to | Use | Not when |
 |---|---|---|
 | Compare rows across columns, sort them, scan them | `DataTable` | Each item is read alone with a picture or actions: use `Card` |
-| Watch one key number and its direction | `StatCard` | The change needs axes and values to be understood: use a full chart |
+| Watch one key number and its direction | `StatCard` | The change needs axes and values to be understood: use `Chart` |
+| Compare values or see them change, with an axis and one reading at a time | `Chart` | One number tells it: use `StatCard`. More than three series, or the exact figures matter most: use `DataTable` |
+| Follow steps and decisions and see which path was taken | `FlowDiagram` | The steps run in one line with no branch: use `TaskRows` or a numbered list. The parts are layers of one system: use `ExplainerFigure` |
 | Read one item: title, detail, actions | `Card` | The items are compared column by column: use `DataTable` |
 | Read a status or category at a glance | `Badge` | The status needs an explanation: use `Alert` |
 
@@ -67,6 +69,7 @@ Start from the job the person is doing on this screen, not from a component you 
 | Allow or deny an action before the agent takes it | `ApprovalCard` | The action is harmless and reversible: let it run and report it |
 | Read an answer as the model writes it | `StreamingText` | The text is complete: render it directly |
 | Read an answer that has structure: headings, lists, a table, code, links, notes | `Markdown` | The answer is one plain sentence: use `StreamingText` |
+| See a chart or a flow the agent describes inside its answer | `Markdown` with `visualBlocks` | The picture would need markup or code from the model: add a renderer to `blocks` that takes data |
 | Read a conversation that follows the newest message | `ChatThread` with `ChatMessage` | There is one answer and no back-and-forth: show it in a `Card` |
 | Type a message, send it and stop a running answer | `ChatComposer` | The person adds sources or commands: use `PromptBar` |
 | Point the agent at sources, run a command or pick a model while typing | `PromptBar` | The people using it only chat: use `ChatComposer` |
@@ -170,6 +173,17 @@ The brand stays the same across these; its volume changes.
 - **Product pages**: a `SiteBar` and a sticky `ProductBar`, then the product components in a steady rhythm. One signature moment (a 3D stage, a film) carries the page; the rest stays quiet.
 
 Every component takes colour, type and corners from the contract, so pick by job and let the contract carry the look. Do not restyle a component to make it stand out; if it must stand out, the job may call for a different component.
+
+## Let an answer draw
+
+An agent's answer can carry more than prose. Take the first step on this ladder that does the job.
+
+1. **Text**: one plain sentence. `StreamingText`.
+2. **Structure**: headings, steps, a table, code, sources. `Markdown`.
+3. **A drawn block**: values to compare or a route with decisions. The model writes a fenced `chart` or `flow` block of data and `visualBlocks` draws it.
+4. **A component**: something the person acts on, such as `ApprovalCard` or `RecommendationCard`. The app picks it from the agent's state, not from the answer's text.
+
+The model sends data and the page owns the look, so a drawn block stays on brand and a wrong one falls back to text. Give each chart one `note` that says what to take from it and light one thing. Light the path an agent took through a flow. Do not draw what a sentence says faster: two numbers are a sentence, not a chart.
 
 ## Promote a pattern
 

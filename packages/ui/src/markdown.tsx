@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { Lexer, Tokenizer } from 'marked';
 import type { Token, Tokens } from 'marked';
 import { CodeBlock } from './chat.js';
+import { Chart, FlowDiagram } from './data.js';
 
 const entities: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', copy: '©', reg: '®', trade: '™', hellip: '…', mdash: '—', ndash: '–', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”', times: '×', deg: '°', middot: '·', bull: '•', larr: '←', rarr: '→', uarr: '↑', darr: '↓', euro: '€', pound: '£', yen: '¥', cent: '¢' };
 
@@ -276,3 +277,39 @@ export function Markdown({ text, streaming = false, blocks, imageOrigins, headin
     </section>}
   </div>;
 }
+
+const refuse = (): never => { throw new Error('The block does not fit its component.'); };
+const words = (value: unknown, limit: number) => typeof value === 'string' && value.length > 0 && value.length <= limit ? value : refuse();
+const maybe = (value: unknown, limit: number) => value === undefined ? undefined : words(value, limit);
+const rows = (value: unknown, limit: number): unknown[] => Array.isArray(value) && value.length > 0 && value.length <= limit ? value : refuse();
+const record = (value: unknown) => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : refuse();
+const figures = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+
+/**
+ * Ready-made `blocks`: a fenced `chart` or `flow` block of JSON becomes a `Chart` or a `FlowDiagram`. The model sends
+ * data and never code. Every field is checked, and anything that does not fit throws, so a bad block shows as the
+ * text it is.
+ */
+export const visualBlocks: Record<string, (source: string) => ReactNode> = {
+  chart(source) {
+    const data = record(JSON.parse(source)), unit = maybe(data.unit, 8) ?? '', kind = data.kind ?? 'bar';
+    if (kind !== 'bar' && kind !== 'line' && kind !== 'area') return refuse();
+    const labels = rows(data.labels, 60).map(label => words(label, 40));
+    const series = rows(data.series, 4).map(item => ({ name: words(record(item).name, 40), values: rows(record(item).values, 60).map(value => value === null || (typeof value === 'number' && Number.isFinite(value)) ? value : refuse()) }));
+    if (series.some(item => item.values.length !== labels.length)) refuse();
+    // A currency sign leads the number; any other unit follows it.
+    const format = (value: number) => /^[$€£¥]/.test(unit) ? `${value < 0 ? '-' : ''}${unit}${figures.format(Math.abs(value))}` : `${figures.format(value)}${unit}`;
+    return <Chart title={words(data.title, 120)} kind={kind} labels={labels} series={series} lit={maybe(data.lit, 40)} note={maybe(data.note, 240)} format={format} />;
+  },
+  flow(source) {
+    const data = record(JSON.parse(source));
+    const nodes = rows(data.nodes, 24).map(item => {
+      const node = record(item), kind = node.kind === undefined ? undefined : node.kind === 'decision' ? 'decision' as const : node.kind === 'step' ? 'step' as const : refuse();
+      return { id: words(node.id, 40), label: words(node.label, 80), note: maybe(node.note, 160), tag: maybe(node.tag, 24), kind };
+    });
+    const ids = new Set(nodes.map(node => node.id)), known = (value: unknown) => typeof value === 'string' && ids.has(value) ? value : refuse();
+    if (ids.size !== nodes.length) refuse();
+    const edges = rows(data.edges, 60).map(item => ({ from: known(record(item).from), to: known(record(item).to), label: maybe(record(item).label, 24) }));
+    return <FlowDiagram title={words(data.title, 120)} nodes={nodes} edges={edges} lit={data.lit === undefined ? undefined : rows(data.lit, 24).map(known)} />;
+  },
+};
