@@ -2,16 +2,18 @@
 // Check and export an explainer figure: an isometric drawing of a working object, built from a parts list, that steps
 // through how a system works in the brand's tokens.
 //
-//   node figure.mjs <dir>/figure.json [--out DIR] [--video]
+//   node figure.mjs <dir>/figure.json [--out DIR] [--video] [--3d]
 //
 // Paths in the spec resolve from its folder. Writes figure.html (standalone, light and dark, keyboard and touch),
 // figure.svg (the poster step in presentation attributes), figure.model.json (the drawing as data for a component),
-// poster.png, phone.png and sheet.png (every step in both themes) to <dir>/out. --video adds figure.mp4, the page walking through every step. Exits with an error after writing
-// them when parts pass through each other at a step or during a move, a part floats, the depth order has a cycle, the
-// lit part is too small on a 390 px phone, or the page overflows, clips text, has a small tap target, draws a step
-// differently from the audit or does not follow a swipe, Play or a seek.
+// poster.png, phone.png and sheet.png (every step in both themes) to <dir>/out. --video adds figure.mp4, the page
+// walking through every step. --3d adds 3d/<step>.png and 3d/<step>-dark.png, the same parts as lit solids from the
+// same view on the page colour. Exits with an error after writing them when parts pass through each other at a step or during a move, a
+// part floats, the depth order has a cycle, the lit part is too small on a 390 px phone, or the page overflows, clips
+// text, has a small tap target, draws a step differently from the audit or does not follow a swipe, Play or a seek.
 //
-// Needs playwright-core and a Chromium (`npx playwright-core install chromium`). --video needs ffmpeg on the PATH.
+// Needs playwright-core and a Chromium (`npx playwright-core install chromium`). --video needs ffmpeg on the PATH;
+// --3d needs three installed where you run the script.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -113,31 +115,31 @@ export function paintOrder(items, cam = camera()) {
   return { order: order.map(i => items[i].id), cycle: [] };
 }
 
-/** A part's plan outline, counter-clockwise, shrunk by inset. */
-function planOf(part, inset = 0) {
+/** A part's plan outline, counter-clockwise, shrunk by inset. fine multiplies the points on each curve. */
+function planOf(part, inset = 0, fine = 1) {
   if (part.kind === 'cylinder') {
     const r = part.r - inset;
-    return Array.from({ length: 48 }, (_, i) => [part.at[0] + r * Math.cos(Math.PI * i / 24), part.at[1] + r * Math.sin(Math.PI * i / 24)]);
+    return Array.from({ length: 48 * fine }, (_, i) => [part.at[0] + r * Math.cos(Math.PI * i / (24 * fine)), part.at[1] + r * Math.sin(Math.PI * i / (24 * fine))]);
   }
   const [x, y] = [part.at[0] + inset, part.at[1] + inset], [w, d] = [part.size[0] - 2 * inset, part.size[1] - 2 * inset];
   const r = Math.max(0, Math.min((part.round ?? 0) - inset, w / 2, d / 2));
   if (r < 0.05) return [[x, y], [x + w, y], [x + w, y + d], [x, y + d]];
-  const arc = (cx, cy, from) => Array.from({ length: 7 }, (_, i) => { const t = (from + i * 15) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; });
+  const arc = (cx, cy, from) => Array.from({ length: 6 * fine + 1 }, (_, i) => { const t = (from + i * 15 / fine) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; });
   return [...arc(x + w - r, y + r, -90), ...arc(x + w - r, y + d - r, 0), ...arc(x + r, y + d - r, 90), ...arc(x + r, y + r, 180)];
 }
 
-/** The marks of one detail as { d, paint } paths. chain is the part's visible side run at a height. */
-function detailPaths(part, detail, cam, chain) {
-  const P = cam.point, [x, y, z0] = part.at, h = heightOf(part), z1 = z0 + h, m = detail.margin ?? 3, on = detail.on ?? ON[detail.kind][0];
-  if (detail.kind === 'seam') return [{ d: line(chain(z0 + h * (detail.at ?? 0.5))), paint: 'detail' }];
-  if (on === 'top' && detail.kind === 'inset') return [{ d: `${line(planOf(part, m).map(p => P([...p, z1])))}Z`, paint: 'detail' }];
+/** The marks of one detail as { points, closed, paint }, in world coordinates. chain is the side run to mark at a height. */
+function detailMarks(part, detail, chain) {
+  const [x, y, z0] = part.at, h = heightOf(part), z1 = z0 + h, m = detail.margin ?? 3, on = detail.on ?? ON[detail.kind][0];
+  if (detail.kind === 'seam') return [{ points: chain(z0 + h * (detail.at ?? 0.5)), paint: 'detail' }];
+  if (on === 'top' && detail.kind === 'inset') return [{ points: planOf(part, m).map(p => [...p, z1]), closed: true, paint: 'detail' }];
   const [w, d] = part.size, round = part.round ?? 0;
   // A point on a face from its low corner: u along the face, v across the top or up a side.
-  const face = { top: (u, v) => [x + u, y + v, z1], left: (u, v) => [x + u, y + d, z0 + v], right: (u, v) => [x + w, y + u, z0 + v] }[on];
+  const at = { top: (u, v) => [x + u, y + v, z1], left: (u, v) => [x + u, y + d, z0 + v], right: (u, v) => [x + w, y + u, z0 + v] }[on];
   const [U, V] = [on === 'right' ? d : w, on === 'top' ? d : h];
-  const pad = Math.max(m, on === 'top' ? 0 : round), at = (u, v) => P(face(u, v));
-  if (detail.kind === 'inset') return [{ d: `${line([at(pad, m), at(U - pad, m), at(U - pad, V - m), at(pad, V - m)])}Z`, paint: 'detail' }];
-  if (detail.kind === 'screws') return [[m, m], [U - m, m], [U - m, V - m], [m, V - m]].map(([u, v]) => ({ d: `${line(Array.from({ length: 10 }, (_, i) => at(u + 0.9 * Math.cos(Math.PI * i / 5), v + 0.9 * Math.sin(Math.PI * i / 5))))}Z`, paint: 'dot' }));
+  const pad = Math.max(m, on === 'top' ? 0 : round);
+  if (detail.kind === 'inset') return [{ points: [at(pad, m), at(U - pad, m), at(U - pad, V - m), at(pad, V - m)], closed: true, paint: 'detail' }];
+  if (detail.kind === 'screws') return [[m, m], [U - m, m], [U - m, V - m], [m, V - m]].map(([u, v]) => ({ points: Array.from({ length: 10 }, (_, i) => at(u + 0.9 * Math.cos(Math.PI * i / 5), v + 0.9 * Math.sin(Math.PI * i / 5))), closed: true, paint: 'dot' }));
   const count = detail.count ?? 3;
   if (detail.kind === 'slats') {
     // Each slat runs across the top from edge to edge, so it ends on the outline, also on a rounded plan.
@@ -145,16 +147,15 @@ function detailPaths(part, detail, cam, chain) {
     return Array.from({ length: count }, (_, i) => {
       const value = low + size * (i + 1) / (count + 1), hits = [];
       plan.forEach((p, k) => { const q = plan[(k + 1) % plan.length]; if ((p[across] - value) * (q[across] - value) < 0) hits.push(p[axis] + (q[axis] - p[axis]) * (value - p[across]) / (q[across] - p[across])); });
-      const ends = [Math.min(...hits), Math.max(...hits)].map(v => { const p = [0, 0, z1]; p[axis] = v; p[across] = value; return P(p); });
-      return { d: line(ends), paint: 'detail' };
+      return { points: [Math.min(...hits), Math.max(...hits)].map(v => { const p = [0, 0, z1]; p[axis] = v; p[across] = value; return p; }), paint: 'detail' };
     });
   }
   if (detail.kind === 'slots') {
     const width = (U - 2 * pad) / (count * 1.5 - 0.5), tall = Math.min(2, V * 0.14), mid = V * (detail.at ?? 0.5);
-    return Array.from({ length: count }, (_, i) => { const u = pad + i * width * 1.5; return { d: `${line([at(u, mid - tall / 2), at(u + width, mid - tall / 2), at(u + width, mid + tall / 2), at(u, mid + tall / 2)])}Z`, paint: 'detail' }; });
+    return Array.from({ length: count }, (_, i) => { const u = pad + i * width * 1.5; return { points: [at(u, mid - tall / 2), at(u + width, mid - tall / 2), at(u + width, mid + tall / 2), at(u, mid + tall / 2)], closed: true, paint: 'detail' }; });
   }
   // rules: lines of different lengths that stand for printed text, the one mark allowed to end on a bare face
-  return Array.from({ length: count }, (_, i) => { const v = m + (V - 2 * m) * (i + 0.5) / count; return { d: line([at(pad, v), at(pad + (U - 2 * pad) * [1, 0.62, 0.84][i % 3], v)]), paint: 'rule' }; });
+  return Array.from({ length: count }, (_, i) => { const v = m + (V - 2 * m) * (i + 0.5) / count; return { points: [at(pad, v), at(pad + (U - 2 * pad) * [1, 0.62, 0.84][i % 3], v)], paint: 'rule' }; });
 }
 
 /** The paths of one part at rest, back to front: side facets, top, creases, outline, then details. */
@@ -166,7 +167,7 @@ function draw(part, cam) {
   let start = 0; while (!(seen(start) && !seen(start + n - 1))) start++;
   let count = 0; while (seen(start + count)) count++;
   const level = i => { const m = normal(i); return Math.round((Math.asin(Math.max(-1, Math.min(1, m[0] * cam.right[0] + m[1] * cam.right[1]))) / Math.PI + 0.5) * LEVELS); };
-  const chain = z => Array.from({ length: count + 1 }, (_, k) => at(start + k, z));
+  const rim = z => Array.from({ length: count + 1 }, (_, k) => [...plan[(start + k) % n], z]), chain = z => rim(z).map(P);
   const shapes = [];
   for (let i = 0; i < count;) {
     let j = i; while (j + 1 < count && level(start + j + 1) === level(start + i)) j++;
@@ -182,7 +183,7 @@ function draw(part, cam) {
   }
   const far = Array.from({ length: n - count + 1 }, (_, k) => at(start + count + k, z1));
   shapes.push({ d: `${line([...chain(z0), ...far])}Z`, paint: 'edge' });
-  for (const detail of part.details ?? []) shapes.push(...detailPaths(part, detail, cam, chain));
+  for (const detail of part.details ?? []) shapes.push(...detailMarks(part, detail, rim).map(mark => ({ d: `${line(mark.points.map(P))}${mark.closed ? 'Z' : ''}`, paint: mark.paint })));
   return shapes;
 }
 
@@ -434,6 +435,18 @@ export function figureModel(spec, model) {
   };
 }
 
+/** One step as solids for a 3D renderer, in world coordinates: each shown part's plan outline, base, height, offset,
+ * colours and detail marks. A seam runs all the way round, since a 3D view can turn. */
+export function figureSolids(spec, model, step, colors) {
+  const pose = model.pose[step];
+  return spec.parts.flatMap((part, i) => {
+    if (pose.hidden[i]) return [];
+    // Curves carry four times the flat drawing's points, so a lit round face shades without bands.
+    const c = colors[pose.lit[i] ? 'lit' : part.tone], plan = planOf(part, 0, 4), ring = z => [...plan, plan[0]].map(p => [...p, z]);
+    return [{ id: part.id, plan, base: part.at[2], height: heightOf(part), offset: pose.offset[i], lit: pose.lit[i], fill: c.top, line: c.detail, marks: (part.details ?? []).flatMap(d => detailMarks(part, d, ring)) }];
+  });
+}
+
 // The step list is a tablist: arrow keys, Home and End move between steps. The drawing follows the selected step on a
 // critically damped spring, so a jump over several steps plays each one in between and never cuts through a part.
 // A sideways drag on the drawing scrubs between steps and settles on the nearest. Play walks to the last step and stops.
@@ -612,8 +625,8 @@ async function film(browser, file, spec, target) {
 
 async function main() {
   const argv = process.argv.slice(2), input = argv[0];
-  if (!input || input.startsWith('--')) throw new Error('Usage: node figure.mjs <dir>/figure.json [--out DIR] [--video]');
-  const video = argv.includes('--video');
+  if (!input || input.startsWith('--')) throw new Error('Usage: node figure.mjs <dir>/figure.json [--out DIR] [--video] [--3d]');
+  const video = argv.includes('--video'), solid = argv.includes('--3d') ? await import('./figure-3d.mjs') : null, three = solid?.findThree();
   if (video && spawnSync('ffmpeg', ['-version']).status !== 0) throw new Error('ffmpeg is not on the PATH. Install it (brew install ffmpeg) and run again, or leave out --video.');
   const dir = path.dirname(path.resolve(input)), spec = JSON.parse(readFileSync(input, 'utf8'));
   const { errors, warnings } = validateFigure(spec, { root: dir });
@@ -627,13 +640,18 @@ async function main() {
   writeFileSync(path.join(out, 'figure.svg'), `${still}\n`);
   writeFileSync(path.join(out, 'figure.model.json'), `${JSON.stringify(figureModel(spec, model))}\n`);
   const problems = [...model.problems, ...unsafe(still).map(e => `figure.svg: ${e}`)];
-  const browser = await launch();
+  // Software WebGL lets --3d render on a machine with no GPU, such as a container.
+  const browser = await launch(solid ? ['--enable-unsafe-swiftshader'] : []);
   try {
     problems.push(...await review(browser, file, spec, model, { width: 390, height: 844, scheme: 'light', shot: path.join(out, 'phone.png'), scale: 2 }));
     problems.push(...await review(browser, file, spec, model, { width: 390, height: 844, scheme: 'dark' }));
     problems.push(...await review(browser, file, spec, model, { width: 1280, height: 900, scheme: 'light' }));
     problems.push(...await drive(browser, file, spec, model));
     if (video) await film(browser, file, spec, path.join(out, 'figure.mp4'));
+    if (solid) {
+      const views = ['light', 'dark'].flatMap(theme => spec.steps.map((step, s) => { const colors = palette(brand.tokens[theme]); return { name: `${step.id}${theme === 'dark' ? '-dark' : ''}`, solids: figureSolids(spec, model, s, colors), shadow: colors.halo, ground: brand.tokens[theme].surface }; }));
+      await solid.render3d(browser, three, views, { box: model.viewBox, azimuth: spec.camera?.azimuth ?? 45 }, path.join(out, '3d'));
+    }
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
     await page.setContent(`<!doctype html><style>body{margin:0}div{box-sizing:border-box;width:1200px;padding:32px;background:${brand.tokens.light.elevated}}svg{display:block;width:100%;height:auto}</style><div>${still}</div>`);
     await page.locator('div').screenshot({ path: path.join(out, 'poster.png') });
