@@ -1,0 +1,44 @@
+/* Markdown */
+.bs-md { min-width: 0; line-height: 1.65; overflow-wrap: anywhere; }
+.bs-md > * { margin-block: 0 1em; }
+.bs-md > :last-child { margin-bottom: 0; }
+.bs-md :is(h1, h2, h3, h4, h5, h6) { margin: 1.6em 0 .55em; font-weight: 600; line-height: 1.25; letter-spacing: -.015em; }
+.bs-md > :first-child { margin-top: 0; }
+.bs-md [data-depth="1"] { font-size: 1.6rem; letter-spacing: -.025em; }
+.bs-md [data-depth="2"] { font-size: 1.3rem; letter-spacing: -.02em; }
+.bs-md [data-depth="3"] { font-size: 1.1rem; }
+.bs-md :is([data-depth="4"], [data-depth="5"], [data-depth="6"]) { font-size: 1rem; }
+.bs-md [data-depth="6"] { color: var(--bs-muted); }
+.bs-md p { margin: 0 0 1em; }
+.bs-md a { color: var(--bs-accent-text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+.bs-md a:hover { text-decoration-thickness: 2px; }
+.bs-theme .bs-md a:focus-visible { outline-offset: 2px; border-radius: 2px; }
+.bs-md :is(ul, ol) { margin: 0 0 1em; padding-left: 1.5em; }
+/* Named outright: a page reset that strips list markers would leave steps without their numbers. */
+.bs-md ul { list-style: disc; }
+.bs-md ul ul { list-style: circle; }
+.bs-md ol { list-style: decimal; }
+.bs-md li { margin-block: .3em; }
+.bs-md li > :is(ul, ol) { margin-bottom: 0; }
+.bs-md li > p { margin-bottom: .5em; }
+.bs-md li::marker { color: var(--bs-muted); }
+.bs-md li[data-task] { position: relative; list-style: none; }
+.bs-md__check { position: absolute; left: -1.5em; top: .32em; width: 1em; height: 1em; border: 1.5px solid var(--bs-muted); border-radius: 4px; }
+.bs-md__check[data-checked] { border-color: var(--bs-accent); background: var(--bs-accent); }
+.bs-md__check[data-checked]::after { content: ""; position: absolute; inset: 0; background: var(--bs-on-accent); clip-path: polygon(14% 52%, 26% 40%, 42% 56%, 74% 22%, 86% 34%, 42% 80%); }
+.bs-md blockquote { margin: 0 0 1em; padding: .1em 0 .1em 1em; border-left: 3px solid var(--bs-line); color: var(--bs-muted); }
+.bs-md blockquote > :last-child { margin-bottom: 0; }
+.bs-md hr { height: 0; margin: 1.6em 0; border: 0; border-top: 1px solid var(--bs-line); }
+.bs-md :not(pre) > code { padding: .12em .35em; border-radius: calc(var(--bs-radius) / 2); background: var(--bs-line-soft); font: .875em/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.bs-md img { display: block; max-width: 100%; height: auto; border-radius: var(--bs-radius); }
+.bs-md del { color: var(--bs-muted); }
+.bs-md sup { font-size: .7em; line-height: 0; }
+.bs-md sup a { padding: 0 .2em; font-weight: 600; text-decoration: none; }
+.bs-md__table :is(th, td) { white-space: normal; min-width: 7ch; vertical-align: top; }
+.bs-md__table [data-align="center"] { text-align: center; }
+.bs-md__notes { margin-top: 1.6em; padding-top: 1em; border-top: 1px solid var(--bs-line); color: var(--bs-muted); font-size: .875rem; }
+.bs-md__notes ol { margin: 0; }
+.bs-md__notes li:target { color: var(--bs-ink); }
+/* A drawn block whose data is still arriving. */
+.bs-md__pending { height: 9rem; border: 1px dashed var(--bs-line); border-radius: calc(var(--bs-radius) + 4px); background: linear-gradient(100deg, transparent 30%, var(--bs-line-soft) 50%, transparent 70%) 0 0 / 250% 100%; animation: bs-md-wait 1.6s linear infinite; }
+@keyframes bs-md-wait { from { background-position: 150% 0; } to { background-position: -100% 0; } }

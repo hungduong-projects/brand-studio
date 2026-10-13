@@ -53,6 +53,7 @@ export const catalog: Entry[] = [
   { slug: 'attachment', exports: ['Attachment'], title: 'Attachment', category: 'AI agents', description: 'A file or image going with a message, with upload progress, remove and retry.' },
   { slug: 'suggestion-chips', exports: ['SuggestionChips'], title: 'Suggestion Chips', category: 'AI agents', description: 'Prompts to start from, or follow-up questions after an answer.' },
   { slug: 'message-actions', exports: ['MessageActions'], title: 'Message Actions', category: 'AI agents', description: 'Copy, retry, edit and rating for one message.' },
+  { slug: 'markdown', exports: ['Markdown'], title: 'Markdown', category: 'AI agents', description: 'An answer written in Markdown, drawn as headings, lists, tables and code while it is still arriving.' },
   { slug: 'code-block', exports: ['CodeBlock'], title: 'Code Block', category: 'AI agents', description: 'Code the agent wrote, with lines that arrive in turn and a copy button that always works.' },
   { slug: 'source-cards', exports: ['SourceCards'], title: 'Source Cards', category: 'AI agents', description: 'What the agent retrieved, numbered to match its citations.' },
   { slug: 'selection-actions', exports: ['SelectionActions'], title: 'Selection Actions', category: 'AI agents', description: 'Select text and a bar of agent actions appears under it.' },
