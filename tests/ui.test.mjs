@@ -377,6 +377,8 @@ test('markdown hands a fenced block to its renderer once the fence closes and fa
   const open = render(h(Markdown, { text: '```chart\n{"title":"Cups', blocks, streaming: true }));
   assert.match(open, /<div class="bs-md__pending" role="status"><span class="bs-sr-only">Drawing<\/span><\/div>/);
   assert.ok(!open.includes('Cups'), 'half a block of data is not drawn');
+  // The line that opens a block waits until it is whole, so a block never shows as code first.
+  for (const text of ['Here:\n\n```', 'Here:\n\n```cha', 'Here:\n\n```chart', 'Here:\n\n~~~js']) assert.equal(render(h(Markdown, { text, blocks, streaming: true })), '<div class="bs-md " aria-busy="true"><p>Here:</p></div>', text);
   const broken = render(h(Markdown, { text: '```chart\n{"title":\n```\n', blocks }));
   assert.match(broken, /<figure class="bs-code/);
   assert.match(broken, /\{&quot;title&quot;:/);

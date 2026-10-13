@@ -82,6 +82,8 @@ function settle(text: string) {
   if (fences.length % 2) {
     // The fence that ends a code block arrives one mark at a time; until it is whole it waits instead of showing as code.
     const open = fences[fences.length - 1].trim(), line = text.lastIndexOf('\n'), last = text.slice(line + 1).trim();
+    // The line that opens a block names what the block is, so the block waits until that line is whole.
+    if (last.startsWith(open)) return text.slice(0, Math.max(0, line));
     return line > 0 && last && last.length < open.length && last === open[0].repeat(last.length) ? text.slice(0, line) : text;
   }
   const cut = text.lastIndexOf('\n\n') + 2, head = cut < 2 ? '' : text.slice(0, cut);
