@@ -25,7 +25,7 @@ It reads CommonMark and GitHub's additions: tables, task lists, strikethrough, b
 
 Pass the text you have so far and set `streaming` until the last piece lands. Text that stops mid-sentence ends inside a bold run, a link or a table, so the component closes what is open at the end: half a bold run shows bold, an unfinished link shows its words, and an image, table or list marker waits until it is whole. Raw symbols never flash on screen.
 
-Each top-level block redraws only when its own source changes, so a long answer costs the same per token at the end as at the start.
+Each top-level block redraws only when its own source changes, so a long answer redraws its last block and leaves the rest alone.
 
 ## Safe by default
 
@@ -34,6 +34,7 @@ Treat a model's answer as text from a stranger.
 - HTML in the source is shown as written. It never becomes elements.
 - A link is used only when it is relative or starts with `http`, `https`, `mailto` or `tel`. Anything else, `javascript:` included, renders as plain words. Links to another site open in a new tab.
 - An image loads only from a relative address or an origin you list in `imageOrigins`. Others show as a link. A remote image is a request to someone else's server, and a prompt hidden in a document can make a model put private text in that address.
+- Text built to stall the page is bounded. Past 1,000 emphasis marks they show as written, and quotes and lists stop nesting at 16 levels.
 
 ```tsx
 <Markdown text={answer} imageOrigins={['https://cdn.example.com']} />

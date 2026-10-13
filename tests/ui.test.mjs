@@ -333,10 +333,13 @@ test('markdown shows HTML as text and uses only addresses it has checked', () =>
   }
 });
 
+// The words a reader sees: tags come out in rounds until none is left, so a tag split around another cannot survive.
+const visible = (html) => { let text = html, before; do { before = text; text = text.replace(/<[^>]*>/g, ''); } while (text !== before); return text; };
+
 test('markdown never shows a raw mark while the text is still arriving', () => {
   for (let end = 1; end <= answer.length; end++) {
     const html = render(h(Markdown, { text: answer.slice(0, end), streaming: true }));
-    const seen = html.replace(/<figure class="bs-code[\s\S]*?<\/figure>/g, '').replace(/<[^>]+>/g, '');
+    const seen = visible(html.split(/<figure class="bs-code[\s\S]*?<\/figure>/).join(''));
     assert.ok(!/[*`~_|[\]#]|!\(|^-|\n-/.test(seen), `after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}: ${seen}`);
     assert.ok(!/<h[1-6][^>]*>(?!S)/.test(html), `a paragraph turned into a heading after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}`);
     assert.ok(!(html.match(/<figure class="bs-code[\s\S]*?<\/figure>/g) ?? []).some(code => code.includes('`')), `half a closing fence shown as code after ${JSON.stringify(answer.slice(Math.max(0, end - 24), end))}`);
@@ -346,6 +349,20 @@ test('markdown never shows a raw mark while the text is still arriving', () => {
   // Marks inside code are left as written, and a sum is not mistaken for emphasis.
   assert.match(render(h(Markdown, { text: 'Run `a * b` then 2 * 3 and snake_case_name', streaming: true })), /<p>Run <code>a \* b<\/code> then 2 \* 3 and snake_case_name<\/p>/);
   assert.match(render(h(Markdown, { text: '**bold *both', streaming: true })), /<strong>bold <em>both<\/em><\/strong>/);
+  assert.match(render(h(Markdown, { text: 'Use ``a ` b`` and **bo', streaming: true })), /<code>a ` b<\/code> and <strong>bo<\/strong>/);
+});
+
+test('markdown draws hostile text without stalling or failing', () => {
+  const started = performance.now();
+  // Rows of marks that never pair up, and quotes and lists nested thousands deep.
+  const hostile = ['`'.repeat(10000) + 'a' + '`'.repeat(5000) + 'b', '!['.repeat(5000), '[a'.repeat(5000), '`a'.repeat(5001), '*a '.repeat(7000), '__a '.repeat(5000), '~~a '.repeat(5000),
+    '>'.repeat(5000) + ' a', '> '.repeat(3000) + 'a', Array.from({ length: 300 }, (_, level) => `${' '.repeat(level * 2)}- a`).join('\n')];
+  for (const text of hostile) for (const streaming of [false, true]) {
+    assert.match(render(h(Markdown, { text, streaming })), /^<div class="bs-md "/);
+  }
+  assert.ok(performance.now() - started < 5000, `took ${Math.round(performance.now() - started)} ms`);
+  // An ordinary answer keeps its emphasis, and a quote in a quote in a list still nests.
+  assert.match(render(h(Markdown, { text: '- > > **deep** ~~cut~~' })), /<ul><li><blockquote><blockquote><p><strong>deep<\/strong> <del>cut<\/del><\/p><\/blockquote><\/blockquote><\/li><\/ul>/);
 });
 
 test('markdown hands a fenced block to its renderer once the fence closes and falls back to code on bad data', () => {

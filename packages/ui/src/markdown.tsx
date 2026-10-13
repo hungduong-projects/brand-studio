@@ -2,7 +2,7 @@
 
 import { Fragment, memo, useId, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { Lexer } from 'marked';
+import { Lexer, Tokenizer } from 'marked';
 import type { Token, Tokens } from 'marked';
 import { CodeBlock } from './chat.js';
 
@@ -34,6 +34,30 @@ function owed(text: string, mark: '*' | '_' | '~') {
 }
 
 /**
+ * Where the code spans in `value` start and end, and the first run of backticks left without a partner. Each run pairs
+ * with the next run of the same length in one pass: a pattern that tries every length is slow on a long row of them.
+ */
+function spans(value: string) {
+  const runs = [...value.matchAll(/`+/g)], next: number[] = [], seen = new Map<number, number>();
+  for (let index = runs.length - 1; index >= 0; index--) { next[index] = seen.get(runs[index][0].length) ?? -1; seen.set(runs[index][0].length, index); }
+  const pairs: [number, number][] = [];
+  let open: { index: number; mark: string } | undefined;
+  for (let at = 0; at < runs.length; at++) {
+    const close = next[at];
+    if (close < 0) open ??= { index: runs[at].index, mark: runs[at][0] };
+    else { pairs.push([runs[at].index, runs[close].index + runs[close][0].length]); at = close; }
+  }
+  return { pairs, open };
+}
+
+/** The text with its code spans blanked out, so marks inside them are left alone; the blanks keep every index in place. */
+function blank(value: string) {
+  let out = '', at = 0;
+  for (const [start, end] of spans(value).pairs) { out += value.slice(at, start) + ' '.repeat(end - start); at = end; }
+  return out + value.slice(at);
+}
+
+/**
  * Text that is still arriving ends mid-mark. This closes the bold, italic, code and strikethrough left open in the last
  * block, shows an unfinished link as its words and holds back an unfinished image, table or list marker, so raw symbols
  * never flash on screen.
@@ -52,27 +76,48 @@ function settle(text: string) {
   const [first, second, ...more] = tail.split('\n');
   if (/^\s*\|/.test(first) && more.length === 0 && /^[|\s:-]*$/.test(second ?? '') && (second?.match(/-+/g) ?? []).length < Math.max(1, first.split('|').filter(cell => cell.trim()).length)) return head;
 
-  const ticks = tail.match(/`+/g) ?? [];
-  if (ticks.length % 2) {
-    const run = ticks[ticks.length - 1];
-    tail = tail.endsWith(run) ? tail.slice(0, -run.length) : tail + run;
+  // A code span left open is closed with its own mark, in place of any part of that mark already there; an opening mark with nothing after it waits.
+  const { open } = spans(tail);
+  if (open) {
+    const start = open.index + open.mark.length;
+    let end = tail.length;
+    while (end > start && tail[end - 1] === '`') end--;
+    tail = end > start ? tail.slice(0, end) + open.mark : tail.slice(0, open.index);
   }
   // A task box with nothing after it yet waits with its list marker.
   tail = tail.replace(/((?:^|\n)[ \t]*(?:[-*+]|\d{1,9}[.)])[ \t]+)\[[ xX]?\]?[ \t]*$/, '$1');
-  // Code spans are blanked out so marks inside them are left alone; the blanks keep every index in place.
-  const blank = (value: string) => value.replace(/(`+)[\s\S]*?\1/g, span => ' '.repeat(span.length));
-  const plain = blank(tail);
+  // An unfinished link or image is looked for in the last stretch only, which keeps the search short on any text.
+  const from = Math.max(0, tail.length - 1000), plain = blank(tail).slice(from);
   const image = /!\[[^\]]*(?:\](?:\([^)]*)?)?$/.exec(plain), link = /\[([^\]]*)(?:\](?:\([^)]*)?)?$/.exec(plain);
-  if (image) tail = tail.slice(0, image.index);
+  if (image) tail = tail.slice(0, from + image.index);
   // An unfinished link shows its words; a footnote mark is held back until it is whole.
-  else if (link && !link[1].startsWith('^')) tail = tail.slice(0, link.index) + tail.slice(link.index + 1, link.index + 1 + link[1].length);
-  else if (link && !link[0].endsWith(']')) tail = tail.slice(0, link.index);
+  else if (link && !link[1].startsWith('^')) tail = tail.slice(0, from + link.index) + tail.slice(from + link.index + 1, from + link.index + 1 + link[1].length);
+  else if (link && !link[0].endsWith(']')) tail = tail.slice(0, from + link.index);
   // A lone list marker, rule or heading mark on the last line waits for what follows it; under a paragraph, "-" would turn it into a heading.
   tail = tail.replace(/(^|\n)[ \t]*(?:[-=*+_]+|\d{1,9}[.)]|#{1,6})[ \t]*$/, '$1').replace(/(^|[\s(])[*_~]+$/, '$1');
   const marks = blank(tail), closing = '_'.repeat(owed(marks, '_')) + '*'.repeat(owed(marks, '*')) + '~'.repeat(owed(marks, '~'));
   // A closing mark after a space closes nothing, so the space goes first.
   return head + (closing ? tail.trimEnd() + closing : tail);
 }
+
+// The parser checks each emphasis mark against the rest of its block, so a text made of thousands of them would hold up
+// the page. Past this many, they are shown as written.
+const markLimit = 1000;
+class Literal extends Tokenizer {
+  emStrong() { return undefined; }
+  del() { return undefined; }
+}
+const reader = (source: string) => ({ gfm: true, ...((source.match(/[*_~]+/g)?.length ?? 0) > markLimit ? { tokenizer: new Literal() } : {}) });
+
+/** The blocks of `source`. Text nested deeper than the parser can follow comes back as one plain paragraph. */
+function read(source: string) {
+  try { return new Lexer(reader(source)).lex(source); } catch {
+    return Object.assign([{ type: 'paragraph', raw: source, text: source, tokens: [{ type: 'text', raw: source, text: source }] } as Token], { links: {} });
+  }
+}
+
+// Quotes and lists nest this deep and no deeper; what lies below is shown as written.
+const depthLimit = 16;
 
 interface Note { id: string; body: string }
 const noteStart = /^\[\^[^\]\s]+\]:/;
@@ -131,7 +176,8 @@ function inline(tokens: Token[] | undefined, context: Context): ReactNode {
   });
 }
 
-function block(token: Token, context: Context, key?: number): ReactNode {
+function block(token: Token, context: Context, key?: number, depth = 0): ReactNode {
+  if (depth > depthLimit) return token.raw.trim() ? <p key={key}>{token.raw.trim()}</p> : null;
   switch (token.type) {
     case 'heading': {
       const Tag = `h${Math.min(6, token.depth + context.headings - 1)}` as 'h1';
@@ -139,7 +185,7 @@ function block(token: Token, context: Context, key?: number): ReactNode {
     }
     case 'paragraph': return <p key={key}>{inline(token.tokens, context)}</p>;
     case 'text': return <Fragment key={key}>{inline(token.tokens ?? [token], context)}</Fragment>;
-    case 'blockquote': return <blockquote key={key}>{(token as Tokens.Blockquote).tokens.map((child, index) => block(child, context, index))}</blockquote>;
+    case 'blockquote': return <blockquote key={key}>{(token as Tokens.Blockquote).tokens.map((child, index) => block(child, context, index, depth + 1))}</blockquote>;
     case 'hr': return <hr key={key} />;
     case 'list': {
       const list = token as Tokens.List, Tag = list.ordered ? 'ol' : 'ul';
@@ -147,7 +193,7 @@ function block(token: Token, context: Context, key?: number): ReactNode {
         {list.items.map((item, index) => <li key={index} data-task={item.task || undefined}>
           {item.tokens.map((child, at) => child.type === 'checkbox'
             ? <span key={at} className="bs-md__check" data-checked={child.checked || undefined} role="img" aria-label={child.checked ? context.done : context.todo} />
-            : block(child, context, at))}
+            : block(child, context, at, depth + 1))}
         </li>)}
       </Tag>;
     }
@@ -198,7 +244,7 @@ export function Markdown({ text, streaming = false, blocks, imageOrigins, headin
   notesLabel?: string; doneLabel?: string; todoLabel?: string; drawingLabel?: string; className?: string;
 }) {
   const id = useId();
-  const tokens = useMemo(() => new Lexer({ gfm: true }).lex(streaming ? settle(text) : text), [text, streaming]);
+  const tokens = useMemo(() => read(streaming ? settle(text) : text), [text, streaming]);
   const notes = useMemo(() => footnotes(tokens), [tokens]);
   const noteIds = notes.map(note => note.id).join(' '), origins = imageOrigins?.join(' ') ?? '', references = Object.keys(tokens.links).join(' ');
   const context = useMemo<Context>(
@@ -209,7 +255,7 @@ export function Markdown({ text, streaming = false, blocks, imageOrigins, headin
   return <div className={`bs-md ${className}`} aria-busy={streaming || undefined}>
     {tokens.map((token, index) => noteStart.test(token.raw) && (token.type === 'def' || token.type === 'paragraph') ? null : <Block key={index} token={token} context={context} />)}
     {notes.length > 0 && <section className="bs-md__notes" aria-label={notesLabel}>
-      <ol>{notes.map((note, index) => <li key={note.id} id={`${id}-note-${index + 1}`}>{inline(Lexer.lexInline(note.body, { gfm: true }), context)}</li>)}</ol>
+      <ol>{notes.map((note, index) => <li key={note.id} id={`${id}-note-${index + 1}`}>{inline(Lexer.lexInline(note.body, reader(note.body)), context)}</li>)}</ol>
     </section>}
   </div>;
 }
