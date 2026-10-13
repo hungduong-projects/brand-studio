@@ -1,4 +1,4 @@
-// Shared helpers for mascot.mjs and icons.mjs: read SVG tags, flag unsafe content, measure masks, encode PNGs and render
+// Shared helpers for mascot.mjs, icons.mjs and figure.mjs: read SVG tags, flag unsafe content, measure masks, encode PNGs and render
 // SVG in Chromium. The tag reader handles the hand-written and exported SVG these scripts check, not every XML feature.
 import { createRequire } from 'node:module';
 import path from 'node:path';

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "reply-desk",
+  "fig": "Fig. 1",
+  "title": "How a reply gets made",
+  "alt": "An isometric desk. A cabinet of three source drawers stands at the back beside a tray that holds one ticket. A clipboard carries the reply along a track to a gate with an approve button.",
+  "caption": "Ticket #2291: Deskhand reads three sources, cites each claim, and holds the $84 refund until you approve it.",
+  "truth": "examples/deskhand/slides/deck.json: ticket #2291, order #48213, the three sources, three cited claims, the $84.00 refund and the $50 limit.",
+  "brand": "../../../apps/showcase/src/deskhand.brand.json",
+  "parts": [
+    { "id": "plinth", "kind": "box", "at": [-4, -4, 0], "size": [218, 138, 4], "round": 12, "tone": "base" },
+    { "id": "plate", "kind": "box", "at": [0, 0, 4], "size": [210, 130, 6], "round": 9, "tone": "base", "details": [{ "kind": "screws", "margin": 8 }] },
+
+    { "id": "cabinet-back", "kind": "box", "at": [12, 10, 10], "size": [124, 4, 24], "tone": "structure" },
+    { "id": "cabinet-wall-1", "kind": "box", "at": [12, 14, 10], "size": [4, 36, 24], "tone": "structure" },
+    { "id": "cabinet-wall-2", "kind": "box", "at": [52, 14, 10], "size": [4, 36, 24], "tone": "structure" },
+    { "id": "cabinet-wall-3", "kind": "box", "at": [92, 14, 10], "size": [4, 36, 24], "tone": "structure" },
+    { "id": "cabinet-wall-4", "kind": "box", "at": [132, 14, 10], "size": [4, 36, 24], "tone": "structure" },
+    { "id": "cabinet-top", "kind": "box", "at": [12, 10, 34], "size": [124, 40, 4], "tone": "structure", "details": [{ "kind": "slats", "along": "y", "count": 2 }] },
+
+    { "id": "drawer-1", "group": "drawers", "kind": "box", "at": [17, 14, 10], "size": [34, 36, 18], "tone": "structure", "details": [{ "kind": "inset", "on": "left", "margin": 3 }] },
+    { "id": "drawer-2", "group": "drawers", "kind": "box", "at": [57, 14, 10], "size": [34, 36, 18], "tone": "structure", "details": [{ "kind": "inset", "on": "left", "margin": 3 }] },
+    { "id": "drawer-3", "group": "drawers", "kind": "box", "at": [97, 14, 10], "size": [34, 36, 18], "tone": "structure", "details": [{ "kind": "inset", "on": "left", "margin": 3 }] },
+    { "id": "pull-1", "group": "drawers", "kind": "box", "at": [28, 50, 17], "size": [12, 2, 3], "tone": "structure" },
+    { "id": "pull-2", "group": "drawers", "kind": "box", "at": [68, 50, 17], "size": [12, 2, 3], "tone": "structure" },
+    { "id": "pull-3", "group": "drawers", "kind": "box", "at": [108, 50, 17], "size": [12, 2, 3], "tone": "structure" },
+    { "id": "source-1", "group": "sources", "kind": "box", "at": [21, 19, 28], "size": [26, 27, 1.2], "tone": "subject", "details": [{ "kind": "rules", "margin": 4 }] },
+    { "id": "source-2", "group": "sources", "kind": "box", "at": [61, 19, 28], "size": [26, 27, 1.2], "tone": "subject", "details": [{ "kind": "rules", "margin": 4 }] },
+    { "id": "source-3", "group": "sources", "kind": "box", "at": [101, 19, 28], "size": [26, 27, 1.2], "tone": "subject", "details": [{ "kind": "rules", "margin": 4 }] },
+
+    { "id": "tray-floor", "kind": "box", "at": [150, 12, 10], "size": [48, 40, 2], "tone": "structure" },
+    { "id": "tray-back", "kind": "box", "at": [150, 12, 12], "size": [48, 3, 9], "tone": "structure" },
+    { "id": "tray-side", "kind": "box", "at": [150, 15, 12], "size": [3, 37, 9], "tone": "structure" },
+    { "id": "tray-lip", "kind": "box", "at": [153, 49, 12], "size": [45, 3, 3], "tone": "structure" },
+    { "id": "ticket", "kind": "box", "at": [158, 19, 12], "size": [34, 26, 1.2], "tone": "subject", "details": [{ "kind": "rules", "margin": 4 }] },
+
+    { "id": "rail-back", "kind": "box", "at": [14, 97, 10], "size": [176, 3, 3], "tone": "structure" },
+    { "id": "rail-front", "kind": "box", "at": [14, 114, 10], "size": [176, 3, 3], "tone": "structure" },
+    { "id": "stop-start", "kind": "box", "at": [14, 100, 10], "size": [3, 14, 6], "tone": "structure" },
+
+    { "id": "board", "group": "carriage", "kind": "box", "at": [22, 93, 13], "size": [56, 28, 3], "round": 3, "tone": "structure" },
+    { "id": "clip", "group": "carriage", "kind": "box", "at": [22, 102, 16], "size": [5, 10, 2.5], "tone": "structure" },
+    { "id": "reply", "group": "carriage", "kind": "box", "at": [27, 96, 16], "size": [46, 22, 1], "tone": "subject", "details": [{ "kind": "inset", "margin": 2.5 }] },
+    { "id": "claim-1", "group": "claims", "kind": "box", "at": [32, 99.5, 17], "size": [36, 3.5, 0.8], "tone": "subject" },
+    { "id": "claim-2", "group": "claims", "kind": "box", "at": [32, 105.5, 17], "size": [24, 3.5, 0.8], "tone": "subject" },
+    { "id": "claim-3", "group": "claims", "kind": "box", "at": [32, 111.5, 17], "size": [30, 3.5, 0.8], "tone": "subject" },
+
+    { "id": "gate-post-back", "kind": "box", "at": [182, 87, 10], "size": [5, 5, 12], "tone": "structure" },
+    { "id": "gate-post-front", "kind": "box", "at": [182, 122, 10], "size": [5, 5, 12], "tone": "structure" },
+    { "id": "gate-arm", "kind": "box", "at": [183, 92, 13], "size": [3, 30, 6], "tone": "structure" },
+
+    { "id": "console", "kind": "box", "at": [174, 60, 10], "size": [24, 22, 7], "round": 3, "tone": "structure", "details": [{ "kind": "slots", "on": "left", "count": 3 }] },
+    { "id": "approve", "kind": "cylinder", "at": [186, 71, 17], "r": 9, "h": 3, "tone": "structure", "details": [{ "kind": "inset", "margin": 2.5 }] }
+  ],
+  "steps": [
+    {
+      "id": "read",
+      "label": "Reads the sources",
+      "readout": "Returns and refunds · Order #48213 · Payments",
+      "lit": "sources",
+      "move": { "drawers": [0, 30, 0], "sources": [0, 30, 0] },
+      "hide": ["claims"]
+    },
+    {
+      "id": "cite",
+      "label": "Cites every claim",
+      "readout": "3 claims · 3 sources · $84.00 refund",
+      "lit": "claims",
+      "move": { "drawers": [0, 30, 0], "sources": [0, 30, 0], "carriage": [52, 0, 0], "claims": [52, 0, 0] }
+    },
+    {
+      "id": "wait",
+      "label": "Waits for you",
+      "readout": "$84 is over your $50 limit",
+      "lit": "approve",
+      "move": { "carriage": [105, 0, 0], "claims": [105, 0, 0] }
+    }
+  ],
+  "legend": [
+    { "tone": "lit", "label": "Sources, citations and your approval" },
+    { "tone": "subject", "label": "Ticket and reply" },
+    { "tone": "structure", "label": "The desk" }
+  ]
+}

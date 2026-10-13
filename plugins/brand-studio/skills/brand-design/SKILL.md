@@ -1,6 +1,6 @@
 ---
 name: brand-design
-description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, a brand mascot or character with expression states, a UI icon set, an app icon or favicon, a product intro video or screen-recording film rendered to MP4, and a series of how-to tutorial videos with written steps for a help page or staff training. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
+description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, a brand mascot or character with expression states, a UI icon set, an app icon or favicon, an explainer figure or how-it-works visualization, a product intro video or screen-recording film rendered to MP4, and a series of how-to tutorial videos with written steps for a help page or staff training. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
 ---
 
 # Brand Design
@@ -35,6 +35,7 @@ Read only the references required by the task:
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
 - Mascot or brand character with expression states: [mascot.md](references/mascot.md), with its drawing style from [mascot-styles.md](references/mascot-styles.md).
 - UI icon set in an outline, solid or duotone style, app icon or favicon: [icons.md](references/icons.md).
+- Explainer figure or visualization that shows how a product, process or algorithm works, as an isometric object that steps through it: [figure.md](references/figure.md).
 - Proportion, curves, symmetry, detail or novelty in a mascot, icon or 3D object, or an audit of drawn assets: [aesthetics.md](references/aesthetics.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
