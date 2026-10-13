@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } fro
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureSvg, nearer, paintOrder, palette, touch, tourAt, tourSeconds, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
+import { DETAILS, SAMPLES, TONES, audit, boxOf, camera, collide, figureCss, figureHtml, figureModel, figureSvg, nearer, paintOrder, palette, touch, tourAt, tourSeconds, validateFigure } from '../plugins/brand-studio/skills/brand-design/scripts/figure.mjs';
 import { contrast } from '../plugins/brand-studio/skills/brand-design/scripts/brand-check.mjs';
 import { unsafe } from '../plugins/brand-studio/skills/brand-design/scripts/svg-kit.mjs';
 
@@ -209,6 +209,24 @@ test('the Deskhand figure passes its checks and its committed still matches the 
   assert.equal(readFileSync(path.join(EXAMPLE, 'out/figure.svg'), 'utf8'), `${figureSvg(spec, model, { step: spec.steps.length - 1, colors: palette(brand.tokens.light) })}\n`);
 });
 
+test('the model carries the words, each part\'s paths and every audited order for a component to draw', () => {
+  const spec = figure(), model = audit(spec), data = figureModel(spec, model);
+  assert.deepEqual(data.parts.map(p => [p.id, p.tone]), spec.parts.map(p => [p.id, p.tone]));
+  assert.deepEqual(data.steps.map(s => [s.label, s.readout, s.at.length]), spec.steps.map(s => [s.label, s.readout, spec.parts.length]));
+  assert.deepEqual(data.steps[1].lit, [spec.parts.findIndex(p => p.id === 'knob')]);
+  assert.equal(data.between[0].length, SAMPLES + 1);
+  for (const order of data.orders) assert.deepEqual([...order].sort((a, b) => a - b), spec.parts.map((_, i) => i));
+  // Every paint the script writes has a rule in the UI package's stylesheet.
+  const css = readFileSync(new URL('../packages/ui/src/story.css', import.meta.url), 'utf8');
+  for (const paint of new Set(data.parts.flatMap(p => p.paths.map(s => s.paint)))) assert.ok(css.includes(`.bs-figure__${paint}${/^s\d/.test(paint) ? ' {' : ''}`), paint);
+});
+
+test('the Deskhand model on disk, and the copy the docs demo draws, match the script', () => {
+  const spec = JSON.parse(readFileSync(path.join(EXAMPLE, 'figure.json'), 'utf8')), expected = `${JSON.stringify(figureModel(spec, audit(spec)))}\n`;
+  assert.equal(readFileSync(path.join(EXAMPLE, 'out/figure.model.json'), 'utf8'), expected);
+  assert.equal(readFileSync(new URL('../apps/docs/demos/explainer-figure/reply-desk.json', import.meta.url), 'utf8'), expected);
+});
+
 test('CLI: exports the page and stills, also when started through a symlink', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'figure-')), link = path.join(dir, 'figure-link.mjs');
   writeFileSync(path.join(dir, 'figure.json'), JSON.stringify(figure()));
@@ -216,7 +234,7 @@ test('CLI: exports the page and stills, also when started through a symlink', ()
   const run = spawnSync(process.execPath, [link, path.join(dir, 'figure.json')], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   assert.match(run.stdout, /8 parts, 2 steps/);
-  for (const file of ['figure.html', 'figure.svg', 'poster.png', 'phone.png', 'sheet.png']) assert.ok(existsSync(path.join(dir, 'out', file)), file);
+  for (const file of ['figure.html', 'figure.svg', 'figure.model.json', 'poster.png', 'phone.png', 'sheet.png']) assert.ok(existsSync(path.join(dir, 'out', file)), file);
   assert.deepEqual(unsafe(readFileSync(path.join(dir, 'out/figure.svg'), 'utf8')), []);
 });
 

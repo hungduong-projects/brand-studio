@@ -1,6 +1,6 @@
 ---
 title: Asset creation
-description: Use the brand-design skill to make mascots, sticker-style artwork and icons from your brand contract.
+description: Use the brand-design skill to make mascots, sticker-style artwork, icons and explainer figures from your brand contract.
 ---
 
 Brand Studio includes a brand-design skill alongside the React component package. Run it in your coding assistant to define an asset, produce files and review the result. The skill uses your brand contract for the palette, shape and image direction.
@@ -48,6 +48,20 @@ Use the brand-design skill and brand/brand.json to create the missing UI glyphs 
 ```
 
 See the [icon workflow](https://github.com/hungduong-projects/brand-studio/blob/main/plugins/brand-studio/skills/brand-design/references/icons.md).
+
+## Explainer figures
+
+The figure workflow explains how a product, process or algorithm works as one isometric object the reader steps through. You write the object as a list of solid parts and two to six steps; each step moves parts and lights the one to watch. A checker fails parts that pass through each other, parts that float and a lit part too small for a phone. It exports an interactive page, stills, an optional MP4 and a model file.
+
+<img src="/images/figure/deskhand-reply-desk.webp" alt="An isometric drawing of a desk in ink tones: a cabinet with three open drawers holding yellow source cards, a tray with a ticket, and a reply card on a rail stopped at a gate beside a yellow approve button." width={1384} height={857} />
+
+This figure comes from Deskhand, an example product. Every colour is a mix of the brand's card, ink and accent tokens, so the same parts list redraws in another brand. Step through it live on the [Explainer Figure](/docs/components/explainer-figure/) page.
+
+```text
+Use the brand-design skill and brand/brand.json to draw an explainer figure of how our product handles one request. Pick one physical object that stands for it, use three or four steps and take every name and number from our real data. Show me the sheet before integrating it.
+```
+
+See the [figure workflow](https://github.com/hungduong-projects/brand-studio/blob/main/plugins/brand-studio/skills/brand-design/references/figure.md) and [example figure](https://github.com/hungduong-projects/brand-studio/tree/main/examples/deskhand/figure).
 
 ## Generated images and animation
 

@@ -1,0 +1,44 @@
+---
+title: Explainer Figure
+description: "An isometric drawing of how something works. Its parts move and light up as you step through it."
+---
+
+<Preview name="explainer-figure/default" />
+
+## Installation
+
+<Install name="ExplainerFigure" />
+
+## Usage
+
+```tsx
+import { ExplainerFigure } from '@brand-studio/ui';
+import replyDesk from './reply-desk.json';
+```
+
+```tsx
+<ExplainerFigure figure={replyDesk} />
+```
+
+The component draws from data. Write the object as a parts list and let the [brand-design skill](/docs/asset-creation/#explainer-figures) check it and export `figure.model.json`. The component draws that file in the colours of the brand theme around it, in light and dark.
+
+People move through the steps four ways: the step list, the arrow keys, a sideways drag on the drawing, and Play, which walks to the last step and stops.
+
+## Drive it from the page
+
+Pass `position` to let a slider or scroll progress scrub the drawing. `0` is the first step and each whole number is the next; a value between two steps draws the move part-way.
+
+```tsx
+<ExplainerFigure figure={replyDesk} position={progress * 2} onStepChange={setStep} />
+```
+
+## Accessibility
+
+- The step list is a tab list. Arrow keys, Home and End move between steps, and each step states its result in text.
+- The drawing carries the figure's description. The accent marks one part per step, and the step's label names it, so colour is never the only cue.
+- Nothing moves until someone asks. Reduced motion changes each step at once.
+- Before scripts run, the first step is drawn with every step's text beneath it.
+
+## API Reference
+
+<Props name="ExplainerFigure" />
