@@ -80,6 +80,7 @@ Review these on `sheet.png` and `phone.png`, because the script can't judge them
 |---|---|
 | `figure.html` | Standalone page. To place the figure in a site, copy the `<style>`, `<figure>` and `<script>` from its body. It follows the system theme; set `data-theme="light"` or `"dark"` on the `<figure>` to fix one |
 | `figure.svg` | The poster step as a still with no CSS or script, for a README, slide or email |
+| `figure.model.json` | The drawing as data. In a project that uses `@brand-studio/ui`, pass it to `ExplainerFigure`, which draws it in the page's own theme with the same steps, drag and Play |
 | `poster.png` | The still on the card colour at 2x |
 | `phone.png` | The page at 390 px |
 | `sheet.png` | Every step in light and dark |

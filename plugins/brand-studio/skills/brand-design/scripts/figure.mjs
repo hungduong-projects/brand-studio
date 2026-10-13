@@ -5,8 +5,8 @@
 //   node figure.mjs <dir>/figure.json [--out DIR] [--video]
 //
 // Paths in the spec resolve from its folder. Writes figure.html (standalone, light and dark, keyboard and touch),
-// figure.svg (the poster step in presentation attributes), poster.png, phone.png and sheet.png (every step in both
-// themes) to <dir>/out. --video adds figure.mp4, the page walking through every step. Exits with an error after writing
+// figure.svg (the poster step in presentation attributes), figure.model.json (the drawing as data for a component),
+// poster.png, phone.png and sheet.png (every step in both themes) to <dir>/out. --video adds figure.mp4, the page walking through every step. Exits with an error after writing
 // them when parts pass through each other at a step or during a move, a part floats, the depth order has a cycle, the
 // lit part is too small on a 390 px phone, or the page overflows, clips text, has a small tap target, draws a step
 // differently from the audit or does not follow a swipe, Play or a seek.
@@ -325,12 +325,17 @@ export function validateFigure(spec, { root: dir = '.' } = {}) {
   return { errors, warnings };
 }
 
+/** The soft shadow under the object: the outline of its base parts on the ground, dropped a little. */
+function haloPath(spec, cam) {
+  const base = spec.parts.filter(p => p.tone === 'base');
+  return `${line(hull((base.length ? base : spec.parts).flatMap(p => planOf(p).map(q => cam.point([...q, 0])))).map(([x, y]) => [x, y + 3]))}Z`;
+}
+
 /** The drawing as SVG markup. With step and colors it is one still in presentation attributes; without colors it is the
  * live drawing at step, whose classes read the page's CSS variables. */
 export function figureSvg(spec, model, { step = 0, colors, id = spec.id } = {}) {
   const { cam, pose, viewBox: box } = model, P = cam.point;
-  const base = spec.parts.filter(p => p.tone === 'base'), ground = hull((base.length ? base : spec.parts).flatMap(p => planOf(p).map(q => P([...q, 0]))));
-  const halo = `${line(ground.map(([x, y]) => [x, y + 3]))}Z`, blur = `<filter id="${id}-halo" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>`;
+  const halo = haloPath(spec, cam), blur = `<filter id="${id}-halo" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>`;
   const parts = model.steps[step].map(i => {
     const part = spec.parts[i], [dx, dy] = P(pose[step].offset[i]).map((v, k) => v - P([0, 0, 0])[k]), lit = pose[step].lit[i], hidden = pose[step].hidden[i];
     const move = `transform="translate(${fix(dx)} ${fix(dy)})"`;
@@ -412,6 +417,20 @@ function pageData(spec, model) {
     parts: spec.parts.map(p => p.id), samples: SAMPLES,
     steps: pose.map(s => ({ at: s.offset.map(o => cam.point(o).map((v, k) => Number(fix(v - zero[k])))), lit: picked(s.lit), hide: picked(s.hidden) })),
     between: model.between.map(seg => seg.map(find)), orders: table,
+  };
+}
+
+/** The figure as data for a component that draws it, such as ExplainerFigure in @brand-studio/ui: the words, each
+ * part's paths and what the page script replays. The component supplies the colours from its own theme. */
+export function figureModel(spec, model) {
+  const data = pageData(spec, model);
+  return {
+    id: spec.id, fig: spec.fig, title: spec.title, alt: spec.alt, caption: spec.caption,
+    viewBox: model.viewBox.map(v => Number(fix(v))), halo: haloPath(spec, model.cam),
+    parts: spec.parts.map(p => ({ id: p.id, tone: p.tone, paths: draw(p, model.cam).map(s => ({ paint: s.paint === 'side' ? `s${s.level}` : s.paint, d: s.d })) })),
+    steps: spec.steps.map((s, i) => ({ id: s.id, label: s.label, readout: s.readout, ...data.steps[i] })),
+    samples: data.samples, between: data.between, orders: data.orders,
+    legend: spec.legend.map(k => ({ tone: k.tone, label: k.label })),
   };
 }
 
@@ -606,6 +625,7 @@ async function main() {
   const still = figureSvg(spec, model, { step: poster, colors: palette(brand.tokens.light) }), file = path.join(out, 'figure.html');
   writeFileSync(file, pageHtml(spec, figureHtml(spec, brand, model)));
   writeFileSync(path.join(out, 'figure.svg'), `${still}\n`);
+  writeFileSync(path.join(out, 'figure.model.json'), `${JSON.stringify(figureModel(spec, model))}\n`);
   const problems = [...model.problems, ...unsafe(still).map(e => `figure.svg: ${e}`)];
   const browser = await launch();
   try {

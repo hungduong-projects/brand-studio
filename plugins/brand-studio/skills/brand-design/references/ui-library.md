@@ -144,6 +144,7 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Open a chapter by growing one image from a card to the full screen | `PinnedZoom` | The image is small, detailed or has text in it |
 | Hand over between big chapters, each a full screen | `CurtainReveal` | Panels hold long reading or forms |
 | Walk through a short process or history in order | `ScrollPath` | The steps branch or must be compared: use a table |
+| Show how a product, process or algorithm works as an object the reader steps through; the drawing comes from [figure.md](figure.md) | `ExplainerFigure` | The steps are plain text with nothing to watch: use `ScrollPath` |
 | Show any contract image at the right size and focal point | `BrandImage` | — |
 
 ### Present a product

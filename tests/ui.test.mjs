@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -500,6 +500,24 @@ test('page transition names its area for view transitions', () => {
   assert.match(html, /^<div class="bs-pagefx bs-pagefx--fade " style="view-transition-name:bs-page"><style>@view-transition \{ navigation: auto; \}/);
   assert.match(html, /::view-transition-new\(bs-page\)/);
   assert.match(html, /<main>Lens<\/main><\/div>$/);
+});
+
+test('explainer figure draws the first step, lists every step as a tab and marks the lit part', () => {
+  const figure = {
+    id: 'lid', fig: 'Fig. 1', title: 'How it opens', alt: 'A box and its lid.', caption: 'Two steps.', viewBox: [0, 0, 100, 60], halo: 'M0 0L10 0L10 10Z',
+    parts: [{ id: 'box', tone: 'base', paths: [{ paint: 'top', d: 'M0 0L1 1' }] }, { id: 'lid', tone: 'subject', paths: [{ paint: 's3', d: 'M0 0L2 2' }] }],
+    steps: [{ id: 'shut', label: 'Shut', readout: 'Lid on', at: [[0, 0], [0, 0]], lit: [0], hide: [] }, { id: 'open', label: 'Open', readout: 'Lid off', at: [[0, 0], [4, -8]], lit: [1], hide: [0] }],
+    samples: 2, between: [[1, 1, 0]], orders: [[0, 1], [1, 0]], legend: [{ tone: 'lit', label: 'The part to watch' }],
+  };
+  const html = render(h(ExplainerFigure, { figure }));
+  assert.match(html, /role="tabpanel" aria-label="A box and its lid\."/);
+  assert.equal((html.match(/role="tab"/g) ?? []).length, 2);
+  assert.match(html, /aria-selected="true" tabindex="0"><b>1<\/b><span>Shut<\/span><small>Lid on<\/small>/);
+  // The first step's order puts the lid under the box, and only the box is lit.
+  assert.match(html, /<g class="bs-figure__part" data-tone="subject" transform="translate\(0 0\)"><path class="bs-figure__s3" d="M0 0L2 2"><\/path><\/g><g class="bs-figure__part" data-tone="base" data-lit="true" transform="translate\(0 0\)">/);
+  assert.match(html, /<button type="button" class="bs-figure__play" hidden="">/);
+  assert.match(html, /<i data-tone="lit"><\/i>The part to watch/);
+  assert.match(html, /<figcaption>Two steps\.<\/figcaption>/);
 });
 
 test('pinned zoom, curtain reveal and scroll path read in order before enhancement', () => {

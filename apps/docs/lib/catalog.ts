@@ -109,6 +109,7 @@ export const catalog: Entry[] = [
   { slug: 'pinned-zoom', exports: ['PinnedZoom'], title: 'Pinned Zoom', category: 'Storytelling', description: 'A picture that starts as a framed card and grows to fill the screen as you scroll.' },
   { slug: 'curtain-reveal', exports: ['CurtainReveal'], title: 'Curtain Reveal', category: 'Storytelling', description: 'Full-screen panels that pin in turn; each new one slides up over the last, which sinks back and dims.' },
   { slug: 'scroll-path', exports: ['ScrollPath'], title: 'Scroll Path', category: 'Storytelling', description: 'A timeline whose line swings down the page as you scroll, lighting each step as it arrives.' },
+  { slug: 'explainer-figure', exports: ['ExplainerFigure'], title: 'Explainer Figure', category: 'Storytelling', description: 'An isometric drawing of how something works. Its parts move and light up as you step through it.' },
   { slug: 'highlights-gallery', exports: ['HighlightsGallery'], title: 'Highlights Gallery', category: 'Product page', description: 'A row of large slides that plays by itself while on screen, with a progress pill and a pause button.' },
   { slug: 'product-viewer', exports: ['ProductViewer'], title: 'Product Viewer', category: 'Product page', description: 'A large stage for one product image at a time, with pill tabs under it to switch views.' },
   { slug: 'card-carousel', exports: ['CardCarousel'], title: 'Card Carousel', category: 'Product page', description: 'A row of tall cards that scrolls sideways, with round previous and next buttons.' },

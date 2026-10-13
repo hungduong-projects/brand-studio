@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, useEffect, useId, useRef, useState } from 'react';
+import { Children, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { CSSProperties, ElementType, PointerEvent, ReactNode } from 'react';
 import { BrandImage } from './core.js';
@@ -832,4 +832,147 @@ export function ScrollPath({ steps, label = 'Steps', className = '' }: { steps: 
       {step.body && <div className="bs-path__body">{step.body}</div>}
     </li>)}
   </ol>;
+}
+
+export interface FigurePart { id: string; tone: string; paths: { paint: string; d: string }[] }
+export interface FigureStep { id: string; label: string; readout: string; at: number[][]; lit: number[]; hide: number[] }
+/** A drawing as the brand-design skill's figure script writes it to `figure.model.json`. */
+export interface FigureModel {
+  id: string; fig: string; title: string; alt: string; caption: string; viewBox: number[]; halo: string;
+  parts: FigurePart[]; steps: FigureStep[]; samples: number; between: number[][]; orders: number[][]; legend: { tone: string; label: string }[];
+}
+
+/**
+ * An isometric drawing of how something works, with its steps listed beneath. Choosing a step moves the parts on a spring and lights the one to watch.
+ * A sideways drag on the drawing scrubs between steps, and Play walks through them once. `position` lets a slider or scroll progress drive it instead.
+ * Before scripts run it is the first step, drawn still; under reduced motion each step changes at once.
+ */
+export function ExplainerFigure({ figure, position, onStepChange, playLabel = 'Play', pauseLabel = 'Pause', className = '' }: {
+  figure: FigureModel; position?: number; onStepChange?: (step: number) => void; playLabel?: string; pauseLabel?: string; className?: string;
+}) {
+  const id = useId();
+  const last = figure.steps.length - 1;
+  const [selected, setSelected] = useState(0);
+  const [view, setView] = useState({ near: 0, order: figure.between[0]![0]! });
+  const [playing, setPlaying] = useState(false);
+  const [ready, setReady] = useState(false);
+  const groups = useRef<(SVGGElement | null)[]>([]);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const motion = useRef({ pos: 0, speed: 0, target: 0, frame: 0, then: 0, tour: 0, grip: null as { id: number; x: number; pos: number; moved: boolean } | null });
+  const bodies = useMemo(() => figure.parts.map(part => part.paths.map((path, index) => <path key={index} className={`bs-figure__${path.paint}`} d={path.d} />)), [figure]);
+  const clamp = (value: number) => Math.max(0, Math.min(last, value));
+  const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // React draws the first step and owns the order, the lit part and the hidden parts; between renders this moves the parts.
+  const paint = () => {
+    const m = motion.current, a = Math.min(Math.floor(m.pos), last - 1), t = m.pos - a;
+    const from = figure.steps[a]!.at, to = figure.steps[a + 1]!.at;
+    groups.current.forEach((group, index) => group?.setAttribute('transform', `translate(${from[index]![0]! * (1 - t) + to[index]![0]! * t} ${from[index]![1]! * (1 - t) + to[index]![1]! * t})`));
+    const near = Math.round(m.pos), order = figure.between[a]![Math.round(t * figure.samples)]!;
+    setView(current => current.near === near && current.order === order ? current : { near, order });
+  };
+  // A critically damped spring, so a jump over several steps plays each one in between and no part cuts through another.
+  const tick = (now: number) => {
+    const m = motion.current, dt = m.then ? Math.min((now - m.then) / 1000, 1 / 30) : 0;
+    m.then = now;
+    m.speed += (-81 * (m.pos - m.target) - 18 * m.speed) * dt;
+    m.pos = clamp(m.pos + m.speed * dt);
+    const settled = Math.abs(m.target - m.pos) < .002 && Math.abs(m.speed) < .02;
+    if (settled) { m.pos = m.target; m.speed = 0; m.then = 0; }
+    paint();
+    m.frame = settled ? 0 : requestAnimationFrame(tick);
+  };
+  const hold = () => { const m = motion.current; cancelAnimationFrame(m.frame); m.frame = 0; m.then = 0; m.speed = 0; };
+  const mark = (step: number) => {
+    const m = motion.current, next = clamp(step);
+    if (next === m.target) return;
+    m.target = next;
+    setSelected(next);
+    onStepChange?.(next);
+  };
+  const select = (step: number, focus = false) => {
+    const m = motion.current;
+    mark(step);
+    if (focus) tabs.current[m.target]?.focus();
+    if (still()) { hold(); m.pos = m.target; paint(); } else if (!m.frame) m.frame = requestAnimationFrame(tick);
+  };
+  const stop = () => { window.clearInterval(motion.current.tour); motion.current.tour = 0; setPlaying(false); };
+  const play = () => {
+    const m = motion.current;
+    if (m.tour) { stop(); return; }
+    select(m.target === last ? 0 : m.target + 1);
+    if (m.target === last) return;
+    setPlaying(true);
+    m.tour = window.setInterval(() => { select(m.target + 1); if (m.target === last) stop(); }, 2400);
+  };
+  const down = (event: PointerEvent<HTMLDivElement>) => { if (!event.button) motion.current.grip = { id: event.pointerId, x: event.clientX, pos: motion.current.pos, moved: false }; };
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    const m = motion.current, grip = m.grip;
+    if (!grip || grip.id !== event.pointerId) return;
+    const dx = event.clientX - grip.x;
+    if (!grip.moved && Math.abs(dx) < 8) return;
+    if (!grip.moved) { grip.moved = true; stop(); event.currentTarget.setPointerCapture(grip.id); }
+    if (still()) return;
+    hold();
+    m.pos = clamp(grip.pos - dx / (event.currentTarget.clientWidth * .45));
+    mark(Math.round(m.pos));
+    paint();
+  };
+  const up = (event: PointerEvent<HTMLDivElement>) => {
+    const m = motion.current, grip = m.grip;
+    if (!grip || grip.id !== event.pointerId) return;
+    m.grip = null;
+    const dx = event.clientX - grip.x;
+    // A short flick is enough: a quarter of the way to the next step carries it over.
+    if (grip.moved) select(still() ? m.target - (Math.abs(dx) < 40 ? 0 : Math.sign(dx)) : Math.round(m.pos - Math.sign(dx) * .25));
+  };
+  const cancel = () => { const m = motion.current; if (m.grip?.moved) select(m.target); m.grip = null; };
+  useEffect(() => { setReady(true); return () => { hold(); window.clearInterval(motion.current.tour); }; }, []);
+  useEffect(() => { hold(); stop(); motion.current.pos = 0; motion.current.target = 0; setSelected(0); setView({ near: 0, order: figure.between[0]![0]! }); }, [figure]);
+  useEffect(() => {
+    if (position === undefined) return;
+    stop();
+    hold();
+    motion.current.pos = clamp(position);
+    mark(Math.round(motion.current.pos));
+    paint();
+  }, [position]);
+  // A new figure can arrive with fewer steps one render before the reset above runs.
+  const shown = figure.steps[Math.min(view.near, last)]!, rest = figure.steps[0]!.at;
+  return <figure className={`bs-figure ${className}`}>
+    <div className="bs-figure__card">
+      <p className="bs-figure__head"><span>{figure.fig}</span><span>{figure.title}</span></p>
+      <div className="bs-figure__stage" id={`${id}-stage`} role="tabpanel" aria-label={figure.alt} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
+        <svg viewBox={figure.viewBox.join(' ')} aria-hidden="true">
+          <defs><filter id={`${id}-halo`} x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="5" /></filter></defs>
+          <path className="bs-figure__halo" d={figure.halo} filter={`url(#${id}-halo)`} />
+          <g>
+            {(figure.orders[view.order] ?? figure.orders[0]!).map(index => {
+              const part = figure.parts[index]!;
+              return <g key={part.id} ref={group => { groups.current[index] = group; }} className="bs-figure__part" data-tone={part.tone} data-lit={shown.lit.includes(index) || undefined}
+                data-hidden={shown.hide.includes(index) || undefined} transform={`translate(${rest[index]![0]} ${rest[index]![1]})`}>{bodies[index]}</g>;
+            })}
+          </g>
+        </svg>
+      </div>
+      <button type="button" className="bs-figure__play" hidden={!ready} onClick={play}>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d={playing ? 'M2.5 1.5H5v9H2.5zM7 1.5h2.5v9H7z' : 'M3 1.5v9l7.5-4.5z'} /></svg>{playing ? pauseLabel : playLabel}
+      </button>
+    </div>
+    <div className="bs-figure__steps" role="tablist" aria-label={figure.title} aria-orientation="vertical"
+      onKeyDown={event => {
+        const target = motion.current.target;
+        const to = ({ ArrowRight: target + 1, ArrowDown: target + 1, ArrowLeft: target - 1, ArrowUp: target - 1, Home: 0, End: last } as Record<string, number>)[event.key];
+        if (to === undefined) return;
+        event.preventDefault();
+        stop();
+        select(to, true);
+      }}>
+      {figure.steps.map((step, index) => <button key={step.id} ref={tab => { tabs.current[index] = tab; }} type="button" role="tab" aria-controls={`${id}-stage`}
+        aria-selected={index === selected} tabIndex={index === selected ? 0 : -1} onClick={() => { stop(); select(index); }}>
+        <b>{index + 1}</b><span>{step.label}</span><small>{step.readout}</small>
+      </button>)}
+    </div>
+    <ul className="bs-figure__legend">{figure.legend.map(key => <li key={key.label}><i data-tone={key.tone} />{key.label}</li>)}</ul>
+    <figcaption>{figure.caption}</figcaption>
+  </figure>;
 }
