@@ -63,7 +63,8 @@ Parts travel in a straight line between two neighbouring steps. The script tests
 - Every visible part reaches the ground through the parts it touches; two parts that hold only each other float.
 - A back-to-front order exists for every pose. Three long parts that each cover the next have none: split one.
 - The lit part spans at least 24 px on a 390 px phone.
-- In the browser at 390 and 1280 px, light and dark: no sideways scroll, no clipped text, step buttons at least 44 px tall, no console errors, and each step drawn as the audit computed it.
+- In the browser at 390 and 1280 px, light and dark: no sideways scroll, no clipped text, buttons at least 44 px tall, no console errors, and each step drawn as the audit computed it.
+- With motion on: a swipe settles on the next step, Play moves on, and a seek lands on its pose.
 
 Review these on `sheet.png` and `phone.png`, because the script can't judge them:
 
@@ -82,13 +83,21 @@ Review these on `sheet.png` and `phone.png`, because the script can't judge them
 | `poster.png` | The still on the card colour at 2x |
 | `phone.png` | The page at 390 px |
 | `sheet.png` | Every step in light and dark |
+| `figure.mp4` | With `--video`: the page walking through every step, 1080 px wide and silent, for a social post, a slide or a README. Needs ffmpeg |
 
-The step list is a tab list: arrow keys, Home and End move between steps, and every label and readout is visible text. The drawing follows the selected step on a spring; with reduced motion it changes at once.
+A reader moves through the figure four ways:
+
+- The step list is a tab list: a tap, or the arrow keys, Home and End. Every label and readout is visible text.
+- A sideways drag on the drawing scrubs between steps and settles on the nearest; an up or down drag still scrolls the page.
+- Play walks to the last step, one step every 2.4 seconds, and stops there. Nothing moves until the reader asks.
+- A host page can drive it, for example from scroll: `figure.dispatchEvent(new CustomEvent('figure:seek', { detail: 1.5 }))` draws the pose halfway between steps 2 and 3.
+
+The drawing follows the selected step on a spring; with reduced motion it changes at once.
 
 ## Run and review
 
 ```sh
-node <this-skill>/scripts/figure.mjs <project>/brand/figure.json [--out DIR]
+node <this-skill>/scripts/figure.mjs <project>/brand/figure.json [--out DIR] [--video]
 ```
 
 The script exits with an error after writing the files when a geometry or page check fails, so you can see the problem. `examples/deskhand/figure/` in the Brand Studio repository is a complete figure.

@@ -12,7 +12,7 @@ A shared brand-design skill for Claude Code, Codex, Gemini CLI and other agents 
 - `skills/brand-design/scripts/tutorial-capture.mjs` and `scripts/film/tutorial.tsx`: capture a how-to tutorial from the running product and film it with the shared tutorial template.
 - `skills/brand-design/scripts/mascot.mjs` and `scripts/mascot-3d.mjs`: mascot rig checker, state renderer and optional soft-3D renders.
 - `skills/brand-design/scripts/icons.mjs`: UI glyph checker, sprite and app icon exports for iOS, Android, Google Play, PWA and web.
-- `skills/brand-design/scripts/figure.mjs`: explainer figure checker and exporter; draws an isometric object from a parts list and writes an interactive page and stills in the brand's tokens.
+- `skills/brand-design/scripts/figure.mjs`: explainer figure checker and exporter; draws an isometric object from a parts list and writes an interactive page, stills and an optional MP4 in the brand's tokens.
 - `skills/brand-design/scripts/aesthetics.mjs`: audit of mascots, glyphs and app icons for corner curvature, stroke and radius consistency, weight, detail and symmetry.
 - `skills/brand-design/assets/still.brand.json`: fictional coffee example.
 
