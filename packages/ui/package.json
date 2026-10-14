@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@base-ui/react": "^1.8.0",
+    "@base-ui/react": "^1.9.0",
     "marked": "^18.1.1"
   }
 }
