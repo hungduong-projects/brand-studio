@@ -1,6 +1,6 @@
 ---
 name: brand-design
-description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, a brand mascot or character with expression states, a UI icon set, an app icon or favicon, an explainer figure or how-it-works visualization, a product intro video or screen-recording film rendered to MP4, and a series of how-to tutorial videos with written steps for a help page or staff training. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central; do not use for ordinary feature edits that should preserve an established identity.
+description: Create, rebrand, extend or audit a coherent brand system and apply it across websites, product interfaces or creative artifacts, including landing pages, homepages, marketing sites, portfolios and redesigns that must not look templated, showcase and launch pages, Apple-style product pages with a 3D product, pages built from open-licence art or models, App Store, Google Play or install screenshots for an app, a brand mascot or character with expression states, a UI icon set, an app icon or favicon, an explainer figure or how-it-works visualization, a product intro video or screen-recording film rendered to MP4, and a series of how-to tutorial videos with written steps for a help page or staff training. Use when brand direction, a brand contract, storytelling or cross-artifact consistency is central, or a site looks generic or like every other startup; do not use for ordinary feature edits that should preserve an established identity.
 ---
 
 # Brand Design
@@ -30,6 +30,7 @@ Read only the references required by the task:
 - New identity or rebrand: [brand-system.md](references/brand-system.md).
 - Contract creation or schema changes: [contract.md](references/contract.md).
 - Memorable campaign, launch, portfolio or landing page: [creative-direction.md](references/creative-direction.md), then [storytelling.md](references/storytelling.md).
+- Building or redesigning a landing page, marketing site, homepage or portfolio in code: [frontend-taste.md](references/frontend-taste.md). Not for dashboards, data tables or multi-step product UI.
 - Image-led work or generated assets: [imagery.md](references/imagery.md).
 - Reference-based posters, exact multilingual image copy or JSON prompts for ChatGPT/Gemini: [reference-image-production.md](references/reference-image-production.md), after imagery.
 - Image family, asset bible or art direction across artifacts: [art-system.md](references/art-system.md).
