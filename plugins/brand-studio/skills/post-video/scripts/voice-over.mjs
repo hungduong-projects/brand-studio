@@ -10,8 +10,9 @@
 // --voice overrides the script's voice; with neither, Fish Audio picks its default voice.
 // Reads FISH_API_KEY from the environment and never prints it. A line whose text, voice, model and speed match the last run is
 // kept, so changing one line generates one line. Writes DIR/<id>.mp3 and DIR/voice.json, { model, voice, speed, lines: [{ id,
-// text, caption, file, seconds, key }] }, and prints one JSON line { voice, lines, generated, seconds, bytes, model }. Fish Audio bills the
-// text's UTF-8 bytes; s2.1-pro-free costs nothing, and a paid model that runs out of API credit (402) falls back to it.
+// text, caption, file, seconds, key }] }, and prints one JSON line { voice, lines, generated, seconds, wpm, bytes, model, warnings }.
+// A line spoken faster than 260 words a minute warns: the clip has likely dropped words. Fish Audio bills the text's UTF-8 bytes;
+// s2.1-pro-free costs nothing, and a paid model that runs out of API credit (402) falls back to it.
 // --voices lists popular English voice models, { voices: [{ id, title, tags, uses }] }, to choose one. --credit prints the
 // account's plan and API credit, { plan: { type, total, balance }, api: { credit } }, before a long run.
 import { createHash } from 'node:crypto';
@@ -80,4 +81,7 @@ for (const line of script.lines) {
   lines.push({ id: line.id, text: line.text, caption: line.caption, file: path.basename(target), seconds: +seconds(target).toFixed(3), key: hash });
 }
 writeFileSync(manifest, JSON.stringify({ model, voice, speed, lines }, null, 2));
-console.log(JSON.stringify({ voice: manifest, lines: lines.length, generated, seconds: +lines.reduce((a, l) => a + l.seconds, 0).toFixed(2), bytes, model }));
+const words = text => text.replace(/\[[^\]]*\]/g, ' ').split(/\s+/).filter(Boolean).length, total = lines.reduce((a, l) => a + l.seconds, 0);
+const warnings = lines.map(l => [l.id, Math.round(words(l.text) / l.seconds * 60)]).filter(([, wpm]) => wpm > 260)
+  .map(([id, wpm]) => `${id} is spoken at ${wpm} words a minute, so the clip has likely dropped words; listen to it, or reword the line slightly to make it again`);
+console.log(JSON.stringify({ voice: manifest, lines: lines.length, generated, seconds: +total.toFixed(2), wpm: Math.round(lines.reduce((a, l) => a + words(l.text), 0) / total * 60), bytes, model, warnings }));

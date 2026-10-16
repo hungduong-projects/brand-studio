@@ -145,8 +145,6 @@ function narrate() {
     .map(l => ({ ...l, start: at.get(l.id) })).sort((a, b) => a.start - b.start);
   placed.forEach((l, i) => {
     if (placed[i + 1] && l.start + l.seconds > placed[i + 1].start + .05) warnings.add(`voice line "${l.id}" runs into "${placed[i + 1].id}"`);
-    const cps = (l.caption ?? l.text).replace(/\[[^\]]*\]/g, '').trim().length / l.seconds;
-    if (cps > 20) warnings.add(`voice line "${l.id}" reads at ${cps.toFixed(0)} characters a second; captions past 20 are hard to follow`);
   });
   const mix = placed.length ? `${placed.map((l, i) => `[${i + 1}:a]adelay=${Math.round(l.start * 1000)}:all=1[v${i}]`).join(';')};${placed.map((_, i) => `[v${i}]`).join('')}`
     + `amix=inputs=${placed.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad[a]` : 'anullsrc=r=48000:cl=stereo[a]';
@@ -177,7 +175,19 @@ function narrate() {
       if (/[.!?]$/.test(w)) parts.at(-1).done = true;
     }
     let used = 0;
-    return parts.map(p => ({ start: l.start + l.seconds * used / text.length, end: l.start + l.seconds * Math.min(used += p.text.length + 1, text.length) / text.length, text: rows(p.text).join('\n') }));
+    return parts.map(p => ({ id: l.id, chars: text.length, start: l.start + l.seconds * used / text.length, spoken: l.start + l.seconds * Math.min(used += p.text.length + 1, text.length) / text.length, text: rows(p.text).join('\n') }));
   });
+  /* Netflix's timing guide: a subtitle stays at least half a second past its speech, two frames separate subtitles, and a gap
+     under half a second closes to two frames rather than flicker. Reading speed counts the time a line's captions are up. */
+  const two = 2 / FPS;
+  cues.forEach((c, i) => {
+    const next = cues[i + 1]?.start ?? seconds;
+    c.end = Math.min(c.spoken + .5, next - two);
+    if (next - c.end > two && next - c.end < .5) c.end = next - c.spoken < .5 ? next - two : next - .5;
+  });
+  for (const l of placed) {
+    const own = cues.filter(c => c.id === l.id), cps = own[0]?.chars / (own.at(-1)?.end - own[0]?.start);
+    if (cps > 20) warnings.add(`voice line "${l.id}" reads at ${cps.toFixed(0)} characters a second; captions past 20 are hard to follow`);
+  }
   writeFileSync(captions, cues.map((c, i) => `${i + 1}\n${stamp(c.start)} --> ${stamp(Math.min(c.end, seconds))}\n${c.text}\n`).join('\n'));
 }
