@@ -4,13 +4,14 @@
 //   node post-video.mjs <file or URL> [--format feed|reel|story|square|wide] [--out FILE.mp4] [--seconds N] [--slow 0.2] [--fps 30]
 //                      [--voice voice.json] [--locale en_US] [--browser PATH]
 //
-// Formats, checked 2026-10-16:
-//   feed    1080x1350  4:5, Facebook and Instagram feed; the largest a feed shows on a phone
-//   reel    1080x1920  9:16, Reels; the platform's buttons cover the top 14% and the bottom 35%
-//   story   1080x1920  9:16, Stories; the top 14% and the bottom 20% are covered
+// Formats, from Meta's Ads Guide on 2026-10-16 (Facebook Feed, Reels and Stories video specs):
+//   feed    1440x1800  4:5, Facebook Feed
+//   reel    1440x2560  9:16, Reels; keep text and key visuals out of the top 14%, the bottom 35% and 6% at each side
+//   story   1440x2560  9:16, Stories; keep text out of the top 14% and the bottom 20%
 //   square  1080x1080  1:1
 //   wide    1920x1080  16:9, a page, a slide or YouTube
-// The page renders at half the size with a 2x pixel ratio, so text stays sharp. Its clocks (timers, animation frames, dates, media,
+// Meta asks for H.264, a fixed frame rate, stereo AAC at 128 kb/s or more and no edit lists, which is what this writes.
+// The page renders about 500 px across at a whole-number pixel ratio, so text stays sharp. Its clocks (timers, animation frames, dates, media,
 // and CSS and Web Animations through the DevTools protocol) run at --slow of real time while screenshots are taken back to back.
 // Each video frame takes the last screenshot taken by its moment on the page's clock, so a slow screenshot never makes the video stutter.
 // When the page defines window.filmStart(), the recording calls it and ends once window.filmDone is set (a take-apart page opened
@@ -32,7 +33,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const formats = { feed: [1080, 1350, 0, 0], reel: [1080, 1920, .14, .35], story: [1080, 1920, .14, .2], square: [1080, 1080, 0, 0], wide: [1920, 1080, 0, 0] };
+const formats = { feed: [1440, 1800, 0, 0], reel: [1440, 2560, .14, .35], story: [1440, 2560, .14, .2], square: [1080, 1080, 0, 0], wide: [1920, 1080, 0, 0] };
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const target = args.find((a, i) => !a.startsWith('--') && !args[i - 1]?.startsWith('--'));
@@ -64,7 +65,10 @@ async function launch() {
 }
 
 const browser = await launch();
-const context = await browser.newContext({ viewport: { width: W / 2, height: H / 2 }, deviceScaleFactor: 2 });
+// A whole-number pixel ratio that leaves the page about 500 px across, the width its layout is made for; a fractional ratio
+// leaves seams under rounded boxes. ffmpeg scales the result to the exact size.
+const DPR = Math.max(1, Math.round(Math.min(W, H) / 500));
+const context = await browser.newContext({ viewport: { width: Math.round(W / DPR), height: Math.round(H / DPR) }, deviceScaleFactor: DPR });
 await context.addInitScript(([slow, voice]) => {
   if (voice) { window.filmVoice = voice; window.__beats = []; window.filmBeat = id => window.__beats.push([id, performance.now()]); }
   const real = performance.now.bind(performance), t0 = real(), clock = t => t0 + (t - t0) * slow;
@@ -96,7 +100,7 @@ const covered = () => safeTop || safeBottom ? page.evaluate(([top, bottom]) => [
 }).map(el => el.textContent.trim().replace(/\s+/g, ' ').slice(0, 40)), [safeTop, safeBottom]) : [];
 
 const ffmpeg = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
-  '-profile:v', 'high', '-vf', 'scale=in_range=pc:out_range=tv,format=yuv420p', '-color_range', 'tv', '-r', String(FPS), '-movflags', '+faststart', '-an', silent], { stdio: ['pipe', 'inherit', 'inherit'] });
+  '-profile:v', 'high', '-vf', `scale=${W}:${H}:in_range=pc:out_range=tv,format=yuv420p`, '-color_range', 'tv', '-r', String(FPS), '-movflags', '+faststart', '-use_editlist', '0', '-an', silent], { stdio: ['pipe', 'inherit', 'inherit'] });
 let start = null, last = null, shot = 0, written = 0, held = 0, previous = -1, queue = Promise.resolve();
 /* Writes every video frame due before `until` (real ms) as the last screenshot taken. */
 const flush = until => { queue = queue.then(async () => {
@@ -146,7 +150,7 @@ function narrate() {
   const mix = placed.length ? `${placed.map((l, i) => `[${i + 1}:a]adelay=${Math.round(l.start * 1000)}:all=1[v${i}]`).join(';')};${placed.map((_, i) => `[v${i}]`).join('')}`
     + `amix=inputs=${placed.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad[a]` : 'anullsrc=r=48000:cl=stereo[a]';
   const run = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...placed.flatMap(l => ['-i', path.join(voiced.dir, l.file)]), '-filter_complex', mix,
-    '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-t', seconds.toFixed(3), '-movflags', '+faststart', out], { encoding: 'utf8' });
+    '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2', '-t', seconds.toFixed(3), '-movflags', '+faststart', '-use_editlist', '0', out], { encoding: 'utf8' });
   if (run.status !== 0) { errors.push(`ffmpeg could not add the voice: ${run.stderr.trim().slice(0, 300)}; the silent video is ${silent}`); return; }
   unlinkSync(silent);
   const stamp = s => new Date(Math.round(s * 1000)).toISOString().slice(11, 23).replace('.', ',');
