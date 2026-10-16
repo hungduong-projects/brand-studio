@@ -93,6 +93,12 @@ body { margin: 0; min-height: 100vh; padding: 32px 16px; display: grid; justify-
 .anchor { fill: var(--bs-surface); stroke: color-mix(in srgb, var(--bs-ink) 50%, transparent); stroke-width: 1; transition: opacity .2s; }
 .anchor.on { fill: var(--bs-accent); stroke: var(--bs-accent); }
 .scene:not(.wide) .leaders { display: none; }
+/* a process: its steps stand side by side, joined by arrows along the floor; the arrow into the lit step runs */
+.flowline { fill: none; stroke: color-mix(in srgb, var(--bs-ink) 32%, transparent); stroke-width: 1.4; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; transition: stroke .25s; }
+.chev { fill: color-mix(in srgb, var(--bs-ink) 32%, transparent); transition: fill .25s; }
+.flowline.on { stroke: var(--bs-accent); animation: flow .9s linear infinite; }
+.chev.on { fill: var(--bs-accent); }
+@keyframes flow { to { stroke-dashoffset: -14; } }
 
 /* the layer list: under the drawing on a phone, beside each layer when there is room */
 .xf-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 2px; }
@@ -175,27 +181,53 @@ document.title = figures[ROOT].heading;
 const stageEl = document.querySelector('.xf-stage');
 class Scene {
   constructor(model, figure) {
-    this.model = model; this.figure = figure;
+    this.model = model; this.figure = figure; this.flow = !!model.flow;
     const n = model.layers.length;
-    this.layers = model.layers.map((l, i) => ({ ...l, n: String(n - i).padStart(2, '0'), ...drawLayer(l) }));
+    this.layers = model.layers.map((l, i) => {
+      const [dx, dy] = this.flow ? P(l.at[0], l.at[1], 0) : [0, 0];
+      return { ...l, n: String(this.flow ? i + 1 : n - i).padStart(2, '0'), ...drawLayer(l), dx, dy };
+    });
+    // A process numbers and lists its steps in order and draws them far to near; a stack lists its top layer first.
+    const depth = i => this.flow ? this.layers[i].at[0] + this.layers[i].at[1] : i, list = this.layers.map((l, i) => ({ l, i }));
+    if (!this.flow) list.reverse();
     this.el = document.createElement('div');
     this.el.className = 'scene';
     this.el.innerHTML = `<svg class="xf-draw" role="img" aria-label="${model.alt}"><defs>${this.layers.map(l => l.defs).join('')}</defs>`
-      + `<g class="root">${this.layers.map((l, i) => `<g class="layer" data-i="${i}"><g class="lift">${l.body}</g></g>`).join('')}</g>`
+      + `<g class="root">${this.flow ? `<g class="flows">${this.links()}</g>` : ''}${[...this.layers.keys()].sort((a, b) => depth(a) - depth(b)).map(i => `<g class="layer" data-i="${i}"><g class="lift">${this.layers[i].body}</g></g>`).join('')}</g>`
       + `<g class="leaders">${this.layers.map(() => '<path class="leader"/><circle class="anchor" r="2.5"/>').join('')}</g></svg>`
-      + `<ol class="xf-list">${this.layers.map((l, i) => ({ l, i })).reverse().map(({ l, i }) => `<li data-i="${i}" data-visual="label">`
+      + `<ol class="xf-list">${list.map(({ l, i }) => `<li data-i="${i}" data-visual="label">`
         + `<button type="button" class="lb" aria-pressed="false"><span class="n">${l.n}</span><span class="t">${l.title}</span><span class="r">${l.readout}</span></button>`
         + ((l.parts || []).length ? `<div class="p">${l.parts.map((p, k) => p.open
           ? `<button type="button" class="zoom" data-open="${p.open}" data-part="${p.id}" aria-label="Zoom into ${p.name}"><b>${k + 1}</b><span>${p.name}</span>${ZOOM}</button>`
           : `<span><b>${k + 1}</b>${p.name}</span>`).join('')}</div>` : '') + '</li>').join('')}</ol>`;
     this.svg = this.el.querySelector('svg'); this.root = this.svg.querySelector('.root');
-    this.groups = [...this.svg.querySelectorAll('.layer')];
+    this.groups = this.layers.map((_, i) => this.svg.querySelector(`.layer[data-i="${i}"]`));
+    this.flows = [...this.svg.querySelectorAll('.flows [data-to]')];
     this.leaders = [...this.svg.querySelectorAll('.leader')]; this.anchors = [...this.svg.querySelectorAll('.anchor')];
     this.items = this.layers.map((_, i) => this.el.querySelector(`li[data-i="${i}"]`));
     this.buttons = this.items.map(li => li.querySelector('.lb'));
     this.spring = this.layers.map(() => ({ x: 0, v: 0, target: 0, pending: null }));
     this.apart = false; this.focus = null; this.hover = null; this.raf = 0; this.timer = 0; this.s = 1; this.e = [0, 0];
+    // A process is always laid out; its view glides to the lit step instead.
+    if (this.flow) { this.apart = true; this.spring.forEach(s => { s.x = s.target = 1; }); this.cam = { x: null, v: [0, 0, 0, 0], target: null }; }
     this.bind();
+  }
+
+  /* A process's arrows: along the floor from where the line between two steps' footprints leaves one to where it meets the next. */
+  links() {
+    const spot = l => [l.at[0] + l.box.px0, l.at[1] + l.box.py0, l.at[0] + l.box.px1, l.at[1] + l.box.py1];
+    const S = ([x, y]) => P(x, y, 0).map(f).join(' ');
+    return this.layers.slice(1).map((next, k) => {
+      const A = spot(this.layers[k]), B = spot(next), a = [(A[0] + A[2]) / 2, (A[1] + A[3]) / 2], d = [(B[0] + B[2]) / 2 - a[0], (B[1] + B[3]) / 2 - a[1]];
+      const axes = [0, 1].filter(j => d[j]), len = Math.hypot(...d);
+      if (!axes.length) return '';
+      const t0 = Math.min(...axes.map(j => ((d[j] > 0 ? A[j + 2] : A[j]) - a[j]) / d[j])) + 6 / len;
+      const t1 = Math.max(...axes.map(j => ((d[j] > 0 ? B[j] : B[j + 2]) - a[j]) / d[j])) - 6 / len;
+      if (!(t1 > t0)) return '';
+      const at = t => [a[0] + d[0] * t, a[1] + d[1] * t], u = [d[0] / len, d[1] / len], m = at((t0 + t1) / 2);
+      const tip = [m[0] + u[0] * 7, m[1] + u[1] * 7], l = [m[0] - u[0] * 4 - u[1] * 5, m[1] - u[1] * 4 + u[0] * 5], r = [m[0] - u[0] * 4 + u[1] * 5, m[1] - u[1] * 4 - u[0] * 5];
+      return `<path class="flowline" data-to="${k + 1}" d="M${S(at(t0))}L${S(at(t1))}"/><path class="chev" data-to="${k + 1}" d="M${S(tip)}L${S(l)}L${S(r)}Z"/>`;
+    }).join('');
   }
 
   bind() {
@@ -213,7 +245,7 @@ class Scene {
     this.buttons.forEach((b, i) => {
       b.addEventListener('click', () => { this.stopPlay(); this.setFocus(this.focus === i ? null : i); });
       b.addEventListener('keydown', e => {
-        const to = { ArrowUp: i + 1, ArrowDown: i - 1 }[e.key];
+        const to = (this.flow ? { ArrowDown: i + 1, ArrowUp: i - 1 } : { ArrowUp: i + 1, ArrowDown: i - 1 })[e.key];
         if (to === undefined || to < 0 || to >= this.layers.length) return;
         e.preventDefault(); this.buttons[to].focus(); this.stopPlay(); this.setFocus(to);
       });
@@ -226,16 +258,16 @@ class Scene {
   t() { const s = this.spring.slice(1); return s.length ? s.reduce((a, x) => a + x.x, 0) / s.length : this.spring[0].x; }
 
   layout(width) {
-    this.wide = !film && width >= 600; this.px = width;
+    this.wide = !film && !this.flow && width >= 600; this.px = width;
     this.el.classList.toggle('wide', this.wide);
-    this.gap = film ? this.model.gap[1] * .7 : this.model.gap[this.wide ? 0 : 1];
+    this.gap = this.flow ? 0 : film ? this.model.gap[1] * .7 : this.model.gap[this.wide ? 0 : 1];
     const ls = this.layers, b = ls.map(l => l.box);
-    this.minX = Math.min(...b.map(x => x.minX)); this.maxX = Math.max(...b.map(x => x.maxX));
-    this.LX = Math.max(...b.map(x => x.ax)) + 53;
+    this.minX = Math.min(...b.map((x, i) => x.minX + ls[i].dx)); this.maxX = Math.max(...b.map((x, i) => x.maxX + ls[i].dx));
+    this.LX = Math.max(...b.map((x, i) => x.ax + ls[i].dx)) + 53;
     const left = this.minX - 16, right = this.wide ? this.LX + 262 : this.maxX + 16;
-    this.top = Math.min(...b.map((x, i) => x.minY - ls[i].zA - i * this.gap)) - 46;
-    this.wholeTop = Math.min(...b.map((x, i) => x.minY - ls[i].zA));
-    this.wholeBottom = Math.max(...b.map((x, i) => x.maxY - ls[i].zA));
+    this.top = Math.min(...b.map((x, i) => x.minY + ls[i].dy - ls[i].zA - i * this.gap)) - 46;
+    this.wholeTop = Math.min(...b.map((x, i) => x.minY + ls[i].dy - ls[i].zA));
+    this.wholeBottom = Math.max(...b.map((x, i) => x.maxY + ls[i].dy - ls[i].zA));
     this.bottom = this.wholeBottom + 14;
     this.whole = [(this.minX + this.maxX) / 2, (this.wholeTop + this.wholeBottom) / 2];
     this.vb = [left, this.top, right - left, this.bottom - this.top];
@@ -246,7 +278,21 @@ class Scene {
     this.zoom = this.wide || film ? Math.min(1.5, .8 * this.vb[2] / (this.maxX - this.minX), .62 * this.vb[3] / (this.wholeBottom - this.wholeTop)) : 1;
     const column = Math.min(262, (right - this.LX) * width / this.vb[2]);
     this.items.forEach(li => { li.style.width = this.wide ? `${f(column)}px` : ''; });
+    if (this.flow) { this.view = this.vb.slice(); this.cam.target = this.frameOf(); this.cam.x = this.cam.target.slice(); this.cam.v = [0, 0, 0, 0]; }
     this.measure(); this.draw();
+  }
+  /* Where a process's view rests: on the lit step with room for its pins, at most 2.2 times closer, or on the whole process.
+     It keeps the whole view's shape, so the drawing never changes size on the page. */
+  frameOf() {
+    const W = this.view, i = this.focus;
+    if (i === null) return W.slice();
+    const l = this.layers[i], b = l.box, shape = W[2] / W[3];
+    const x0 = b.minX + l.dx - 30, x1 = b.maxX + l.dx + 30, y0 = b.minY + l.dy - 50, y1 = b.maxY + l.dy + 24;
+    let w = Math.max(x1 - x0, W[2] / 2.2), h = Math.max(y1 - y0, W[3] / 2.2);
+    if (w / h < shape) w = h * shape; else h = w / shape;
+    if (w > W[2]) { w = W[2]; h = w / shape; }
+    if (h > W[3]) { h = W[3]; w = h * shape; }
+    return [Math.min(Math.max((x0 + x1 - w) / 2, W[0]), W[0] + W[2] - w), Math.min(Math.max((y0 + y1 - h) / 2, W[1]), W[1] + W[3] - h), w, h];
   }
   measure() { this.heights = this.items.map(li => li.offsetHeight); }
   /* Each label sits level with its leader. One that would run into the label below pushes it down, and the floor of the box pushes back up.
@@ -261,6 +307,14 @@ class Scene {
   }
 
   draw() {
+    if (this.flow) { // each step at its place; the view is the camera's
+      const vb = this.vb = this.cam.x.slice();
+      this.svg.setAttribute('viewBox', vb.map(f).join(' '));
+      this.s = 1; this.e = [0, 0];
+      this.groups.forEach((g, i) => g.setAttribute('transform', `translate(${f(this.layers[i].dx)} ${f(this.layers[i].dy - this.layers[i].zA)})`));
+      this.el.classList.add('apart');
+      return;
+    }
     const t = this.t(), show = this.apart ? Math.min(1, Math.max(0, (t - .7) / .3)) : 0, vb = this.vb;
     /* Wide: the box keeps its height and the whole thing is drawn larger in the middle of it.
        Phone: the box grows as the thing comes apart, so the whole thing leaves no empty space. */
@@ -305,6 +359,12 @@ class Scene {
       else for (let j = 0; j < n; j++) { const h = dt / n, a = -150 * (s.x - s.target) - 21 * s.v; s.v += a * h; s.x += s.v * h; }
       if (s.pending || Math.abs(s.x - s.target) > 1e-3 || Math.abs(s.v) > 1e-3) moving = true; else { s.x = s.target; s.v = 0; }
     }
+    const c = this.cam; // a process's view glides on a critically damped spring
+    if (c?.target) for (let j = 0; j < 4; j++) {
+      if (reduce) { c.x[j] = c.target[j]; c.v[j] = 0; continue; }
+      for (let k = 0; k < n; k++) { const h = dt / n, a = -60 * (c.x[j] - c.target[j]) - 15.5 * c.v[j]; c.v[j] += a * h; c.x[j] += c.v[j] * h; }
+      if (Math.abs(c.x[j] - c.target[j]) > .05 || Math.abs(c.v[j]) > .05) moving = true; else { c.x[j] = c.target[j]; c.v[j] = 0; }
+    }
     this.draw();
     this.raf = moving ? requestAnimationFrame(n => this.frame(n)) : 0;
   }
@@ -312,10 +372,15 @@ class Scene {
   /* Resolves once the thing is all but whole again. */
   settle() { return new Promise(done => { const check = () => (this.raf && this.t() > .03 ? requestAnimationFrame(check) : done()); check(); }); }
   /* Jumps to apart or whole with no motion, for stills and checks. */
-  snap(on) { this.spring.forEach(s => { s.x = s.target = on ? 1 : 0; s.v = 0; s.pending = null; }); this.apart = on; this.paint(); }
+  snap(on) {
+    if (this.flow) on = true;
+    this.spring.forEach(s => { s.x = s.target = on ? 1 : 0; s.v = 0; s.pending = null; }); this.apart = on;
+    if (this.cam?.target) { this.cam.target = this.frameOf(); this.cam.x = this.cam.target.slice(); this.cam.v = [0, 0, 0, 0]; }
+    this.paint();
+  }
 
   setApart(on, stagger = 70) {
-    if (on === this.apart) return;
+    if (on === this.apart || this.flow) return;
     this.apart = on;
     const order = on ? [...this.layers.keys()].reverse() : [...this.layers.keys()], now = performance.now();
     order.forEach((i, k) => { this.spring[i].pending = { value: on ? 1 : 0, at: now + k * stagger }; });
@@ -330,13 +395,15 @@ class Scene {
     this.anchors.forEach((g, i) => g.classList.toggle('on', i === shown));
     this.items.forEach((li, i) => li.classList.toggle('on', i === shown));
     this.buttons.forEach((b, i) => b.setAttribute('aria-pressed', i === shown));
+    this.flows.forEach(p => p.classList.toggle('on', Number(p.dataset.to) === shown));
+    if (this.cam?.target) { this.cam.target = this.frameOf(); this.kick(); }
     this.measure(); this.draw();
     if (this === this.figure.top) caption();
   }
   setFocus(i) { this.focus = i; if (i !== null) this.setApart(true); this.paint(); }
   togglePlay() {
     if (this.timer) return this.stopPlay();
-    const order = [...this.layers.keys()].reverse();
+    const order = this.flow ? [...this.layers.keys()] : [...this.layers.keys()].reverse();
     const step = k => { if (k === order.length) return this.stopPlay(); this.setFocus(order[k]); this.timer = setTimeout(() => step(k + 1), 2200); };
     if (this.apart) { this.timer = -1; step(0); } else { this.setApart(true); this.timer = setTimeout(() => step(0), 900); }
     this.figure.sync();
@@ -370,7 +437,7 @@ const figure = {
     pathEl.innerHTML = this.stack.map((s, i) => i < this.stack.length - 1 ? `<button type="button" data-level="${i}">${s.model.crumb}</button>` : `<span aria-current="true">${s.model.crumb}</span>`).join('<span aria-hidden="true">›</span>');
     titleEl.textContent = top.model.heading; captionEl.textContent = top.model.caption;
     backBtn.hidden = this.stack.length < 2;
-    apartBtn.textContent = top.apart ? 'Put together' : 'Take apart'; apartBtn.setAttribute('aria-pressed', top.apart);
+    apartBtn.hidden = top.flow; apartBtn.textContent = top.apart ? 'Put together' : 'Take apart'; apartBtn.setAttribute('aria-pressed', top.apart);
     playBtn.textContent = top.timer ? 'Pause' : 'Play';
     caption();
   },
@@ -417,6 +484,7 @@ const figure = {
     this.busy = true;
     const child = this.top, parent = this.stack[this.stack.length - 2], keyboard = this.el.contains(document.activeElement);
     child.stopPlay();
+    if (child.flow && child.focus !== null) { child.focus = child.hover = null; child.paint(); await child.settle(); } // the whole process first
     if (child.apart) { child.setApart(false, 20); await child.settle(); }
     parent.el.hidden = false; parent.hover = null; parent.paint();
     const { from, to, k } = this.ends(parent, child.origin, child);
@@ -543,20 +611,27 @@ if (film) {
   };
   window.filmStart = () => {
     (async () => {
-      const tour = MODEL.tour || auto();
+      const tour = MODEL.tour || auto(), root = figure.top;
       await beat('intro', 500);
-      figure.top.setApart(true); await wait(1000);
-      for (const [d, stop] of tour.entries()) {
+      root.setApart(true); await wait(1000);
+      // One stop: dive down its parts, light its layers, come home. A process lit its step already on its walk.
+      const go = async (stop, first) => {
         for (const [k, id] of stop.dive.entries()) {
           const s = figure.top, i = owner(s, id);
-          if (d === 0 && k === 0) for (let j = s.layers.length - 1; j > i; j--) await light(s, j, 480);
-          await light(s, i, d === 0 && k === 0 ? 700 : k === 0 ? 450 : 650);
+          if (s !== root || !root.flow) {
+            if (first && k === 0) for (let j = s.layers.length - 1; j > i; j--) await light(s, j, 480);
+            await light(s, i, first && k === 0 ? 700 : k === 0 ? 450 : 650);
+          }
           await into(id); await beat(`into:${figure.top.key}`, 1000);
         }
         for (const key of stop.light || []) { const s = figure.top; await light(s, s.layers.findIndex(l => l.key === key), 900); }
         await home(); await beat('home', 300);
-      }
-      figure.top.setApart(false); await beat('together', 900);
+      };
+      // A process walks its steps in order and takes each stop when it reaches the step the stop starts from.
+      if (root.flow) for (const i of root.layers.keys()) { await light(root, i, 900); for (const stop of tour.filter(st => owner(root, st.dive[0]) === i)) await go(stop, false); }
+      else for (const [d, stop] of tour.entries()) await go(stop, d === 0);
+      if (root.flow) root.setFocus(null); else root.setApart(false);
+      await beat('together', 900);
       if (MODEL.end) { caption(MODEL.end); await beat('end', 2400); } else await wait(1200);
       window.filmDone = Date.now();
     })();

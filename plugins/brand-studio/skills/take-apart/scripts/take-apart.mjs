@@ -35,21 +35,22 @@ if (!M?.figures || !Object.keys(M.figures).length) { fails.push('the model never
 const figures = M.figures, root = Object.keys(figures)[0], drawn = {};
 let layerCount = 0, partCount = 0;
 for (const [key, fig] of Object.entries(figures)) {
-  const where = `figure ${key}`;
+  const where = `figure ${key}`, flow = !!fig.flow, unit = flow ? 'step' : 'layer';
   for (const field of ['crumb', 'heading', 'alt', 'caption']) if (typeof fig[field] !== 'string' || !fig[field]) fails.push(`${where}: needs ${field}`);
-  if (!Array.isArray(fig.gap) || fig.gap.length !== 2 || !fig.gap.every(Number.isFinite)) fails.push(`${where}: gap must be [wide, narrow], two numbers`);
-  if (!Array.isArray(fig.layers) || fig.layers.length < 2) { fails.push(`${where}: needs at least two layers to come apart`); continue; }
-  if (fig.layers.length > 7) warnings.push(`${where}: ${fig.layers.length} layers; more than 7 crowd the labels`);
-  if (key === root && fig.layers.length < 4) warnings.push(`${where}: the first view has ${fig.layers.length} layers; 4 to 7 show how the whole thing is built`);
+  if (!flow && (!Array.isArray(fig.gap) || fig.gap.length !== 2 || !fig.gap.every(Number.isFinite))) fails.push(`${where}: gap must be [wide, narrow], two numbers`);
+  if (!Array.isArray(fig.layers) || fig.layers.length < 2) { fails.push(`${where}: needs at least two ${flow ? 'steps' : 'layers to come apart'}`); continue; }
+  if (fig.layers.length > 7) warnings.push(`${where}: ${fig.layers.length} ${unit}s; more than 7 crowd the labels`);
+  if (key === root && fig.layers.length < 4) warnings.push(`${where}: the first view has ${fig.layers.length} ${unit}s; 4 to 7 show ${flow ? 'the whole process' : 'how the whole thing is built'}`);
   if (fig.caption?.length > 120) warnings.push(`${where}: caption runs ${fig.caption.length} characters; keep it under 120`);
   const keys = new Set();
   drawn[key] = fig.layers.map(layer => {
-    const at = `${where}, layer ${layer.key}`;
+    const at = `${where}, ${unit} ${layer.key}`;
     layerCount++;
     if (!layer.key || keys.has(layer.key)) fails.push(`${at}: needs a key of its own`);
     keys.add(layer.key);
     if (!layer.title || !layer.readout) fails.push(`${at}: needs a title and a readout`);
-    if (!Number.isFinite(layer.zA)) fails.push(`${at}: zA must be a number`);
+    if (flow) { if (!Array.isArray(layer.at) || layer.at.length !== 2 || !layer.at.every(Number.isFinite)) fails.push(`${at}: at must be [x, y]`); }
+    else if (!Number.isFinite(layer.zA)) fails.push(`${at}: zA must be a number`);
     if (layer.title?.length > 30) warnings.push(`${at}: title runs ${layer.title.length} characters; keep it under 30`);
     if (layer.readout?.length > 110) warnings.push(`${at}: readout runs ${layer.readout.length} characters; about two lines is under 110`);
     if (typeof layer.draw !== 'function') { fails.push(`${at}: draw must be a function`); return null; }
@@ -74,6 +75,11 @@ for (const [key, fig] of Object.entries(figures)) {
     }
     return out;
   });
+  // A process's steps stand side by side, so two whose footprints meet hide each other and the arrow between them.
+  if (flow) {
+    const spots = fig.layers.map((l, i) => drawn[key][i] && Array.isArray(l.at) && { key: l.key, x0: l.at[0] + drawn[key][i].box.px0, x1: l.at[0] + drawn[key][i].box.px1, y0: l.at[1] + drawn[key][i].box.py0, y1: l.at[1] + drawn[key][i].box.py1 });
+    spots.forEach((a, i) => spots.slice(i + 1).forEach(b => { if (a && b && a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1) warnings.push(`${where}: steps ${a.key} and ${b.key} overlap; give them more room`); }));
+  }
 }
 
 // Every figure is reached from the top through the parts that open it.
@@ -116,19 +122,26 @@ if (args.includes('--beats')) {
     }
     return dive.length ? [{ dive, light: [figures[key].layers.at(-1).key] }] : [];
   };
-  add('intro', `${figures[root].heading}. ${figures[root].caption}`);
-  for (const [d, stop] of (M.tour || auto()).entries()) {
+  // One stop: dive down its parts, light its layers, come home. A process lit its step already on the walk.
+  const go = (stop, first) => {
     let key = root;
     for (const [k, id] of stop.dive.entries()) {
       const layers = figures[key].layers, i = owner(key, id);
-      if (d === 0 && k === 0) for (let j = layers.length - 1; j > i; j--) lit(key, layers[j]);
-      lit(key, layers[i]);
+      if (key !== root || !figures[root].flow) {
+        if (first && k === 0) for (let j = layers.length - 1; j > i; j--) lit(key, layers[j]);
+        lit(key, layers[i]);
+      }
       key = layers[i].parts.find(p => p.id === id).open;
       add(`into:${key}`, `${figures[key].heading}. ${figures[key].caption}`);
     }
     for (const name of stop.light || []) lit(key, figures[key].layers.find(l => l.key === name));
     add('home', figures[root].heading);
-  }
+  };
+  const tour = M.tour || auto();
+  add('intro', `${figures[root].heading}. ${figures[root].caption}`);
+  // A process walks its steps in order and takes each stop when it reaches the step the stop starts from.
+  if (figures[root].flow) figures[root].layers.forEach((step, i) => { lit(root, step); tour.filter(stop => owner(root, stop.dive[0]) === i).forEach(stop => go(stop, false)); });
+  else tour.forEach((stop, d) => go(stop, d === 0));
   add('together', figures[root].heading);
   if (M.end) add('end', M.end.join(' / '));
   console.log(JSON.stringify({ beats }));

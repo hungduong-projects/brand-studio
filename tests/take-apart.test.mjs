@@ -27,9 +27,21 @@ const box = (edit = m => m) => edit({
     lid: figure([layer('shell', 0), layer('seal', 4)]),
   },
 });
-const build = edit => {
+// A process: four steps side by side, where the second step opens the lid's figure.
+const step = (key, x, more = {}) => ({ key, title: key.toUpperCase(), readout: `The ${key} step.`, at: [x, 0], draw: 'slab(0, 0, 40, 40, 4, 0, 6)', ...more });
+const making = (edit = m => m) => edit({
+  tour: [{ dive: ['lid'], light: ['seal'] }],
+  end: ['Box', 'Boxes, made step by step.'],
+  figures: {
+    make: { crumb: 'Making', heading: 'How a box is made', alt: 'Four steps in a row.', caption: 'A box is made in four steps.', steps: [
+      step('cut', 0), step('fold', 70, { parts: [{ name: 'Lid', at: [20, 20, 6], open: 'lid', id: 'lid' }], draw: "hit('lid', 'lid', 'the lid', slab(0, 0, 40, 40, 4, 0, 6))" }),
+      step('glue', 140), step('pack', 210)] },
+    lid: figure([layer('shell', 0), layer('seal', 4)]),
+  },
+});
+const build = (edit, base = box) => {
   const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
-  writeFileSync(file, source(box(edit)));
+  writeFileSync(file, source(base(edit)));
   return run(file, '--out', path.join(dir, 'out'));
 };
 
@@ -84,6 +96,19 @@ test('long titles, long readouts and crowded layers warn without failing', () =>
   has(out.warnings, 'about two lines is under 110');
 });
 
+test('a process walks its steps in order, dives where a step opens a figure, then carries on to the last step', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
+  writeFileSync(file, source(making()));
+  const { status, out } = run(file, '--out', path.join(dir, 'out'));
+  assert.deepEqual([status, out.fails, out.warnings], [0, [], []]);
+  assert.deepEqual(run(file, '--beats').out.beats.map(b => b.id), ['intro', 'make#cut', 'make#fold', 'into:lid', 'lid#seal', 'home', 'make#glue', 'make#pack', 'together', 'end']);
+});
+
+test('a step with no place fails, and steps that stand on each other warn', () => {
+  has(build(m => { delete m.figures.make.steps[2].at; return m; }, making).out.fails, 'figure make, step glue: at must be [x, y]');
+  has(build(m => { m.figures.make.steps[1].at = [20, 0]; return m; }, making).out.warnings, 'figure make: steps cut and fold overlap');
+});
+
 test('every tone the model guide lists has a fill in the viewer, with its colours set for light and dark', () => {
   const guide = readFileSync(path.join(SKILL, 'references/model.md'), 'utf8'), html = readFileSync(path.join(SKILL, 'assets/viewer.html'), 'utf8');
   const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
@@ -113,5 +138,21 @@ test('the film zooms into a part without drawing a pointer over it', async () =>
     await page.evaluate(() => { window.beats = []; window.filmBeat = id => window.beats.push(id); window.filmStart(); });
     await page.waitForFunction(() => window.beats.some(id => id.startsWith('into:')), null, { timeout: 20000 });
     assert.equal(await page.evaluate(() => document.querySelector('.film-pointer')), null);
+  } finally { await browser.close(); }
+});
+
+test('the film walks a process step by step with the beats --beats lists, and a process has no take-apart button', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
+  writeFileSync(file, source(making()));
+  assert.equal(run(file, '--out', dir).status, 0);
+  const listed = run(file, '--beats').out.beats.map(b => b.id);
+  const browser = await launch(), page = await browser.newPage({ viewport: { width: 540, height: 675 } });
+  try {
+    await page.goto(pathToFileURL(path.join(dir, 'index.html')).href);
+    assert.equal(await page.locator('#apart').isHidden(), true);
+    await page.goto(`${pathToFileURL(path.join(dir, 'index.html')).href}?film`);
+    await page.evaluate(() => { window.beats = []; window.filmBeat = id => window.beats.push(id); window.filmStart(); });
+    await page.waitForFunction(() => window.beats.includes('together'), null, { timeout: 40000 });
+    assert.deepEqual(await page.evaluate(() => window.beats), listed.slice(0, listed.indexOf('together') + 1));
   } finally { await browser.close(); }
 });
