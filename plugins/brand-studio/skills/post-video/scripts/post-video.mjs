@@ -181,9 +181,9 @@ function narrate() {
      under half a second closes to two frames rather than flicker. Reading speed counts the time a line's captions are up. */
   const two = 2 / FPS;
   cues.forEach((c, i) => {
-    const next = cues[i + 1]?.start ?? seconds;
-    c.end = Math.min(c.spoken + .5, next - two);
-    if (next - c.end > two && next - c.end < .5) c.end = next - c.spoken < .5 ? next - two : next - .5;
+    const next = cues[i + 1]?.start;
+    c.end = Math.min(c.spoken + .5, (next ?? seconds) - two);
+    if (next !== undefined && next - c.end < .5) c.end = next - two;
   });
   for (const l of placed) {
     const own = cues.filter(c => c.id === l.id), cps = own[0]?.chars / (own.at(-1)?.end - own[0]?.start);
