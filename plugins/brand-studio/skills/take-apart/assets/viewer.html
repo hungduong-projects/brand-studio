@@ -118,8 +118,8 @@ body { margin: 0; min-height: 100vh; padding: 32px 16px; display: grid; justify-
 .scene.wide .xf-list .p { padding: 4px 4px 0 38px; }
 .scene.wide .xf-list .p > span, .scene.wide .xf-list .p .zoom { min-height: 24px; }
 
-/* Film: a fixed frame for a social video, with one big caption for the lit layer under the title and a pointer that taps. ?film */
-.film-cap, .film-pointer { display: none; }
+/* Film: a fixed frame for a social video, with one big caption for the lit layer under the title. ?film */
+.film-cap { display: none; }
 body.film { display: block; min-height: 0; height: 100vh; padding: 0; overflow: hidden; }
 body.film .xf-bar, body.film .xf figcaption, body.film .xf-list, body.film .leaders, body.film .xf-crumbs > span:not(.xf-path) { display: none; }
 body.film .xf { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 30px 30px 24px; border-radius: 0; box-shadow: none; }
@@ -140,12 +140,6 @@ body.film .film-cap { display: grid; grid-template-columns: 36px 1fr; align-cont
 .film-cap .u { font: 16px/1.4 var(--mono); letter-spacing: .03em; color: var(--bs-accent); margin-top: 10px; }
 .film-cap.swap > * { animation: cap-in .4s cubic-bezier(.2, .7, .1, 1) both; }
 @keyframes cap-in { from { opacity: 0; transform: translateY(10px); } }
-body.film .film-pointer { display: block; position: fixed; left: -17px; top: -17px; z-index: 5; width: 34px; height: 34px; border-radius: 50%; pointer-events: none; opacity: 0;
-  background: color-mix(in srgb, var(--bs-ink) 16%, transparent); box-shadow: 0 0 0 2px var(--bs-elevated), 0 0 0 3.5px color-mix(in srgb, var(--bs-ink) 45%, transparent), 0 6px 16px rgba(0, 0, 0, .18);
-  transition: transform .55s cubic-bezier(.3, .7, .2, 1), opacity .3s; }
-body.film .film-pointer.on { opacity: 1; }
-.film-pointer.tap::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2.5px solid var(--bs-accent); animation: tap-ring .55s ease-out forwards; }
-@keyframes tap-ring { from { transform: scale(.5); opacity: 1; } to { transform: scale(2.3); opacity: 0; } }
 </style>
 <script>
 /* Follow the system theme unless ?theme=light or ?theme=dark picks one. */
@@ -166,7 +160,6 @@ body.film .film-pointer.on { opacity: 1; }
   <div class="film-cap" aria-hidden="true"><span class="n"></span><span class="t"></span><span class="r"></span><span class="u"></span></div>
   <p class="sr" aria-live="polite"></p>
 </figure>
-<div class="film-pointer" aria-hidden="true"></div>
 
 <script src="kit.js"></script>
 <script src="model.js"></script>
@@ -524,18 +517,13 @@ window.visual = {
    is set at the end. Each step is a beat: intro, <figure>#<layer>, into:<figure>, home, together, end. A beat calls
    window.filmBeat(id) when it starts and holds at least as long as window.filmVoice[id] seconds, so a voice line never gets cut. */
 if (film) {
-  const wait = ms => new Promise(done => setTimeout(done, ms)), pointer = document.querySelector('.film-pointer');
-  const tap = async el => {
-    const r = el.getBoundingClientRect();
-    pointer.style.transform = `translate(${f(r.left + r.width / 2)}px, ${f(r.top + r.height / 2)}px)`; pointer.classList.add('on');
-    await wait(560); pointer.classList.remove('tap'); void pointer.offsetWidth; pointer.classList.add('tap'); await wait(170);
-  };
+  const wait = ms => new Promise(done => setTimeout(done, ms));
   const owner = (s, id) => s.layers.findIndex(l => (l.parts || []).some(p => p.id === id));
   const into = async id => {
-    const s = figure.top, g = s.svg.querySelector(`.hit[data-part="${id}"]`), part = s.layers.flatMap(l => l.parts || []).find(p => p.id === id);
-    await tap(g.querySelector('.spot') || g); await figure.zoomIn(s, part.open, id);
+    const s = figure.top, part = s.layers.flatMap(l => l.parts || []).find(p => p.id === id);
+    await figure.zoomIn(s, part.open, id);
   };
-  const home = async () => { await tap(pathEl.querySelector('[data-level="0"]')); await figure.zoomTo(0); };
+  const home = () => figure.zoomTo(0);
   const seen = {};
   const beat = (id, ms) => {
     seen[id] = (seen[id] || 0) + 1; if (seen[id] > 1) id += `~${seen[id]}`; // a beat shown again gets its own id: home, home~2
@@ -557,7 +545,7 @@ if (film) {
     (async () => {
       const tour = MODEL.tour || auto();
       await beat('intro', 500);
-      await tap(figure.top.svg); figure.top.setApart(true); await wait(1000);
+      figure.top.setApart(true); await wait(1000);
       for (const [d, stop] of tour.entries()) {
         for (const [k, id] of stop.dive.entries()) {
           const s = figure.top, i = owner(s, id);
@@ -568,7 +556,6 @@ if (film) {
         for (const key of stop.light || []) { const s = figure.top; await light(s, s.layers.findIndex(l => l.key === key), 900); }
         await home(); await beat('home', 300);
       }
-      pointer.classList.remove('on'); await wait(250);
       figure.top.setApart(false); await beat('together', 900);
       if (MODEL.end) { caption(MODEL.end); await beat('end', 2400); } else await wait(1200);
       window.filmDone = Date.now();
