@@ -89,6 +89,21 @@ test('a sentence too long for one caption splits into even captions at a sensibl
   assert.deepEqual(cues, ['Fun fact: people liked a model trained this way', 'better than one a hundred times bigger.']);
 });
 
+test('a sentence too short to read in 5/6 of a second joins the caption beside it', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'post-video-'));
+  writeFileSync(path.join(dir, 'page.html'), `<!doctype html><html><body><p>One line</p><script>
+(function wait() { if (!window.__t0) return requestAnimationFrame(wait); window.filmBeat('one'); })();
+</script></body></html>`);
+  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=1', '-b:a', '128k', path.join(dir, 'tone.mp3')]);
+  writeFileSync(path.join(dir, 'voice.json'), JSON.stringify({ lines: [
+    { id: 'one', text: 'It answers one token at a time. People. Went. To. The. Moon. Each new token goes back in, and it guesses the next one.', file: 'tone.mp3', seconds: 4 },
+  ] }));
+  const r = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'page.html'), '--format', 'square', '--slow', '1', '--fps', '15', '--seconds', '4.5', '--voice', path.join(dir, 'voice.json'), '--out', path.join(dir, 'film.mp4')], { encoding: 'utf8', cwd: ROOT });
+  assert.equal(r.status, 0, r.stderr);
+  const cues = [...readFileSync(JSON.parse(r.stdout.trim()).captions, 'utf8').matchAll(/--> \S+\n([^]*?)\n(?:\n|$)/g)].map(m => m[1].replace(/\n/g, ' '));
+  assert.deepEqual(cues, ['It answers one token at a time. People. Went. To. The. Moon.', 'Each new token goes back in, and it guesses the next one.']);
+});
+
 test('a voice clip far too short for its words warns that it has likely dropped words', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'voice-over-')), out = path.join(dir, 'voice');
   const text = 'This sentence has far too many words to fit in one second of speech.';
