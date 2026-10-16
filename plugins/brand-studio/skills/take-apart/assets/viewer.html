@@ -282,14 +282,16 @@ class Scene {
     if (this.flow) { this.view = this.vb.slice(); this.cam.target = this.frameOf(); this.cam.x = this.cam.target.slice(); this.cam.v = [0, 0, 0, 0]; }
     this.measure(); this.draw();
   }
-  /* Where a process's view rests: on the lit step with room for its pins, at most 2.2 times closer, or on the whole process.
+  /* Where a process's view rests: on the lit step and its pins with a little room, or on the whole process. A page comes at
+     most 2.2 times closer; a film comes as close as the step allows, so words drawn in the step stay readable on a phone.
      It keeps the whole view's shape, so the drawing never changes size on the page. */
   frameOf() {
     const W = this.view, i = this.focus;
     if (i === null) return W.slice();
-    const l = this.layers[i], b = l.box, shape = W[2] / W[3];
-    const x0 = b.minX + l.dx - 30, x1 = b.maxX + l.dx + 30, y0 = b.minY + l.dy - 50, y1 = b.maxY + l.dy + 24;
-    let w = Math.max(x1 - x0, W[2] / 2.2), h = Math.max(y1 - y0, W[3] / 2.2);
+    const l = this.layers[i], b = l.box, shape = W[2] / W[3], most = film ? Infinity : 2.2;
+    const pins = (l.parts || []).filter(p => p.at).map(p => P(...p.at)[1] - 38); // a pin's ring tops out 37.5 above its dot
+    const x0 = b.minX + l.dx - 14, x1 = b.maxX + l.dx + 14, y0 = Math.min(b.minY, ...pins) + l.dy - 14, y1 = b.maxY + l.dy + 14;
+    let w = Math.max(x1 - x0, W[2] / most), h = Math.max(y1 - y0, W[3] / most);
     if (w / h < shape) w = h * shape; else h = w / shape;
     if (w > W[2]) { w = W[2]; h = w / shape; }
     if (h > W[3]) { h = W[3]; w = h * shape; }

@@ -157,3 +157,22 @@ test('the film walks a process step by step with the beats --beats lists, and a 
     assert.deepEqual(await page.evaluate(() => window.beats), listed.slice(0, listed.indexOf('together') + 1));
   } finally { await browser.close(); }
 });
+
+test('a film frames the lit step and its pin closely, so words drawn in the step stay readable', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
+  writeFileSync(file, source(making()));
+  assert.equal(run(file, '--out', dir).status, 0);
+  // The size post-video records a feed film at: 1440 by 1800 at three device pixels to the CSS pixel.
+  const browser = await launch(), page = await browser.newPage({ viewport: { width: 480, height: 600 } });
+  try {
+    await page.goto(`${pathToFileURL(path.join(dir, 'index.html')).href}?film&focus=fold`);
+    await page.waitForTimeout(1500); // the camera glides to the lit step
+    const [view, lit] = await page.evaluate(() => ['.scene .xf-draw', '.layer.on'].map(s => {
+      const { left, right, top, bottom, width, height } = document.querySelector(s).getBoundingClientRect();
+      return { left, right, top, bottom, width, height };
+    }));
+    const seen = JSON.stringify({ view, lit });
+    assert.ok(lit.left >= view.left - 1 && lit.right <= view.right + 1 && lit.top >= view.top - 1 && lit.bottom <= view.bottom + 1, `the step and its pin stay in view: ${seen}`);
+    assert.ok(Math.max(lit.width / view.width, lit.height / view.height) > .65, `the step fills most of the view: ${seen}`);
+  } finally { await browser.close(); }
+});

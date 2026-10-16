@@ -183,7 +183,15 @@ function narrate() {
     return out;
   };
   const cues = placed.flatMap(l => {
-    const text = (l.caption ?? l.text).replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim(), parts = text.split(/(?<=[.!?])\s+/).flatMap(split);
+    const text = (l.caption ?? l.text).replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim(), parts = [];
+    /* A cue that would be up for less than 5/6 of a second, Netflix's shortest subtitle, joins the cue before it, or the one
+       after it, when the two fit one cue: "People. Went. To." would otherwise flash by a word at a time. */
+    const brief = p => l.seconds * (p.length + 1) / (text.length + 1) < 5 / 6;
+    for (const p of text.split(/(?<=[.!?])\s+/).flatMap(split)) {
+      const last = parts.at(-1);
+      if (last && (brief(last) || brief(p)) && rows(`${last} ${p}`).length <= 2) parts[parts.length - 1] = `${last} ${p}`;
+      else parts.push(p);
+    }
     let used = 0;
     return parts.map(p => ({ id: l.id, chars: text.length, start: l.start + l.seconds * used / text.length, spoken: l.start + l.seconds * Math.min(used += p.length + 1, text.length) / text.length, text: rows(p).join('\n') }));
   });
