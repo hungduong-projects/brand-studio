@@ -74,6 +74,21 @@ test('a gap under half a second between captions closes to two frames, and the l
   assert.ok(Math.abs(two[1] - held) < .01, `the last caption stays half a second past its line, whatever the film's length: ${two} in ${result.seconds} s, expected ${held.toFixed(3)}`);
 });
 
+test('a sentence too long for one caption splits into even captions at a sensible break, never leaving a word alone', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'post-video-'));
+  writeFileSync(path.join(dir, 'page.html'), `<!doctype html><html><body><p>One line</p><script>
+(function wait() { if (!window.__t0) return requestAnimationFrame(wait); window.filmBeat('one'); })();
+</script></body></html>`);
+  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=1', '-b:a', '128k', path.join(dir, 'tone.mp3')]);
+  writeFileSync(path.join(dir, 'voice.json'), JSON.stringify({ lines: [
+    { id: 'one', text: 'Fun fact: people liked a model trained this way better than one a hundred times bigger.', file: 'tone.mp3', seconds: 1 },
+  ] }));
+  const r = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'page.html'), '--format', 'square', '--slow', '1', '--fps', '15', '--seconds', '1.5', '--voice', path.join(dir, 'voice.json'), '--out', path.join(dir, 'film.mp4')], { encoding: 'utf8', cwd: ROOT });
+  assert.equal(r.status, 0, r.stderr);
+  const cues = [...readFileSync(JSON.parse(r.stdout.trim()).captions, 'utf8').matchAll(/--> \S+\n([^]*?)\n(?:\n|$)/g)].map(m => m[1].replace(/\n/g, ' '));
+  assert.deepEqual(cues, ['Fun fact: people liked a model trained this way', 'better than one a hundred times bigger.']);
+});
+
 test('a voice clip far too short for its words warns that it has likely dropped words', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'voice-over-')), out = path.join(dir, 'voice');
   const text = 'This sentence has far too many words to fit in one second of speech.';

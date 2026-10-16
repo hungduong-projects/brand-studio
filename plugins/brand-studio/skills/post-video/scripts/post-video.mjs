@@ -155,7 +155,7 @@ function narrate() {
   const stamp = s => new Date(Math.round(s * 1000)).toISOString().slice(11, 23).replace('.', ',');
   /* One row of 42 characters if it fits. Else the even, slightly bottom-heavy two-row split that breaks after punctuation, not
      after an article, preposition or conjunction, as Netflix's English guide asks; more rows mean the text needs another cue. */
-  const small = /^(a|an|the|and|or|but|of|to|in|on|at|by|for|from|with|into|its|your|their|our|my|is|are)$/i;
+  const small = /^(a|an|the|this|that|these|those|and|or|but|of|to|in|on|at|by|for|from|with|into|its|your|their|our|my|is|are)$/i;
   const rows = text => {
     if (text.length <= 42) return [text];
     const words = text.split(' ');
@@ -168,14 +168,24 @@ function narrate() {
     }
     return best?.rows ?? words.reduce((r, w) => (r.length && `${r.at(-1)} ${w}`.length <= 42 ? r[r.length - 1] += ` ${w}` : r.push(w), r), []);
   };
-  const cues = placed.flatMap(l => {
-    const text = (l.caption ?? l.text).replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim(), parts = [];
-    for (const sentence of text.split(/(?<=[.!?])\s+/)) for (const w of sentence.split(' ')) {
-      if (!parts.length || parts.at(-1).done || rows(`${parts.at(-1).text} ${w}`).length > 2) parts.push({ text: w }); else parts.at(-1).text += ` ${w}`;
-      if (/[.!?]$/.test(w)) parts.at(-1).done = true;
+  /* A sentence too long for one caption splits into the fewest captions that fit, as even as they can be, breaking after
+     punctuation and not after a small word, so no caption is left holding a word or two. */
+  const split = sentence => {
+    const words = sentence.split(' '), best = [{ n: 0, cost: 0 }];
+    for (let j = 1; j <= words.length; j++) for (let i = 0; i < j; i++) {
+      const text = words.slice(i, j).join(' '), end = words[j - 1];
+      if (rows(text).length > 2) continue;
+      const cost = best[i].cost + (84 - text.length) ** 2 + (j < words.length ? (/[,;:]$/.test(end) ? -300 : 0) + (small.test(end) ? 1000 : 0) : 0);
+      if (!best[j] || best[i].n + 1 < best[j].n || (best[i].n + 1 === best[j].n && cost < best[j].cost)) best[j] = { n: best[i].n + 1, cost, from: i };
     }
+    const out = [];
+    for (let j = words.length; j > 0; j = best[j].from) out.unshift(words.slice(best[j].from, j).join(' '));
+    return out;
+  };
+  const cues = placed.flatMap(l => {
+    const text = (l.caption ?? l.text).replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim(), parts = text.split(/(?<=[.!?])\s+/).flatMap(split);
     let used = 0;
-    return parts.map(p => ({ id: l.id, chars: text.length, start: l.start + l.seconds * used / text.length, spoken: l.start + l.seconds * Math.min(used += p.text.length + 1, text.length) / text.length, text: rows(p.text).join('\n') }));
+    return parts.map(p => ({ id: l.id, chars: text.length, start: l.start + l.seconds * used / text.length, spoken: l.start + l.seconds * Math.min(used += p.length + 1, text.length) / text.length, text: rows(p).join('\n') }));
   });
   /* Netflix's timing guide: a subtitle stays at least half a second past its speech, two frames separate subtitles, and a gap
      under half a second closes to two frames rather than flicker. Reading speed counts the time a line's captions are up. */
