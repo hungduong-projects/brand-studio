@@ -40,6 +40,7 @@ for (const [key, fig] of Object.entries(figures)) {
   if (!Array.isArray(fig.gap) || fig.gap.length !== 2 || !fig.gap.every(Number.isFinite)) fails.push(`${where}: gap must be [wide, narrow], two numbers`);
   if (!Array.isArray(fig.layers) || fig.layers.length < 2) { fails.push(`${where}: needs at least two layers to come apart`); continue; }
   if (fig.layers.length > 7) warnings.push(`${where}: ${fig.layers.length} layers; more than 7 crowd the labels`);
+  if (key === root && fig.layers.length < 4) warnings.push(`${where}: the first view has ${fig.layers.length} layers; 4 to 7 show how the whole thing is built`);
   if (fig.caption?.length > 120) warnings.push(`${where}: caption runs ${fig.caption.length} characters; keep it under 120`);
   const keys = new Set();
   drawn[key] = fig.layers.map(layer => {
