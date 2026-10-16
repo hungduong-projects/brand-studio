@@ -22,7 +22,7 @@ window.filmStart = () => { (async () => {
 })(); };
 </script></body></html>`;
 
-test('a narrated recording places each voice line on its beat, adds AAC sound and writes Facebook-named captions', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+test('a narrated recording places each voice line on its beat, adds stereo AAC sound and writes Facebook-named captions', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'post-video-'));
   writeFileSync(path.join(dir, 'page.html'), PAGE);
   spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=0.8', '-b:a', '128k', path.join(dir, 'hello.mp3')]);
@@ -41,9 +41,9 @@ test('a narrated recording places each voice line on its beat, adds AAC sound an
   assert.equal(result.captions, path.join(dir, 'film.en_US.srt'));
   assert.ok(!existsSync(path.join(dir, 'film.silent.mp4')));
 
-  const streams = JSON.parse(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height,sample_rate', '-of', 'json', out], { encoding: 'utf8' }).stdout).streams;
+  const streams = JSON.parse(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height,sample_rate,channels', '-of', 'json', out], { encoding: 'utf8' }).stdout).streams;
   assert.deepEqual(streams.map(s => [s.codec_type, s.codec_name]), [['video', 'h264'], ['audio', 'aac']]);
-  assert.deepEqual([streams[0].width, streams[0].height, streams[1].sample_rate], [1080, 1080, '48000']);
+  assert.deepEqual([streams[0].width, streams[0].height, streams[1].sample_rate, streams[1].channels], [1080, 1080, '48000', 2], 'a mono voice still mixes to stereo');
 
   const srt = readFileSync(result.captions, 'utf8');
   assert.match(srt, /^1\n00:00:00,\d{3} --> 00:00:00,[5-9]\d{2}\nbrandstudio\.js\.org:\nthis square turns orange\.\n$/);

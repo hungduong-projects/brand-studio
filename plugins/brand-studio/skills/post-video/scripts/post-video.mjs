@@ -10,7 +10,8 @@
 //   story   1440x2560  9:16, Stories; keep text out of the top 14% and the bottom 20%
 //   square  1080x1080  1:1
 //   wide    1920x1080  16:9, a page, a slide or YouTube
-// Meta asks for H.264, a fixed frame rate, stereo AAC at 128 kb/s or more and no edit lists, which is what this writes.
+// Meta asks for H.264, a fixed frame rate, stereo AAC at 128 kb/s or more and no edit lists, which is what this writes. The AAC
+// target is 192 kb/s because pauses between voice lines pull the average about a quarter below the target.
 // The page renders about 500 px across at a whole-number pixel ratio, so text stays sharp. Its clocks (timers, animation frames, dates, media,
 // and CSS and Web Animations through the DevTools protocol) run at --slow of real time while screenshots are taken back to back.
 // Each video frame takes the last screenshot taken by its moment on the page's clock, so a slow screenshot never makes the video stutter.
@@ -150,7 +151,7 @@ function narrate() {
   const mix = placed.length ? `${placed.map((l, i) => `[${i + 1}:a]adelay=${Math.round(l.start * 1000)}:all=1[v${i}]`).join(';')};${placed.map((_, i) => `[v${i}]`).join('')}`
     + `amix=inputs=${placed.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad[a]` : 'anullsrc=r=48000:cl=stereo[a]';
   const run = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...placed.flatMap(l => ['-i', path.join(voiced.dir, l.file)]), '-filter_complex', mix,
-    '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2', '-t', seconds.toFixed(3), '-movflags', '+faststart', '-use_editlist', '0', out], { encoding: 'utf8' });
+    '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-t', seconds.toFixed(3), '-movflags', '+faststart', '-use_editlist', '0', out], { encoding: 'utf8' });
   if (run.status !== 0) { errors.push(`ffmpeg could not add the voice: ${run.stderr.trim().slice(0, 300)}; the silent video is ${silent}`); return; }
   unlinkSync(silent);
   const stamp = s => new Date(Math.round(s * 1000)).toISOString().slice(11, 23).replace('.', ',');
