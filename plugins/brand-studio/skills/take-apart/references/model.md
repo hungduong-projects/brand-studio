@@ -49,7 +49,7 @@ A figure with `steps` is a process. Each step is a small scene of its own, drawn
 |---|---|
 | `at` | `[x, y]`: where the step's drawing stands on the floor. Leave about 30 units between footprints so the arrow shows; the build warns when two overlap |
 
-A step's part opens a figure the way a layer's part does. Lay the steps along x, along y or in a zigzag: the page draws far steps first.
+A step's part opens a figure the way a layer's part does. Lay the steps along x, along y or in a zigzag: the page draws far steps first. Words drawn above a step reach up the screen and can cover the step behind it. For steps with words, place the steps in screen rows and columns instead: screen offset `(X, Y)` is floor point `x = X / (2 * C) + Y`, `y = Y - X / (2 * C)`. Two columns suit a portrait film.
 
 ## Space and drawing order
 
@@ -70,6 +70,8 @@ x runs right and down the screen, y runs left and down, z runs up; one unit is o
 | `hit(open, id, name, inner, spot)` | Wraps the markup a click on part `id` zooms through into figure `open` |
 | `spot(x, y, size, z)` | A square patch for `hit` when the zoom should grow from part of the drawing |
 | `rr`, `circ`, `rrTan`, `cTan`, `frontArc`, `P`, `plane`, `f` | Path, projection and rounding helpers for custom shapes |
+
+Words for a worked example go in as `<text>` facing the viewer, placed with `P(x, y, z)`. Text inside `face()` comes out mirrored or upside down. Give each `<text>` an inline style with the page's variables, so that both themes and every brand work: `fill: var(--bs-ink)`, `var(--bs-muted)` or `var(--bs-accent)`, and `font: 600 8px var(--font)`, or `var(--mono)` for numbers. A card behind words uses `fill: var(--bs-elevated); stroke: var(--edge)`. The build cannot measure text, so call `grow(x0, y0, x1, y1, z0, z1)` over the floor area and heights the words cover; otherwise the view crops them.
 
 `o` takes `{ top, side }` tones. Top tones: `plain` (default), `glass`, `metal`, `panel`, `chip`, `lens`, `flash`, `film`, `foil`, `graphite`, `magnet`, `oxide`, `polar`, `ir`, `red`, `green`, `blue`, `copper`, `brown` (coffee, wood, soil), `water` (see-through). Side tones: `chip`, `dark`, `glass`, `copper`, `brown`, `water`. Shared fills, used as `fill="url(#name)"`: `pores`, `tft`, `rgb`, `mesh`, `hatch`, `sensor`, `pads`, `fins`, `wires`, `bus`. A tone you need and do not find goes in the viewer's CSS for both themes, not as a raw colour in a model.
 
