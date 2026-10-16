@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { chromium } from 'playwright-core';
 
 const SKILL = fileURLToPath(new URL('../plugins/brand-studio/skills/take-apart/', import.meta.url));
 const SCRIPT = path.join(SKILL, 'scripts/take-apart.mjs'), PHONE = path.join(SKILL, 'assets/phone.js');
@@ -79,4 +80,26 @@ test('long titles, long readouts and crowded layers warn without failing', () =>
   assert.equal(status, 0);
   has(out.warnings, 'keep it under 30');
   has(out.warnings, 'about two lines is under 110');
+});
+
+/* Playwright's own Chromium, else a Chrome-family browser already on the machine. */
+const launch = async () => {
+  try { return await chromium.launch(); } catch (error) {
+    const local = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'].find(existsSync);
+    if (!local) throw error;
+    return chromium.launch({ executablePath: local });
+  }
+};
+
+test('the film shows its pointer while it taps', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-'));
+  assert.equal(run(PHONE, '--out', dir).status, 0);
+  const browser = await launch(), page = await browser.newPage({ viewport: { width: 540, height: 675 } });
+  try {
+    await page.goto(`${pathToFileURL(path.join(dir, 'index.html')).href}?film`);
+    await page.evaluate(() => window.filmStart());
+    await page.waitForFunction(() => document.querySelector('.film-pointer').classList.contains('on'));
+    await page.waitForTimeout(400);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.film-pointer')).opacity), '1');
+  } finally { await browser.close(); }
 });

@@ -114,17 +114,19 @@ body { margin: 0; min-height: 100vh; padding: 32px 16px; display: grid; justify-
 .scene.wide .xf-list .p { padding: 4px 4px 0 38px; }
 .scene.wide .xf-list .p > span, .scene.wide .xf-list .p .zoom { min-height: 24px; }
 
-/* Film: a fixed frame for a social video, with one big caption for the lit layer and a pointer that taps. ?film */
+/* Film: a fixed frame for a social video, with one big caption for the lit layer under the title and a pointer that taps. ?film */
 .film-cap, .film-pointer { display: none; }
 body.film { display: block; min-height: 0; height: 100vh; padding: 0; overflow: hidden; }
 body.film .xf-bar, body.film .xf figcaption, body.film .xf-list, body.film .leaders, body.film .xf-crumbs > span:not(.xf-path) { display: none; }
 body.film .xf { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 30px 30px 24px; border-radius: 0; box-shadow: none; }
 /* Reels and Stories: platform buttons cover the top 14% and the bottom 35% of a 9:16 frame, so text stays between. */
 @media (max-aspect-ratio: 10/16) { body.film .xf { padding: 14vh 30px 35vh; } }
+/* A narrated film gets captions, which the platform draws over the bottom of the frame, so the drawing stops above them. */
+@media (min-aspect-ratio: 10/16) { body.film.voiced .xf { padding-bottom: 14vh; } }
 body.film .xf-head { display: block; font-size: 13px; }
 body.film #xf-title { display: block; margin-top: 8px; font: 600 31px/1.1 var(--font); letter-spacing: -.025em; text-transform: none; color: var(--bs-ink); }
-body.film .xf-stage { flex: 1; min-height: 0; margin-top: 6px; }
-body.film .film-cap { display: grid; grid-template-columns: 36px 1fr; align-content: start; height: 118px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--bs-line) 55%, transparent); }
+body.film .xf-stage { flex: 1; min-height: 0; margin-top: 6px; order: 1; }
+body.film .film-cap { display: grid; grid-template-columns: 36px 1fr; align-content: start; height: 118px; margin-top: 14px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--bs-line) 55%, transparent); }
 .film-cap .n { grid-row: span 3; font: 14px/31px var(--mono); color: var(--bs-accent); }
 .film-cap .t { font: 600 25px/1.25 var(--font); letter-spacing: -.015em; color: var(--bs-accent); }
 .film-cap .t:empty, .film-cap .u:empty { display: none; }
@@ -137,7 +139,7 @@ body.film .film-cap { display: grid; grid-template-columns: 36px 1fr; align-cont
 body.film .film-pointer { display: block; position: fixed; left: -17px; top: -17px; z-index: 5; width: 34px; height: 34px; border-radius: 50%; pointer-events: none; opacity: 0;
   background: color-mix(in srgb, var(--bs-ink) 16%, transparent); box-shadow: 0 0 0 2px var(--bs-elevated), 0 0 0 3.5px color-mix(in srgb, var(--bs-ink) 45%, transparent), 0 6px 16px rgba(0, 0, 0, .18);
   transition: transform .55s cubic-bezier(.3, .7, .2, 1), opacity .3s; }
-.film-pointer.on { opacity: 1; }
+body.film .film-pointer.on { opacity: 1; }
 .film-pointer.tap::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2.5px solid var(--bs-accent); animation: tap-ring .55s ease-out forwards; }
 @keyframes tap-ring { from { transform: scale(.5); opacity: 1; } to { transform: scale(2.3); opacity: 0; } }
 </style>
@@ -167,7 +169,7 @@ body.film .film-pointer { display: block; position: fixed; left: -17px; top: -17
 <script>
 const figures = MODEL.figures, ROOT = Object.keys(figures)[0];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, film = new URLSearchParams(location.search).has('film');
-if (film) document.body.classList.add('film');
+if (film) document.body.classList.add('film', ...(window.filmVoice ? ['voiced'] : []));
 const ZOOM = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M4.5 7h5M7 4.5v5M11 11l3 3"/></svg>';
 document.getElementById('shared').innerHTML = PATTERNS + (MODEL.defs || '');
 document.querySelector('.xf-fig').textContent = MODEL.fig || '';
