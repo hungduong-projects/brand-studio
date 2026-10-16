@@ -265,8 +265,13 @@ html.board-reveal::view-transition-new(brand-board) { animation: board-reveal 85
 .film__toggle { position: absolute; right: .75rem; bottom: .75rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 1px solid rgb(0 0 0 / .12); border-radius: 999px; background: rgb(255 255 255 / .9); color: #0a0a0a; cursor: pointer; }
 .film__toggle:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
 .film figcaption { margin-top: .75rem; font-size: .85rem; color: var(--muted-foreground); text-wrap: pretty; }
+.exploded { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
+.exploded__intro p { margin: 1rem 0 0; max-width: 30rem; color: var(--muted-foreground); text-wrap: pretty; }
+.exploded__figure { min-width: 0; background: transparent; }
+@media (max-width: 1023px) { .exploded { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
+@media (max-width: 767px) { .exploded { margin-top: 3rem; padding-top: 2rem; } }
 .asset-workflows { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
-.asset-workflows h2, .faq h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; }
+.exploded h2, .asset-workflows h2, .faq h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; }
 .asset-workflows__intro p { margin: 1rem 0 1.5rem; max-width: 34rem; color: var(--muted-foreground); }
 .asset-workflows__list { margin: 0; }
 .asset-workflows__list > div { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
