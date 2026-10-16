@@ -53,14 +53,17 @@ test('component counts written in prose match the catalog', () => {
   }
 });
 
-test('brand-design skill links only to references and scripts that exist', () => {
-  const skill = new URL('../plugins/brand-studio/skills/brand-design/', import.meta.url);
-  const docs = ['SKILL.md', ...readdirSync(new URL('references/', skill)).map((file) => `references/${file}`)];
-  for (const doc of docs) {
-    const text = readFileSync(new URL(doc, skill), 'utf8');
-    const base = new URL(doc, skill);
-    for (const [, link] of text.matchAll(/\]\(((?:references\/)?[\w-]+\.md)\)/g)) assert.ok(existsSync(new URL(link, base)), `${doc} links to missing ${link}`);
-    for (const [, script] of text.matchAll(/`(?:node |python3 )?(scripts\/[\w.-]+)/g)) assert.ok(existsSync(new URL(script, skill)), `${doc} names missing ${script}`);
+test('every skill links only to references, scripts and assets that exist', () => {
+  const skills = new URL('../plugins/brand-studio/skills/', import.meta.url);
+  for (const name of readdirSync(skills)) {
+    const skill = new URL(`${name}/`, skills);
+    const docs = ['SKILL.md', ...(existsSync(new URL('references/', skill)) ? readdirSync(new URL('references/', skill)).filter((file) => file.endsWith('.md')).map((file) => `references/${file}`) : [])];
+    for (const doc of docs) {
+      const text = readFileSync(new URL(doc, skill), 'utf8');
+      const base = new URL(doc, skill);
+      for (const [, link] of text.matchAll(/\]\(((?:references\/)?[\w-]+\.md)\)/g)) assert.ok(existsSync(new URL(link, base)), `${name}/${doc} links to missing ${link}`);
+      for (const [, file] of text.matchAll(/`(?:node |python3 )?((?:scripts|assets|references)\/[\w.-]+\.\w+)/g)) assert.ok(existsSync(new URL(file, skill)), `${name}/${doc} names missing ${file}`);
+    }
   }
 });
 
