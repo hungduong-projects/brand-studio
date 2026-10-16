@@ -141,7 +141,7 @@ test('the film zooms into a part without drawing a pointer over it', async () =>
   } finally { await browser.close(); }
 });
 
-test('the film walks a process step by step with the beats --beats lists, and a process has no take-apart button', async () => {
+test('the film walks a process step by step with the beats --beats lists, and a process has no take-apart button and clips its view', async () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
   writeFileSync(file, source(making()));
   assert.equal(run(file, '--out', dir).status, 0);
@@ -150,6 +150,7 @@ test('the film walks a process step by step with the beats --beats lists, and a 
   try {
     await page.goto(pathToFileURL(path.join(dir, 'index.html')).href);
     assert.equal(await page.locator('#apart').isHidden(), true);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.scene .xf-draw')).overflow), 'hidden');
     await page.goto(`${pathToFileURL(path.join(dir, 'index.html')).href}?film`);
     await page.evaluate(() => { window.beats = []; window.filmBeat = id => window.beats.push(id); window.filmStart(); });
     await page.waitForFunction(() => window.beats.includes('together'), null, { timeout: 40000 });

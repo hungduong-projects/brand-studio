@@ -37,6 +37,7 @@ body { margin: 0; min-height: 100vh; padding: 32px 16px; display: grid; justify-
 .scene { position: absolute; top: 0; left: 0; width: 100%; }
 .scene[hidden] { display: none; }
 .xf-draw { display: block; width: 100%; height: auto; overflow: visible; -webkit-tap-highlight-color: transparent; }
+.scene.flow .xf-draw { overflow: hidden; } /* a process's view frames one step, so the steps beyond it stay out of the list */
 .xf figcaption { margin-top: 12px; font-size: 13px; color: var(--bs-muted); }
 
 /* the drawing */
@@ -191,7 +192,7 @@ class Scene {
     const depth = i => this.flow ? this.layers[i].at[0] + this.layers[i].at[1] : i, list = this.layers.map((l, i) => ({ l, i }));
     if (!this.flow) list.reverse();
     this.el = document.createElement('div');
-    this.el.className = 'scene';
+    this.el.className = this.flow ? 'scene flow' : 'scene';
     this.el.innerHTML = `<svg class="xf-draw" role="img" aria-label="${model.alt}"><defs>${this.layers.map(l => l.defs).join('')}</defs>`
       + `<g class="root">${this.flow ? `<g class="flows">${this.links()}</g>` : ''}${[...this.layers.keys()].sort((a, b) => depth(a) - depth(b)).map(i => `<g class="layer" data-i="${i}"><g class="lift">${this.layers[i].body}</g></g>`).join('')}</g>`
       + `<g class="leaders">${this.layers.map(() => '<path class="leader"/><circle class="anchor" r="2.5"/>').join('')}</g></svg>`
