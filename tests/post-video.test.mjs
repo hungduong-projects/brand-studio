@@ -90,3 +90,22 @@ test('a voice clip far too short for its words warns that it has likely dropped 
   assert.ok(result.wpm > 260, `14 words in about a second: ${result.wpm} words a minute`);
   assert.match(result.warnings[0] ?? '', /^line is spoken at \d+ words a minute, so the clip has likely dropped words/);
 });
+
+test('a line far above the others in pitch warns that it can sound like another speaker', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'voice-over-')), out = path.join(dir, 'voice');
+  mkdirSync(out);
+  // Two lines at 130 Hz and one at 300 Hz, about 14.5 semitones higher, all cached so Fish Audio is never called.
+  const lines = [['a', 130], ['b', 130], ['c', 300]].map(([id, hz]) => {
+    spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', `sine=frequency=${hz}:duration=1.5`, path.join(out, `${id}.mp3`)]);
+    return { id, text: `Line ${id} is here.`, key: createHash('sha256').update(JSON.stringify([`Line ${id} is here.`, null, 's2.1-pro', 1])).digest('hex').slice(0, 16) };
+  });
+  writeFileSync(path.join(out, 'voice.json'), JSON.stringify({ lines: lines.map(({ id, key }) => ({ id, key })) }));
+  writeFileSync(path.join(dir, 'script.json'), JSON.stringify({ lines: lines.map(({ id, text }) => ({ id, text })) }));
+  const r = spawnSync(process.execPath, [VOICE, path.join(dir, 'script.json'), '--out', out], { encoding: 'utf8', env: { ...process.env, FISH_API_KEY: 'test' } });
+  assert.equal(r.status, 0, r.stderr);
+  const result = JSON.parse(r.stdout.trim());
+  assert.equal(result.generated, 0);
+  assert.ok(result.drift > 5, `per-line pitch spread: ${result.drift} semitones`);
+  assert.deepEqual(result.warnings.map(w => w.split(' ')[0]), ['c'], JSON.stringify(result.warnings));
+  assert.match(result.warnings[0], /^c sits 1[45]\.\d semitones above the other lines, so it can sound like another speaker/);
+});

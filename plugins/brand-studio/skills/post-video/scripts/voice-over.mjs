@@ -10,8 +10,10 @@
 // --voice overrides the script's voice; with neither, Fish Audio picks its default voice.
 // Reads FISH_API_KEY from the environment and never prints it. A line whose text, voice, model and speed match the last run is
 // kept, so changing one line generates one line. Writes DIR/<id>.mp3 and DIR/voice.json, { model, voice, speed, lines: [{ id,
-// text, caption, file, seconds, key }] }, and prints one JSON line { voice, lines, generated, seconds, wpm, bytes, model, warnings }.
-// A line spoken faster than 260 words a minute warns: the clip has likely dropped words. Fish Audio bills the text's UTF-8 bytes;
+// text, caption, file, seconds, key }] }, and prints one JSON line { voice, lines, generated, seconds, wpm, drift, bytes, model, warnings }.
+// A line spoken faster than 260 words a minute warns: the clip has likely dropped words. `drift` is the spread of the lines'
+// median pitch in semitones; a line more than 5 semitones from the median line warns, because some voices change register from
+// one request to the next and that line sounds like another speaker. Fish Audio bills the text's UTF-8 bytes;
 // s2.1-pro-free costs nothing, and a paid model that runs out of API credit (402) falls back to it.
 // --voices lists popular English voice models, { voices: [{ id, title, tags, uses }] }, to choose one. --credit prints the
 // account's plan and API credit, { plan: { type, total, balance }, api: { credit } }, before a long run.
@@ -84,4 +86,32 @@ writeFileSync(manifest, JSON.stringify({ model, voice, speed, lines }, null, 2))
 const words = text => text.replace(/\[[^\]]*\]/g, ' ').split(/\s+/).filter(Boolean).length, total = lines.reduce((a, l) => a + l.seconds, 0);
 const warnings = lines.map(l => [l.id, Math.round(words(l.text) / l.seconds * 60)]).filter(([, wpm]) => wpm > 260)
   .map(([id, wpm]) => `${id} is spoken at ${wpm} words a minute, so the clip has likely dropped words; listen to it, or reword the line slightly to make it again`);
-console.log(JSON.stringify({ voice: manifest, lines: lines.length, generated, seconds: +total.toFixed(2), wpm: Math.round(lines.reduce((a, l) => a + words(l.text), 0) / total * 60), bytes, model, warnings }));
+const pitched = lines.map(l => [l.id, pitch(path.join(out, l.file))]).filter(([, hz]) => hz), middle = median(pitched.map(([, hz]) => hz));
+const offsets = pitched.map(([id, hz]) => [id, 12 * Math.log2(hz / middle)]), mean = offsets.reduce((a, [, o]) => a + o, 0) / (offsets.length || 1);
+const drift = Math.sqrt(offsets.reduce((a, [, o]) => a + (o - mean) ** 2, 0) / (offsets.length || 1));
+for (const [id, o] of offsets) if (Math.abs(o) > 5) warnings.push(`${id} sits ${Math.abs(o).toFixed(1)} semitones ${o > 0 ? 'above' : 'below'} the other lines, so it can sound like another speaker; reword it slightly to make it again, or pick a steadier voice`);
+console.log(JSON.stringify({ voice: manifest, lines: lines.length, generated, seconds: +total.toFixed(2), wpm: Math.round(lines.reduce((a, l) => a + words(l.text), 0) / total * 60), drift: +drift.toFixed(1), bytes, model, warnings }));
+
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b), mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+/* A clip's median pitch from autocorrelation of 40 ms frames over 70 to 400 Hz, skipping quiet and unvoiced frames. */
+function pitch(file) {
+  const raw = spawnSync('ffmpeg', ['-v', 'error', '-i', file, '-ac', '1', '-ar', '16000', '-f', 'f32le', '-'], { maxBuffer: 1 << 27 }).stdout;
+  const x = new Float32Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.length)), n = 640, found = [];
+  const quiet = .3 * Math.sqrt(x.reduce((a, v) => a + v * v, 0) / x.length);
+  for (let i = 0; i + n < x.length; i += 160) {
+    const frame = x.subarray(i, i + n), avg = frame.reduce((a, v) => a + v, 0) / n, f = Float32Array.from(frame, v => v - avg);
+    const energy = f.reduce((a, v) => a + v * v, 0);
+    if (Math.sqrt(energy / n) < quiet || energy <= 0) continue;
+    let best = -Infinity, lag = 0;
+    for (let l = 40; l < 228; l++) {
+      let s = 0;
+      for (let k = 0; k + l < n; k++) s += f[k] * f[k + l];
+      if (s > best) { best = s; lag = l; }
+    }
+    if (best / energy > .5) found.push(16000 / lag);
+  }
+  return found.length > 20 ? median(found) : null;
+}
