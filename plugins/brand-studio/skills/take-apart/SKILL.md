@@ -21,7 +21,8 @@ Make a thing understandable by pulling its layers apart, one idea per layer, and
 ## Why it is built this way
 
 - One idea per layer keeps the reader's attention on the lit layer, the way a good diagram signals what matters. More than 7 layers crowd the labels, and more than 6 pins crowd a layer, so the build warns.
-- The drawing carries no words. Titles, readouts and part names live in the list beside it, where they stay readable on a phone and can be translated.
+- Titles, readouts and part names live in the list beside the drawing, where they stay readable on a phone and can be translated.
+- An idea or a process needs a worked example. Generic shapes, such as a GPU rack for training or a podium for ranking, show where something happens but not how it works. Draw one real case in real words and numbers instead: the sentence, its tokens, the guesses, the answers people ranked. Carry that case through every step, so a viewer can retell how the thing works. Source each value, and mark made-up values as illustrative.
 - The kit draws in one fixed isometric view from simple solids. Models stay short, every figure matches the others, and the build can check bounds and pins without a browser.
 - Depth comes from `open`: a part with `open: 'board'` and a matching `hit('board', id, ...)` in its layer's drawing zooms into figure `board`. The build fails when a part opens a figure that does not exist or has nothing to click, and when a figure cannot be reached.
 - The page reads its colours from the brand's tokens and its material tones from CSS, so one model renders in any brand.
