@@ -28,6 +28,7 @@ model({
 | `alt` | What the drawing shows when taken apart, for screen readers |
 | `gap` | `[wide, narrow]`: the space between layers when apart, on a wide screen and on a phone, in drawing units |
 | `layers` | 2 to 7 layers, **bottom first**; 4 to 7 in the first figure, so taking it apart shows the whole build |
+| `steps` | In place of `layers` and `gap`: a process of 2 to 7 steps, **first step first**; 4 to 7 in the first figure. See "Steps" |
 
 ## Layer
 
@@ -39,6 +40,16 @@ model({
 | `zA` | Height of the layer's base while the thing is whole, so layers stack without gaps |
 | `parts` | Optional, up to 6: `{ name, at: [x, y, z], open, id }`. `at` places a numbered pin; `open` names the figure a click zooms into, and then `id` must match a `hit()` in `draw` |
 | `draw` | A function that returns the layer's SVG, drawn from height 0 in its own space |
+
+## Steps
+
+A figure with `steps` is a process. Each step is a small scene of its own, drawn from height 0 like a layer, that stands at its place on the floor instead of stacking. The page numbers the steps in order, draws an arrow along the floor from each one's footprint to the next, and glides the view to the lit step. A step has the layer's fields except `zA`, plus:
+
+| Field | Meaning |
+|---|---|
+| `at` | `[x, y]`: where the step's drawing stands on the floor. Leave about 30 units between footprints so the arrow shows; the build warns when two overlap |
+
+A step's part opens a figure the way a layer's part does. Lay the steps along x, along y or in a zigzag: the page draws far steps first.
 
 ## Space and drawing order
 
@@ -65,6 +76,8 @@ x runs right and down the screen, y runs left and down, z runs up; one unit is o
 ## Film
 
 `index.html?film` plays a tour for `post-video`: take the thing apart, light the top layers one by one, dive down each `tour` stop's part ids, light its `light` layers, come home, put it together and show the end card. Without `tour`, it dives through the first part that opens, three levels at most.
+
+A process at the top walks its steps in order instead, and takes each `tour` stop when it reaches the step that holds the stop's first part, then carries on to the next step; `together` shows the whole process again.
 
 Each step is a beat with an id: `intro`, `<figure>#<layer>`, `into:<figure>`, `home`, `together`, `end`. A beat shown again gets `~2`, `~3`. `take-apart.mjs model.js --beats` prints them in order with the text each shows; a voice-over script uses these ids. When the page has `window.filmVoice`, each beat lasts at least as long as its line.
 

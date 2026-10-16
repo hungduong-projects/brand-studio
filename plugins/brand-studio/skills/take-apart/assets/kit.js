@@ -29,6 +29,7 @@ const grid = (n, from, step) => byDepth(Array.from({ length: n * n }, (_, k) => 
 /* While a layer draws, `ink` collects the paths it reuses and the bounds of what it drew. */
 let ink = null, uid = 0;
 function grow(x0, y0, x1, y1, z0, z1) {
+  ink.px0 = Math.min(ink.px0, x0); ink.px1 = Math.max(ink.px1, x1); ink.py0 = Math.min(ink.py0, y0); ink.py1 = Math.max(ink.py1, y1); // the footprint
   for (const x of [x0, x1]) for (const y of [y0, y1]) for (const z of [z0, z1]) {
     const [a, b] = P(x, y, z);
     ink.minX = Math.min(ink.minX, a); ink.maxX = Math.max(ink.maxX, a); ink.minY = Math.min(ink.minY, b); ink.maxY = Math.max(ink.maxY, b);
@@ -88,11 +89,15 @@ const PATTERNS = [
 ].map(([id, w, h, inner]) => `<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse">${inner}</pattern>`).join('');
 
 let MODEL = null;
-/** Records the model. Call it once, at the end of the model file. */
-function model(m) { MODEL = m; }
+/** Records the model. Call it once, at the end of the model file. A figure with `steps` instead of `layers` is a process: its
+    steps stand side by side, each at its own `at`, and are walked in order. */
+function model(m) {
+  for (const fig of Object.values(m.figures || {})) if (Array.isArray(fig.steps)) { fig.flow = true; fig.layers = fig.steps.map(s => ({ zA: 0, ...s })); }
+  MODEL = m;
+}
 /** Draws one layer and its pins. Returns the SVG, the definitions it needs and its bounds on screen. */
 function drawLayer(layer) {
-  ink = { defs: '', minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, ax: -Infinity, ay: Infinity };
+  ink = { defs: '', minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, ax: -Infinity, ay: Infinity, px0: Infinity, px1: -Infinity, py0: Infinity, py1: -Infinity };
   let body = layer.draw();
   (layer.parts || []).forEach((p, k) => { if (p.at) body += pin(k + 1, p.at, p); });
   const { defs, ...box } = ink;
