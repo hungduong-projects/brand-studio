@@ -54,6 +54,26 @@ test('a narrated recording places each voice line on its beat, adds stereo AAC s
   assert.ok(Math.abs(at(end) - held) < .01, `the caption stays half a second past its 0.8 s line, or until two frames before the end: ${start} --> ${end}, expected ${held.toFixed(3)}`);
 });
 
+test('a gap under half a second between captions closes to two frames, and the last caption keeps its half second', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'post-video-'));
+  // No filmStart, so the film runs for --seconds. The second beat comes 1.6 s after the first, 0.3 s after the first caption's hold.
+  writeFileSync(path.join(dir, 'page.html'), `<!doctype html><html><body><p>Two lines</p><script>
+(function wait() { if (!window.__t0) return requestAnimationFrame(wait); window.filmBeat('one'); setTimeout(() => window.filmBeat('two'), 1600); })();
+</script></body></html>`);
+  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=0.8', '-b:a', '128k', path.join(dir, 'tone.mp3')]);
+  writeFileSync(path.join(dir, 'voice.json'), JSON.stringify({ lines: [
+    { id: 'one', text: 'The square turns orange.', file: 'tone.mp3', seconds: 0.8 },
+    { id: 'two', text: 'Then it turns blue.', file: 'tone.mp3', seconds: 0.8 },
+  ] }));
+  const r = spawnSync(process.execPath, [SCRIPT, path.join(dir, 'page.html'), '--format', 'square', '--slow', '1', '--fps', '15', '--seconds', '3.2', '--voice', path.join(dir, 'voice.json'), '--out', path.join(dir, 'film.mp4')], { encoding: 'utf8', cwd: ROOT });
+  assert.equal(r.status, 0, r.stderr);
+  const result = JSON.parse(r.stdout.trim()), at = t => t.split(/[:,]/).reduce((a, n, i) => a + n * [3600, 60, 1, .001][i], 0);
+  const [one, two] = [...readFileSync(result.captions, 'utf8').matchAll(/(\S+) --> (\S+)/g)].map(([, start, end]) => [at(start), at(end)]);
+  assert.ok(Math.abs(one[1] - (two[0] - 2 / 15)) < .01, `the first caption runs on to two frames before the second: ${one} then ${two}`);
+  const held = Math.min(two[0] + .8 + .5, result.seconds - 2 / 15);
+  assert.ok(Math.abs(two[1] - held) < .01, `the last caption stays half a second past its line, whatever the film's length: ${two} in ${result.seconds} s, expected ${held.toFixed(3)}`);
+});
+
 test('a voice clip far too short for its words warns that it has likely dropped words', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'voice-over-')), out = path.join(dir, 'voice');
   const text = 'This sentence has far too many words to fit in one second of speech.';
