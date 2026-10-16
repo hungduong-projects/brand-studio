@@ -39,7 +39,7 @@ Brame (2016) adds, from a review of video research:
    | "Its biggest chip is the processor." | "See the biggest chip? That's the processor, running the show." |
 
 4. **Keep facts as careful as the readouts.** Hedge where products differ ("on most sensors"), and add no number the source does not give.
-5. **End with a prompt to act**, then the address, spelled for the ear in `text` and written in `caption`: `"brand studio dot J S dot org"` / `"brandstudio.js.org"`.
+5. **End with a prompt to act**, then the address, spelled for the ear in `text` and written in `caption`: `"brand studio dot J S dot org"` / `"brandstudio.js.org"`. Ask only for what a viewer can do at that address: "Want to make an explainer like this?" fits a site that offers the tool, while "Click through it yourself" needs the page itself live there.
 6. **Read it aloud** at speaking speed. A social cut runs 30 to 90 seconds; a lesson stays under 6 minutes.
 
 ## Pick the voice
