@@ -45,8 +45,10 @@ test('the phone example builds into one page in the brand, with every figure rea
   assert.match(html, /<title>How a phone is built<\/title>/);
 });
 
-test('a small model builds, and --beats lists its film from intro to end card', () => {
-  assert.deepEqual(build().out.fails, []);
+test('a small model builds with a warning that its first view has too few layers, and --beats lists its film from intro to end card', () => {
+  const small = build().out;
+  assert.deepEqual(small.fails, []);
+  has(small.warnings, 'figure box: the first view has 2 layers; 4 to 7');
   const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-')), file = path.join(dir, 'model.js');
   writeFileSync(file, source(box(m => ({ ...m, end: ['Box', 'Boxes, taken apart.'] }))));
   assert.deepEqual(run(file, '--beats').out.beats.map(b => b.id), ['intro', 'box#lid', 'into:lid', 'lid#seal', 'home', 'together', 'end']);
@@ -80,6 +82,17 @@ test('long titles, long readouts and crowded layers warn without failing', () =>
   assert.equal(status, 0);
   has(out.warnings, 'keep it under 30');
   has(out.warnings, 'about two lines is under 110');
+});
+
+test('every tone the model guide lists has a fill in the viewer, with its colours set for light and dark', () => {
+  const guide = readFileSync(path.join(SKILL, 'references/model.md'), 'utf8'), html = readFileSync(path.join(SKILL, 'assets/viewer.html'), 'utf8');
+  const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+  const tones = kind => [...guide.match(new RegExp(`${kind} tones: (.*?)\\. [A-Z]`))[1].matchAll(/`([\w-]+)`/g)].map(m => m[1]);
+  for (const [face, list] of [['top', tones('Top')], ['side', tones('Side')]]) for (const tone of list) {
+    const rule = css.match(new RegExp(`\\.${face}\\.${tone}(?![\\w-])[^{}]*\\{[^}]*?fill: ([^;]+);`));
+    assert.ok(rule, `.${face}.${tone} has no fill in the viewer`);
+    for (const [, name] of rule[1].matchAll(/var\((--[\w-]+)\)/g)) assert.ok(css.split(`${name}:`).length > 2, `${name} is not set for both light and dark`);
+  }
 });
 
 /* Playwright's own Chromium, else a Chrome-family browser already on the machine. */

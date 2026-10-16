@@ -27,7 +27,7 @@ model({
 | `caption` | One sentence under the drawing, under 120 characters |
 | `alt` | What the drawing shows when taken apart, for screen readers |
 | `gap` | `[wide, narrow]`: the space between layers when apart, on a wide screen and on a phone, in drawing units |
-| `layers` | 2 to 7 layers, **bottom first** |
+| `layers` | 2 to 7 layers, **bottom first**; 4 to 7 in the first figure, so taking it apart shows the whole build |
 
 ## Layer
 
@@ -60,7 +60,7 @@ x runs right and down the screen, y runs left and down, z runs up; one unit is o
 | `spot(x, y, size, z)` | A square patch for `hit` when the zoom should grow from part of the drawing |
 | `rr`, `circ`, `rrTan`, `cTan`, `frontArc`, `P`, `plane`, `f` | Path, projection and rounding helpers for custom shapes |
 
-`o` takes `{ top, side }` tones. Top tones: `plain` (default), `glass`, `metal`, `paint`, `panel`, `chip`, `lens`, `flash`, `film`, `foil`, `graphite`, `magnet`, `oxide`, `polar`, `ir`, `key`, `keys`, `red`, `green`, `blue`. Side tones: `chip`, `dark`, `glass`. Shared fills, used as `fill="url(#name)"`: `pores`, `tft`, `rgb`, `mesh`, `hatch`, `sensor`, `pads`, `fins`, `wires`, `bus`. A tone you need and do not find goes in the viewer's CSS for both themes, not as a raw colour in a model.
+`o` takes `{ top, side }` tones. Top tones: `plain` (default), `glass`, `metal`, `panel`, `chip`, `lens`, `flash`, `film`, `foil`, `graphite`, `magnet`, `oxide`, `polar`, `ir`, `red`, `green`, `blue`, `copper`, `brown` (coffee, wood, soil), `water` (see-through). Side tones: `chip`, `dark`, `glass`, `copper`, `brown`, `water`. Shared fills, used as `fill="url(#name)"`: `pores`, `tft`, `rgb`, `mesh`, `hatch`, `sensor`, `pads`, `fins`, `wires`, `bus`. A tone you need and do not find goes in the viewer's CSS for both themes, not as a raw colour in a model.
 
 ## Film
 

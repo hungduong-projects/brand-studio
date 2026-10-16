@@ -11,7 +11,7 @@ Make a thing understandable by pulling its layers apart, one idea per layer, and
 
 ## Workflow
 
-1. **Plan the stack on paper first.** For the top figure, list 2 to 7 layers from the bottom up, each with a title of 30 characters or fewer and a readout of about two lines (under 110 characters). Mark the parts worth opening and list the layers of each one. Four levels is plenty; each level should answer the question the one above raises ("what's in the chip?").
+1. **Plan the stack on paper first.** For the top figure, list 4 to 7 layers from the bottom up, so taking it apart shows how the whole thing is built (a figure a part opens needs 2 or more), each with a title of 30 characters or fewer and a readout of about two lines (under 110 characters). Mark the parts worth opening and list the layers of each one. Four levels is plenty; each level should answer the question the one above raises ("what's in the chip?").
 2. **Check every readout against a source.** Readouts teach, so each fact must hold for the thing in general. Where products differ, say so ("some phones add a ring of magnets"). Leave out model-specific numbers unless the user gave the model and a source.
 3. **Write the model** as a `.js` file that ends with `model({ ... })`, using the kit's drawing helpers. `references/model.md` holds the format, the kit and the drawing rules.
 4. **Build and check it**: `node scripts/take-apart.mjs model.js --brand brand/brand.json --out DIR`. It runs the model in Node, with no browser, and prints one JSON line. Fix every entry in `fails`; read `warnings` as judgement calls. `--brand` takes a brand contract with `tokens.light` and `tokens.dark`; without one the page stays neutral.
