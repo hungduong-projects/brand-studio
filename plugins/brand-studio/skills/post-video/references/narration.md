@@ -46,6 +46,8 @@ Brame (2016) adds, from a review of video research:
 
 Choose an upbeat, conversational voice over a calm documentary one: enthusiasm and a brisk pace are what kept viewers watching in the research above. List candidates with `voice-over.mjs --voices --search cheerful` (or `friendly`, `energetic`), skip voices cloned from real people, and make the same two or three lines in a few voices before the full run. Aim for about 180 to 200 words a minute: the script's JSON line prints `wpm`, and `--speed` (0.5 to 2) adjusts it. It warns when a line is spoken faster than 260 words a minute, because a clip that short has likely dropped words.
 
+Keep one voice from the first line to the last. Fish Audio makes each line in its own request, and some voices change register from one request to the next, so a line can sound like another speaker. The JSON line prints `drift`, the spread of the lines' pitch in semitones, and warns about any line more than 5 semitones from the rest. On the same six lines, four steady voices measured 0.4 to 1.6 semitones; an expressive voice measured 1.8 to 6.7, with single lines up to 9 semitones off, and lowering Fish Audio's `temperature` to 0.2 did not steady it. When the sample lines drift, pick another voice.
+
 Fish Audio's S2 models (`s2.1-pro`, `s2.1-pro-free`) take emotion cues in square brackets, best at the start of a sentence: `[excited]`, `[happy]`, `[delighted]`, `[confident]`, or a short description such as `[warm and happy]`. Use one where the mood lifts (the opening, a fun fact, the call to act) rather than on every line; captions drop them.
 
 ## Captions
