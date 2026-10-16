@@ -104,15 +104,14 @@ const launch = async () => {
   }
 };
 
-test('the film shows its pointer while it taps', async () => {
+test('the film zooms into a part without drawing a pointer over it', async () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'take-apart-'));
   assert.equal(run(PHONE, '--out', dir).status, 0);
   const browser = await launch(), page = await browser.newPage({ viewport: { width: 540, height: 675 } });
   try {
     await page.goto(`${pathToFileURL(path.join(dir, 'index.html')).href}?film`);
-    await page.evaluate(() => window.filmStart());
-    await page.waitForFunction(() => document.querySelector('.film-pointer').classList.contains('on'));
-    await page.waitForTimeout(400);
-    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.film-pointer')).opacity), '1');
+    await page.evaluate(() => { window.beats = []; window.filmBeat = id => window.beats.push(id); window.filmStart(); });
+    await page.waitForFunction(() => window.beats.some(id => id.startsWith('into:')), null, { timeout: 20000 });
+    assert.equal(await page.evaluate(() => document.querySelector('.film-pointer')), null);
   } finally { await browser.close(); }
 });
