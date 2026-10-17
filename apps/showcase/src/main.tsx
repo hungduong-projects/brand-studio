@@ -13,6 +13,8 @@ import { HaldenStill } from './halden-still';
 import { Nuvelo } from './nuvelo';
 import nuvelo from './nuvelo.brand.json';
 import { route } from './paths';
+import { Turnbook } from './cube';
+import turnbook from './turnbook.brand.json';
 
 function App() {
   const page = route();
@@ -25,6 +27,10 @@ function App() {
   if (page === '/camera') return <BrandTheme palette={halden.tokens} mode="dark">
     <a className="skip-link" href="#main">Skip to content</a>
     <Halden />
+  </BrandTheme>;
+  if (page === '/cube') return <BrandTheme palette={turnbook.tokens} mode="light">
+    <a className="skip-link" href="#main">Skip to content</a>
+    <Turnbook />
   </BrandTheme>;
   if (page === '/sneaker') return <BrandTheme palette={nuvelo.tokens} mode="light">
     <a className="skip-link" href="#main">Skip to content</a>
