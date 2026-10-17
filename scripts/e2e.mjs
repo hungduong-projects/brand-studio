@@ -1,5 +1,5 @@
 // End-to-end smoke test of the built showcase in headless Chromium. Run `npm run build` first.
-// Checks the edition page on desktop, phone and reduced motion, the camera page on desktop and phone, and the Deskhand page. Saves screenshots.
+// Checks the edition page on desktop, phone and reduced motion, the camera page on desktop and phone, the Deskhand page and the Turnbook cube on desktop and phone. Saves screenshots.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -180,6 +180,59 @@ try {
     await page.waitForTimeout(1000);
     assert.ok(await page.locator('h1').count() > 0, 'no h1');
     await page.screenshot({ path: path.join(shots, 'deskhand.png') });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await check('cube: keys turn it, the lesson steps through and solves a scramble, the pieces come apart', async () => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    // ?pace=0 runs turns and pauses at once; ?seed repeats one scramble.
+    const { page, errors } = await open(context, '/cube?seed=7&pace=0');
+    const canvas = page.locator('.tb-canvas');
+    await page.locator('.tb-canvas[data-ready]').waitFor({ timeout: 20000 });
+    await canvas.focus();
+    await page.keyboard.press('r');
+    await page.waitForFunction(() => !document.querySelector('.tb-canvas').hasAttribute('data-solved'));
+    await page.keyboard.press('Shift+R');
+    await page.locator('.tb-canvas[data-solved]').waitFor();
+
+    await page.getByRole('button', { name: 'Scramble the cube' }).click();
+    await page.getByRole('button', { name: 'Teach me from here' }).click();
+    assert.equal(await page.locator('.tb-kicker').textContent(), 'Stage 1 of 7');
+    const first = await page.locator('.tb-cap[aria-current]').textContent();
+    await page.getByRole('button', { name: 'Next turn' }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.tb-cap[data-state="done"]').length === 1);
+    assert.equal(await page.locator('.tb-cap[data-state="done"]').first().textContent(), first);
+    await page.screenshot({ path: path.join(shots, 'cube-01-lesson.png') });
+    // Skip runs one stage at a time; click it again whenever it is free until the lesson ends.
+    const solvedTitle = page.locator('#lesson-title', { hasText: 'Solved' });
+    for (let i = 0; i < 40 && !await solvedTitle.count(); i++) {
+      const skip = page.locator('.tb-skip');
+      if (await skip.count() && await skip.isEnabled()) await skip.click();
+      await page.waitForTimeout(150);
+    }
+    await solvedTitle.waitFor();
+    await page.locator('.tb-canvas[data-solved]').waitFor();
+
+    await page.getByRole('button', { name: 'Take it apart' }).click();
+    await page.locator('#lesson-title', { hasText: 'Inside the cube' }).waitFor();
+    assert.equal(await page.locator('.tb-part:not([hidden])').count(), 4);
+    assert.equal(await page.locator('.tb-pad button[aria-label]:disabled').count(), 6, 'turn buttons stay off while apart');
+    await page.screenshot({ path: path.join(shots, 'cube-02-apart.png') });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await check('cube on a phone: no sideways scroll, next turn and its buttons pinned to the bottom', async () => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const { page, errors } = await open(context, '/cube?seed=7&pace=0');
+    await page.locator('.tb-canvas[data-ready]').waitFor({ timeout: 20000 });
+    await page.getByRole('button', { name: 'Scramble the cube' }).click();
+    await page.getByRole('button', { name: 'Teach me from here' }).click();
+    await page.waitForTimeout(400);
+    assert.ok(await page.evaluate(() => Math.max(document.documentElement.scrollWidth, innerWidth)) <= 390, 'page is wider than the phone');
+    assert.equal(await page.locator('.tb-dock').evaluate(el => getComputedStyle(el).position), 'fixed');
+    await page.screenshot({ path: path.join(shots, 'cube-phone-01-lesson.png') });
     assert.deepEqual(errors, []);
     await context.close();
   });

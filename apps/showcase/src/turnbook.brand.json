@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "name": "Turnbook",
+  "positioning": "Fictional lesson for the 3x3 puzzle cube. It teaches the seven-stage layer-by-layer method on a cube the reader can turn, one turn at a time. Used to study a teaching page with an interactive 3D object.",
+  "audience": "People who own a 3x3 cube, have never solved it, and want to follow along with the real cube in their hands.",
+  "voice": [
+    "Say which face turns and which way, in plain words beside the notation",
+    "One instruction per line, numbers and colours named",
+    "Warn before a step looks wrong, such as the lower layers mixing in the last stage"
+  ],
+  "primaryAction": {
+    "label": "Teach me from here",
+    "href": "#lesson"
+  },
+  "direction": {
+    "concept": "A lesson book that turns. The cube is the page: every instruction shows on the cube as a violet arrow around the layer that turns next, and the lesson waits for you.",
+    "tier": "Tactile teaching tool. One three.js cube drawn in code beside a lesson panel; no scroll scene. Category measured 2026-10-17 (ruwix, cubeskills, grubiks, twizzle, rubiks-cube-solver, speedcubeshop): white or light grey pages, blue links and buttons, system fonts. Turnbook keeps the light page and moves the accent to violet, the one hue that is no sticker colour.",
+    "devices": [
+      "A violet arc around the layer that turns next, with an arrowhead showing the direction",
+      "Notation set as mono keycaps, the current turn filled violet and done turns faded",
+      "Pieces that a step moves keep their colour; the rest dim"
+    ],
+    "invariants": [
+      "Violet means the next turn and the action; no sticker is ever violet",
+      "Every turn shows its notation and its plain words",
+      "The lesson is held white on top, green in front, then turned over once"
+    ],
+    "variables": [
+      "Sticker shades within the standard colour scheme",
+      "Camera angle while looking around"
+    ]
+  },
+  "tokens": {
+    "light": {
+      "surface": "#f6f5f1",
+      "elevated": "#ffffff",
+      "ink": "#17161a",
+      "muted": "#5d5a63",
+      "accent": "#5b3df5",
+      "onAccent": "#ffffff",
+      "line": "#e2dfd7",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "12px"
+    },
+    "dark": {
+      "surface": "#131316",
+      "elevated": "#1d1d22",
+      "ink": "#f3f2ee",
+      "muted": "#a9a6b0",
+      "accent": "#a99bff",
+      "onAccent": "#131316",
+      "line": "#34333a",
+      "font": "\"Geist Variable\", system-ui, sans-serif",
+      "radius": "12px"
+    }
+  },
+  "imagery": {
+    "subject": "One 3x3 puzzle cube with rounded black plastic pieces and the six standard sticker colours, floating over a soft shadow",
+    "materials": "Satin black plastic, slightly glossy stickers, grey metal springs inside",
+    "lighting": "Soft room light with a key from the upper right; no coloured light, so sticker colours stay true",
+    "palette": "Stickers white #f4f2ec, yellow #ffd23a, green #0c9450, blue #1f5fd1, red #d12b3b, orange #ff7a1a; plastic #1b1a20; arrows violet #5b3df5",
+    "invariants": [
+      "Standard scheme: white opposite yellow, green opposite blue, red opposite orange, red-white-blue clockwise at a corner",
+      "No logo, maker name or lettering on any piece",
+      "Drawn in code; no model files"
+    ],
+    "avoid": [
+      "The marks, logo or centre cap of any cube maker",
+      "Violet stickers or violet light on the cube"
+    ]
+  },
+  "motion": {
+    "character": "Quarter turns take about a quarter second and ease out like a real layer clicking into place. The pieces gather from apart on load. A solved cube makes one slow lap of the view.",
+    "reducedMotion": "Turns jump to their end with the lesson's pauses kept, the pieces start together, and the solved cube does not spin."
+  },
+  "chapters": [
+    { "id": "lesson", "question": "How do I solve this cube?", "message": "Seven stages, each a few short algorithms, shown one turn at a time.", "visual": "The cube with a violet arc on the next layer, the lesson panel with the turns as keycaps.", "transition": "Each turn animates on the cube; the panel moves to the next keycap.", "mobileFallback": "Cube on top, lesson below, turn buttons under the cube." },
+    { "id": "inside", "question": "What holds it together?", "message": "A core of three axes holds six centres; edges and corners hook under them.", "visual": "The pieces pull apart from the core and its springs, with labels.", "transition": "Pieces slide out along their own direction and back.", "mobileFallback": "Same view, labels shorter." }
+  ],
+  "evidence": [
+    { "fact": "The cube has 26 visible pieces: 6 centres fixed to a core of three intersecting axes, 12 edges and 8 corners; springs keep the pieces tensioned, and each piece has a concealed inward extension that interlocks with the others.", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube#Mechanics" },
+    { "fact": "Face turns reach 43,252,003,274,489,856,000 arrangements, and any of them can be solved in 20 moves or fewer (proved in 2010).", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube" },
+    { "fact": "Standard colour scheme: white opposite yellow, blue opposite green, orange opposite red; red, white and blue run clockwise.", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube" },
+    { "fact": "Beginner method stages and algorithms: F R U R' U' F', R U R' U R U2 R' U, U R U' L' U R' U' L, R' D' R D, and the middle-layer pair U R U' R' U' F' U F and U' L' U L U F U' F'.", "source": "https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/" }
+  ]
+}

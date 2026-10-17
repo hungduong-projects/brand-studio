@@ -36,6 +36,7 @@ export default function Home() {
         <h2 id="exploded-title">Take a phone apart.</h2>
         <p>This exploded view goes four levels deep: the logic board opens to the processor, and the processor to its silicon. Pick a layer, then a part, to zoom in.</p>
         <p>Its colours and type come from the brand picked in the header.</p>
+        <p><a href="/examples/cube/">Turn a 3x3 cube in 3D, take it apart and solve it in seven stages</a></p>
       </div>
       <ExplodedPhone />
     </section>
