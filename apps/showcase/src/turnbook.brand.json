@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "name": "Turnbook",
-  "positioning": "Fictional lesson for the 3x3 puzzle cube. It teaches the seven-stage layer-by-layer method on a cube the reader can turn, one turn at a time. Used to study a teaching page with an interactive 3D object.",
-  "audience": "People who own a 3x3 cube, have never solved it, and want to follow along with the real cube in their hands.",
+  "positioning": "Fictional lesson series for the 3x3 puzzle cube, chess and xiangqi. Each page teaches on a 3D object the reader can turn or play, one move at a time. Used to study teaching pages built around an interactive 3D object.",
+  "audience": "People who own a 3x3 cube and have never solved it, or who want to learn chess or xiangqi from the first move, and who learn by doing one move at a time.",
   "voice": [
-    "Say which face turns and which way, in plain words beside the notation",
+    "Say which face turns or which piece moves, and where, in plain words beside the notation",
     "One instruction per line, numbers and colours named",
     "Warn before a step looks wrong, such as the lower layers mixing in the last stage"
   ],
@@ -13,21 +13,23 @@
     "href": "#lesson"
   },
   "direction": {
-    "concept": "A lesson book that turns. The cube is the page: every instruction shows on the cube as a violet arrow around the layer that turns next, and the lesson waits for you.",
-    "tier": "Tactile teaching tool. One three.js cube drawn in code beside a lesson panel; no scroll scene. Category measured 2026-10-17 (ruwix, cubeskills, grubiks, twizzle, rubiks-cube-solver, speedcubeshop): white or light grey pages, blue links and buttons, system fonts. Turnbook keeps the light page and moves the accent to violet, the one hue that is no sticker colour.",
+    "concept": "A lesson book that moves. The cube or board is the page: every instruction shows on it as a violet arc before the move happens, and the lesson waits for you.",
+    "tier": "Tactile teaching tool. One three.js cube drawn in code beside a lesson panel; no scroll scene. Category measured 2026-10-17 (ruwix, cubeskills, grubiks, twizzle, rubiks-cube-solver, speedcubeshop): white or light grey pages, blue links and buttons, system fonts. Turnbook keeps the light page and moves the accent to violet, the one hue that is no sticker colour. Boards measured the same day (lichess.org/learn, chess.com lessons, chesskid.com, xiangqi.com): light grey or cream pages, one lesson per piece, blue, purple or red accents. The chess and xiangqi lessons keep the cube's paper, ink frame and violet so the three pages read as one series.",
     "devices": [
       "A violet arc around the layer that turns next, with an arrowhead showing the direction",
       "Notation set as mono keycaps, the current turn filled violet and done turns faded",
-      "Pieces that a step moves keep their colour; the rest dim"
+      "Pieces that a step moves keep their colour; the rest dim",
+      "Tap a piece: violet dots on the points it can reach and violet rings on what it can capture"
     ],
     "invariants": [
-      "Violet means the next turn and the action; no sticker is ever violet",
-      "Every turn shows its notation and its plain words",
-      "The lesson is held white on top, green in front, then turned over once"
+      "Violet means the next move and the action; no sticker or piece is ever violet",
+      "Every turn or move shows its notation and its plain words",
+      "The cube lesson is held white on top, green in front, then turned over once; boards are played from White's or Red's side"
     ],
     "variables": [
       "Sticker shades within the standard colour scheme",
-      "Camera angle while looking around"
+      "Camera angle while looking around",
+      "Camera angle and top view on the boards"
     ]
   },
   "tokens": {
@@ -55,32 +57,40 @@
     }
   },
   "imagery": {
-    "subject": "One 3x3 puzzle cube with rounded black plastic pieces and the six standard sticker colours, floating over a soft shadow",
-    "materials": "Satin black plastic, slightly glossy stickers, grey metal springs inside",
+    "subject": "One 3x3 puzzle cube with rounded black plastic pieces and the six standard sticker colours, or a chess or xiangqi board in an ink frame, each floating over a soft shadow",
+    "materials": "Satin black plastic, slightly glossy stickers, grey metal springs inside; chess pieces turned in ivory and ink with a clear coat; xiangqi discs in ivory with printed characters",
     "lighting": "Soft room light with a key from the upper right; no coloured light, so sticker colours stay true",
-    "palette": "Stickers white #f4f2ec, yellow #ffd23a, green #0c9450, blue #1f5fd1, red #d12b3b, orange #ff7a1a; plastic #1b1a20; arrows violet #5b3df5",
+    "palette": "Stickers white #f4f2ec, yellow #ffd23a, green #0c9450, blue #1f5fd1, red #d12b3b, orange #ff7a1a; plastic #1b1a20; arrows violet #5b3df5; board frame #1b1a20; chess squares #f1ece2 and #c3b7a3; xiangqi paper #ecdfc4 with ink lines #3b342e; pieces ivory #efe8da and ink #26242b; xiangqi characters red #b8262e and black #1f1d24; check #d12b3b",
     "invariants": [
       "Standard scheme: white opposite yellow, green opposite blue, red opposite orange, red-white-blue clockwise at a corner",
       "No logo, maker name or lettering on any piece",
-      "Drawn in code; no model files"
+      "Drawn in code; no model files",
+      "Xiangqi characters in LXGW WenKai TC: 帥仕相傌俥炮兵 for Red, 將士象馬車砲卒 for Black"
     ],
     "avoid": [
       "The marks, logo or centre cap of any cube maker",
-      "Violet stickers or violet light on the cube"
+      "Violet stickers or violet light on the cube",
+      "Photographed wood grain or the look of any named chess set"
     ]
   },
   "motion": {
-    "character": "Quarter turns take about a quarter second and ease out like a real layer clicking into place. The pieces gather from apart on load. A solved cube makes one slow lap of the view.",
-    "reducedMotion": "Turns jump to their end with the lesson's pauses kept, the pieces start together, and the solved cube does not spin."
+    "character": "Quarter turns take about a quarter second and ease out like a real layer clicking into place. The pieces gather from apart on load. A solved cube makes one slow lap of the view. Chess and xiangqi pieces lift and glide in about a third of a second; knights and horses hop; captured pieces rise and fade.",
+    "reducedMotion": "Turns jump to their end with the lesson's pauses kept, the pieces start together, and the solved cube does not spin. On the boards, moves jump to their end and the lesson's pauses stay."
   },
   "chapters": [
     { "id": "lesson", "question": "How do I solve this cube?", "message": "Seven stages, each a few short algorithms, shown one turn at a time.", "visual": "The cube with a violet arc on the next layer, the lesson panel with the turns as keycaps.", "transition": "Each turn animates on the cube; the panel moves to the next keycap.", "mobileFallback": "Cube on top, lesson below, turn buttons under the cube." },
-    { "id": "inside", "question": "What holds it together?", "message": "A core of three axes holds six centres; edges and corners hook under them.", "visual": "The pieces pull apart from the core and its springs, with labels.", "transition": "Pieces slide out along their own direction and back.", "mobileFallback": "Same view, labels shorter." }
+    { "id": "inside", "question": "What holds it together?", "message": "A core of three axes holds six centres; edges and corners hook under them.", "visual": "The pieces pull apart from the core and its springs, with labels.", "transition": "Pieces slide out along their own direction and back.", "mobileFallback": "Same view, labels shorter." },
+    { "id": "board", "question": "How does each piece move?", "message": "One piece at a time: tap it, see where it can go, then make the move the step asks for.", "visual": "The board with violet dots on legal points and a violet arc over the next move.", "transition": "The piece lifts and glides; the panel judges the move and offers the next step.", "mobileFallback": "Board on top, lesson below, Back, Hint and Next pinned to the bottom edge." }
   ],
   "evidence": [
     { "fact": "The cube has 26 visible pieces: 6 centres fixed to a core of three intersecting axes, 12 edges and 8 corners; springs keep the pieces tensioned, and each piece has a concealed inward extension that interlocks with the others.", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube#Mechanics" },
     { "fact": "Face turns reach 43,252,003,274,489,856,000 arrangements, and any of them can be solved in 20 moves or fewer (proved in 2010).", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube" },
     { "fact": "Standard colour scheme: white opposite yellow, blue opposite green, orange opposite red; red, white and blue run clockwise.", "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube" },
-    { "fact": "Beginner method stages and algorithms: F R U R' U' F', R U R' U R U2 R' U, U R U' L' U R' U' L, R' D' R D, and the middle-layer pair U R U' R' U' F' U F and U' L' U L U F U' F'.", "source": "https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/" }
+    { "fact": "Beginner method stages and algorithms: F R U R' U' F', R U R' U R U2 R' U, U R U' L' U R' U' L, R' D' R D, and the middle-layer pair U R U' R' U' F' U F and U' L' U L U F U' F'.", "source": "https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/" },
+    { "fact": "Chess rules: castling is lost once the king or that rook has moved and is blocked while pieces stand between or the king is in check or would cross or land on an attacked square; en passant only on the next move; promotion to a queen, rook, bishop or knight; stalemate is a draw.", "source": "https://handbook.fide.com/chapter/E012023" },
+    { "fact": "Xiangqi rules: pieces stand on points of a 9 by 10 board; generals and advisors stay in the palace; elephants move two points diagonally, cannot cross the river and are blocked at the eye; horses are blocked at the leg; cannons capture by jumping one screen; the generals may not face each other; a player with no legal move loses; Red generally moves first.", "source": "https://en.wikipedia.org/wiki/Xiangqi" },
+    { "fact": "Move generators are checked against published node counts: chess 20, 400, 8,902, 197,281 from the start; xiangqi 44, 1,920, 79,666 from the start.", "source": "https://www.chessprogramming.org/Perft_Results" },
+    { "fact": "Xiangqi perft counts for the start and ten test positions.", "source": "https://www.chessprogramming.org/Chinese_Chess_Perft_Results" },
+    { "fact": "Vietnamese names: cờ vua pieces Vua, Hậu, Xe, Tượng, Mã, Tốt; cờ tướng pieces Tướng, Sĩ, Tượng, Mã, Xe, Pháo, Tốt.", "source": "https://vi.wikipedia.org/wiki/C%E1%BB%9D_t%C6%B0%E1%BB%9Bng" }
   ]
 }

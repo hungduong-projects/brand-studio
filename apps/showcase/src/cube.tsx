@@ -368,7 +368,7 @@ export function Turnbook() {
 
     <footer className="tb-foot">
       <p>Turnbook is a fictional lesson made for a Brand Studio showcase. The cube is drawn in code and carries no maker’s marks. The method is the layer-by-layer beginner method, with its algorithms as <a href="https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/">Ruwix</a> teaches them.</p>
-      <p><a href={SITE}>Brand Studio</a> · <a href={at('/')}>Editions</a> · <a href={at('camera/')}>Halden</a> · <a href={at('sneaker/')}>Nuvelo</a> · <a href={at('deskhand/')}>Deskhand</a></p>
+      <p><a href={SITE}>Brand Studio</a> · <a href={at('/')}>Editions</a> · <a href={at('camera/')}>Halden</a> · <a href={at('sneaker/')}>Nuvelo</a> · <a href={at('deskhand/')}>Deskhand</a> · <a href={at('chess/')}>Chess</a> · <a href={at('xiangqi/')}>Xiangqi</a></p>
     </footer>
     <p className="tb-sr" aria-live="polite">{live}</p>
   </div>;

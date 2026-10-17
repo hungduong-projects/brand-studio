@@ -1,5 +1,5 @@
 // End-to-end smoke test of the built showcase in headless Chromium. Run `npm run build` first.
-// Checks the edition page on desktop, phone and reduced motion, the camera page on desktop and phone, the Deskhand page and the Turnbook cube on desktop and phone. Saves screenshots.
+// Checks the edition page on desktop, phone and reduced motion, the camera page on desktop and phone, the Deskhand page, the Turnbook cube on desktop and phone, and the Turnbook chess and xiangqi lessons. Saves screenshots.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -233,6 +233,47 @@ try {
     assert.ok(await page.evaluate(() => Math.max(document.documentElement.scrollWidth, innerWidth)) <= 390, 'page is wider than the phone');
     assert.equal(await page.locator('.tb-dock').evaluate(el => getComputedStyle(el).position), 'fixed');
     await page.screenshot({ path: path.join(shots, 'cube-phone-01-lesson.png') });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // The board lessons take keyboard moves: arrow keys move a cursor that starts from e4, Enter picks a piece, then its target.
+  async function keys(page, list) { for (const key of list) await page.keyboard.press(key); }
+
+  await check('chess: the cursor moves a rook, and a mate puzzle is solved from the keyboard', async () => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const { page, errors } = await open(context, '/chess?pace=0');
+    await page.locator('.tb-canvas[data-ready]').waitFor({ timeout: 20000 });
+    await page.getByRole('button', { name: 'Start the lesson' }).click();
+    await page.getByRole('button', { name: 'Rook, bishop and queen' }).click();
+    await page.locator('.tb-canvas').focus();
+    await keys(page, ['ArrowLeft', 'Enter', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'Enter']);
+    await page.locator('.tb-note[data-tone="good"]', { hasText: 'The rook took the pawn' }).waitFor();
+    await page.screenshot({ path: path.join(shots, 'chess-01-rook.png') });
+    await page.getByRole('button', { name: 'Mate puzzles' }).click();
+    await page.locator('.tb-canvas').focus();
+    await keys(page, ['ArrowRight', 'ArrowRight', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', ...Array(7).fill('ArrowUp'), 'Enter']);
+    await page.locator('.tb-note[data-tone="good"]', { hasText: 'Checkmate.' }).waitFor();
+    assert.equal(await page.locator('.tb-cap[data-state="now"]').textContent(), 'Qg8#');
+    await page.screenshot({ path: path.join(shots, 'chess-02-mate.png') });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await check('xiangqi: the characters load, and a chariot mate is solved from the keyboard on a phone', async () => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const { page, errors } = await open(context, '/xiangqi?pace=0');
+    await page.locator('.tb-canvas[data-ready]').waitFor({ timeout: 20000 });
+    assert.ok(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('700 20px "Turnbook Xiangqi"', '帥'); }), 'xiangqi font did not load');
+    await page.getByRole('button', { name: 'Go to the puzzles' }).click();
+    await page.waitForTimeout(400);
+    assert.ok(await page.evaluate(() => Math.max(document.documentElement.scrollWidth, innerWidth)) <= 390, 'page is wider than the phone');
+    assert.equal(await page.locator('.tb-dock').evaluate(el => getComputedStyle(el).position), 'fixed');
+    await page.locator('.tb-canvas').focus();
+    await keys(page, ['ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'Enter']);
+    await page.locator('.tb-note[data-tone="good"]', { hasText: 'Checkmate.' }).waitFor();
+    assert.equal(await page.locator('.tb-cap[data-state="now"]').textContent(), 'R2=6');
+    await page.screenshot({ path: path.join(shots, 'xiangqi-phone-01-mate.png') });
     assert.deepEqual(errors, []);
     await context.close();
   });
