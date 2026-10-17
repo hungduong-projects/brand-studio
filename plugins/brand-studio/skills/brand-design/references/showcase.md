@@ -41,6 +41,8 @@ For paintings, check that the museum record says public domain, and crop to the 
 
 One signature experience carries the page. The rest reuses shared primitives (`@brand-studio/ui` or the project's own).
 
+For a real-time scene, shader effects or a gated campaign, the aesthetic-websites skill holds the component breakdown, the effects catalogue, the experience patterns and licence-checked asset sources.
+
 For a 3D product page (three.js):
 
 - One pinned canvas behind the page. Each story section names a pose: turn, tilt, distance, screen position, and how far the parts come apart.

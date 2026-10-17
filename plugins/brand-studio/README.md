@@ -5,6 +5,7 @@ Brand Studio skills for Claude Code, Codex, Gemini CLI and other agents that rea
 - `brand-design` produces a brand contract, visual storyboard, consistent-image direction, implementation guidance and a verification record.
 - `take-apart` builds an exploded view that comes apart layer by layer, with parts you click to zoom into, as one interactive page in a brand's colours.
 - `check-visual` checks a page or visual in every state, at desktop and phone widths, light and dark, and returns one verdict line and one contact sheet.
+- `aesthetic-websites` breaks an award-level immersive site into components, picks effects for one concept and sources 3D, video, sound and font assets under licences the site can use.
 - `post-video` records a page as a video sized for Facebook, Instagram, Reels, Stories or YouTube, with an optional Fish Audio voice-over and a captions file.
 
 ## Contents
@@ -21,6 +22,7 @@ Brand Studio skills for Claude Code, Codex, Gemini CLI and other agents that rea
 - `skills/brand-design/scripts/aesthetics.mjs`: audit of mascots, glyphs and app icons for corner curvature, stroke and radius consistency, weight, detail and symmetry.
 - `skills/brand-design/assets/still.brand.json`: fictional coffee example.
 - `skills/take-apart/scripts/take-apart.mjs`: checks a model and builds it into one page; `assets/kit.js` draws, `assets/viewer.html` is the page and `assets/phone.js` is a four-level example.
+- `skills/aesthetic-websites/SKILL.md`: immersive-site workflow with component, effect, pattern and source references.
 - `skills/check-visual/scripts/check-visual.mjs`: state, layout, text and target-size checks with a contact sheet.
 - `skills/post-video/scripts/post-video.mjs` and `scripts/voice-over.mjs`: social video recorder with voice and captions, and the Fish Audio narration client.
 
@@ -33,7 +35,7 @@ npx skills add hungduong-projects/brand-studio --skill brand-design
 gemini skills install https://github.com/hungduong-projects/brand-studio.git --path plugins/brand-studio/skills/brand-design
 ```
 
-The first command installs to `.agents/skills` and links the skill for each agent it detects. Swap `brand-design` for `take-apart`, `check-visual` or `post-video` to add the others.
+The first command installs to `.agents/skills` and links the skill for each agent it detects. Swap `brand-design` for `take-apart`, `check-visual`, `post-video` or `aesthetic-websites` to add the others.
 
 ## Install locally in Codex and Claude Code
 

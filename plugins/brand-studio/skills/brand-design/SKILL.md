@@ -39,6 +39,7 @@ Read only the references required by the task:
 - Explainer figure or visualization that shows how a product, process or algorithm works, as an isometric object that steps through it: [figure.md](references/figure.md).
 - Proportion, curves, symmetry, detail or novelty in a mascot, icon or 3D object, or an audit of drawn assets: [aesthetics.md](references/aesthetics.md).
 - Showcase-grade page, reference-site study, 3D product page or open-licence assets: [showcase.md](references/showcase.md).
+- Immersive 3D scene, shader or scroll effects, award-style experience, or asset sources beyond CC0: the aesthetic-websites skill, after the concept and contract.
 - Product UI or component selection: [ui-library.md](references/ui-library.md).
 - Mobile app for iOS and Android: [mobile-app.md](references/mobile-app.md).
 - App Store, Google Play or web-app install screenshots: [store-screenshots.md](references/store-screenshots.md).
