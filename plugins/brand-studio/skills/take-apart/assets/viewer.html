@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exploded view</title>
+<link rel="icon" href="data:,">
+<style>
+/* Brand roles. take-apart.mjs replaces these with the contract's tokens; the rest are material tones for the drawing. */
+:root { color-scheme: light; --bs-surface: #f5f5f4; --bs-elevated: #ffffff; --bs-ink: #1c1c1e; --bs-muted: #6b6b70; --bs-accent: #c2410c; --bs-on-accent: #ffffff; --bs-line: #a1a1a6;
+  --font: system-ui, sans-serif; --mono: ui-monospace, monospace; }
+:root { --side: #e3e3e1; --edge: color-mix(in srgb, var(--bs-ink) 40%, transparent); --detail: color-mix(in srgb, var(--bs-ink) 34%, transparent); --dim: .4;
+  --chip: #3a3a3e; --chip-side: #26262a; --chip2: #56565c; --foil: #e6e6e9; --metal: #ececee; --graphite: #4a4a50; --oxide: #9c9ca3; --film: #ebe9e3;
+  --copper: #d39467; --copper-side: #b1754b; --brown: #7a5236; --brown-side: #553824; }
+/*dark*/:root[data-theme="dark"] { color-scheme: dark; --bs-surface: #000000; --bs-elevated: #161617; --bs-ink: #f5f5f4; --bs-muted: #a1a1a6; --bs-accent: #ff7a45; --bs-on-accent: #000000; --bs-line: #48484d; }
+:root[data-theme="dark"] { --side: #0b0b0c; --edge: color-mix(in srgb, var(--bs-ink) 34%, transparent); --detail: color-mix(in srgb, var(--bs-ink) 26%, transparent); --dim: .5;
+  --chip: #3a3a3e; --chip-side: #2a2a2e; --chip2: #4c4c52; --foil: #2b2b2e; --metal: #2c2c30; --graphite: #3a3a40; --oxide: #5c5c63; --film: #222224;
+  --copper: #a86c43; --copper-side: #7c4f31; --brown: #5e3f2a; --brown-side: #3d291b; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; padding: 32px 16px; display: grid; justify-items: center; align-content: start; background: var(--bs-surface); color: var(--bs-ink); font: 15px/1.45 var(--font); }
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; color: var(--bs-ink); background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bs-line) 70%, transparent); }
+.btn.primary { color: var(--bs-on-accent); background: var(--bs-accent); box-shadow: none; }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.btn[hidden] { display: none; }
+.btn:focus-visible, .xf-list button:focus-visible, .xf-crumbs button:focus-visible { outline: 2px solid var(--bs-accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; } }
+
+.xf { width: min(100%, 760px); margin: 0; padding: 18px; border-radius: 18px; background: var(--bs-surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bs-line) 55%, transparent); }
+.xf-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; font: 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bs-muted); }
+.xf-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.xf-crumbs button { all: unset; cursor: pointer; color: var(--bs-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--bs-ink) 30%, transparent); }
+.xf-crumbs [aria-current] { color: var(--bs-accent); }
+.xf-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.xf-stage { position: relative; margin-top: 8px; overflow: hidden; touch-action: manipulation; }
+.xf-stage.swap { transition: height .5s cubic-bezier(.2, .7, .1, 1); }
+.scene { position: absolute; top: 0; left: 0; width: 100%; }
+.scene[hidden] { display: none; }
+.xf-draw { display: block; width: 100%; height: auto; overflow: visible; -webkit-tap-highlight-color: transparent; }
+.scene.flow .xf-draw { overflow: hidden; } /* a process's view frames one step, so the steps beyond it stay out of the list */
+.xf figcaption { margin-top: 12px; font-size: 13px; color: var(--bs-muted); }
+
+/* the drawing */
+.layer { cursor: pointer; transition: opacity .25s; }
+.scene[data-focus] .layer:not(.on) { opacity: var(--dim); }
+.layer.on { --edge: var(--bs-accent); --detail: color-mix(in srgb, var(--bs-accent) 80%, transparent); }
+.lift { transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.layer.on .lift { transform: translateY(-8px); }
+.side { fill: var(--side); }
+.side.base, .top, .tan, .det, .dash { stroke: var(--edge); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.det { fill: none; stroke: var(--detail); }
+.det * { vector-effect: non-scaling-stroke; }
+.dash { fill: none; stroke-dasharray: 3 4; }
+.top.plain { fill: var(--bs-elevated); }
+.layer.on .top.plain { fill: color-mix(in srgb, var(--bs-accent) 8%, var(--bs-elevated)); }
+.layer.on .hit { cursor: zoom-in; }
+.layer.on .hit:hover .top.plain { fill: color-mix(in srgb, var(--bs-accent) 22%, var(--bs-elevated)); }
+.layer.on .hit:hover .top { stroke-width: 1.8; }
+.hitarea { fill: transparent; stroke: none; }
+.hole, .det .hole { fill: #0c0c0e; stroke: none; }
+.top.lens, .glassdisc { fill: #121214; } .glassdisc { stroke: none; }
+.lensring circle { fill: none; stroke: rgba(255, 255, 255, .28); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.glint { fill: none; stroke: rgba(255, 255, 255, .6); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.top.flash { fill: #f2e7c9; }
+.side.chip { fill: var(--chip-side); } .top.chip { fill: var(--chip); stroke: none; } .top.chip2 { fill: var(--chip2); stroke: none; }
+.side.dark { fill: #222225; } .top.panel { fill: #0c0c0e; }
+.side.glass { fill: none; }
+.top.glass { fill: color-mix(in srgb, var(--bs-elevated) 22%, transparent); }
+.top.ir { fill: color-mix(in srgb, #5fb3c9 26%, transparent); }
+.top.polar { fill: color-mix(in srgb, var(--bs-ink) 20%, transparent); }
+.top.foil { fill: var(--foil); } .top.metal { fill: var(--metal); } .top.graphite { fill: var(--graphite); } .top.oxide { fill: var(--oxide); } .top.film { fill: var(--film); }
+.top.magnet { fill: var(--chip); }
+.top.red { fill: #e0645a; } .top.green { fill: #4fb07a; } .top.blue { fill: #5a84e0; }
+.top.copper { fill: var(--copper); } .side.copper { fill: var(--copper-side); } .top.brown { fill: var(--brown); } .side.brown { fill: var(--brown-side); }
+.top.water { fill: color-mix(in srgb, #3f9bd8 30%, transparent); } .side.water { fill: color-mix(in srgb, #3f9bd8 45%, transparent); }
+.blk { fill: var(--chip2); stroke: none; }
+.mag { fill: var(--chip); stroke: none; }
+.vent { fill: color-mix(in srgb, var(--bs-ink) 45%, transparent); stroke: none; }
+.light { fill: none; stroke: rgba(255, 255, 255, .35); stroke-width: 1.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.shine { fill: color-mix(in srgb, #ffffff 30%, transparent); stroke: none; }
+.screen text { fill: #f5f5f4; font-family: var(--font); text-anchor: middle; }
+.pat-dot { fill: var(--detail); } .pat-line { fill: none; stroke: var(--detail); stroke-width: .7; }
+.pat-light { fill: none; stroke: rgba(255, 255, 255, .3); stroke-width: .5; } .pat-pad { fill: rgba(255, 255, 255, .28); }
+.pat-gate { fill: none; stroke: rgba(255, 255, 255, .45); stroke-width: 1.2; }
+.pat-wire { fill: none; stroke: var(--detail); stroke-width: .9; } .pat-bus { fill: none; stroke: var(--detail); stroke-width: 2.6; } .pat-via { fill: var(--detail); }
+.pin { opacity: 0; transition: opacity .2s; pointer-events: none; }
+.layer.on .pin { opacity: 1; }
+.layer.on .pin.open { pointer-events: auto; cursor: zoom-in; }
+.pin .bub, .pin .dot { fill: var(--bs-accent); } .pin line { stroke: var(--bs-accent); stroke-width: 1; }
+.pin .halo { fill: none; stroke: var(--bs-accent); stroke-width: 1; }
+.pin text { fill: var(--bs-on-accent); font: 500 10px/1 var(--mono); text-anchor: middle; }
+.leader { fill: none; stroke: color-mix(in srgb, var(--bs-ink) 30%, transparent); stroke-width: 1; transition: opacity .2s; }
+.leader.on { stroke: var(--bs-accent); }
+.anchor { fill: var(--bs-surface); stroke: color-mix(in srgb, var(--bs-ink) 50%, transparent); stroke-width: 1; transition: opacity .2s; }
+.anchor.on { fill: var(--bs-accent); stroke: var(--bs-accent); }
+.scene:not(.wide) .leaders { display: none; }
+/* a process: its steps stand side by side, joined by arrows along the floor; the arrow into the lit step runs */
+.flowline { fill: none; stroke: color-mix(in srgb, var(--bs-ink) 32%, transparent); stroke-width: 1.4; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; transition: stroke .25s; }
+.chev { fill: color-mix(in srgb, var(--bs-ink) 32%, transparent); transition: fill .25s; }
+.flowline.on { stroke: var(--bs-accent); animation: flow .9s linear infinite; }
+.chev.on { fill: var(--bs-accent); }
+@keyframes flow { to { stroke-dashoffset: -14; } }
+
+/* the layer list: under the drawing on a phone, beside each layer when there is room */
+.xf-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 2px; }
+.xf-list li { border-radius: 12px; }
+.xf-list .lb { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 28px 1fr; column-gap: 6px; width: 100%; min-height: 44px; padding: 8px 10px; border-radius: 12px; cursor: pointer; color: var(--bs-muted); }
+.xf-list .n { grid-row: span 2; font: 11px/21px var(--mono); letter-spacing: .06em; }
+.xf-list .t { font-size: 15px; font-weight: 500; color: color-mix(in srgb, var(--bs-ink) 80%, transparent); }
+.xf-list .r { font-size: 13px; line-height: 1.4; }
+.xf-list .p { display: none; flex-wrap: wrap; gap: 2px 10px; padding: 0 10px 8px 44px; font-size: 12.5px; }
+.xf-list li.on .p { display: flex; }
+.xf-list .p > span, .xf-list .p .zoom { display: inline-flex; align-items: center; gap: 5px; min-height: 40px; }
+.xf-list .p .zoom { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px; min-height: 40px; cursor: zoom-in; color: var(--bs-accent); font-weight: 500; }
+.xf-list .p .zoom:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.xf-list .p .zoom svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.xf-list .p b { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: var(--bs-accent); color: var(--bs-on-accent); font: 500 11px/1 var(--mono); }
+.xf-list li.on { box-shadow: inset 0 0 0 1px var(--bs-accent); }
+.xf-list li.on .t, .xf-list li.on .n { color: var(--bs-accent); }
+.scene.wide .xf-list { position: absolute; inset: 0; margin: 0; display: block; pointer-events: none; }
+.scene.wide .xf-list li { position: absolute; width: 262px; transform: translateY(-22px); transition: opacity .2s; }
+.scene.wide.apart .xf-list li { pointer-events: auto; }
+.scene.wide .xf-list li.on { box-shadow: none; z-index: 1; }
+.scene.wide .xf-list .lb { padding: 2px 4px; min-height: 0; }
+.scene.wide .xf-list .p { padding: 4px 4px 0 38px; }
+.scene.wide .xf-list .p > span, .scene.wide .xf-list .p .zoom { min-height: 24px; }
+
+/* Film: a fixed frame for a social video, with one big caption for the lit layer under the title. ?film */
+.film-cap { display: none; }
+body.film { display: block; min-height: 0; height: 100vh; padding: 0; overflow: hidden; }
+body.film .xf-bar, body.film .xf figcaption, body.film .xf-list, body.film .leaders, body.film .xf-crumbs > span:not(.xf-path) { display: none; }
+body.film .xf { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 30px 30px 24px; border-radius: 0; box-shadow: none; }
+/* Reels and Stories: platform buttons cover the top 14% and the bottom 35% of a 9:16 frame, so text stays between. */
+@media (max-aspect-ratio: 10/16) { body.film .xf { padding: 14vh 30px 35vh; } }
+/* A narrated film gets captions, which the platform draws over the bottom of the frame, so the drawing stops above them. */
+@media (min-aspect-ratio: 10/16) { body.film.voiced .xf { padding-bottom: 14vh; } }
+body.film .xf-head { display: block; font-size: 13px; }
+body.film #xf-title { display: block; margin-top: 8px; font: 600 31px/1.1 var(--font); letter-spacing: -.025em; text-transform: none; color: var(--bs-ink); }
+body.film .xf-stage { flex: 1; min-height: 0; margin-top: 6px; order: 1; }
+body.film .film-cap { display: grid; grid-template-columns: 36px 1fr; align-content: start; height: 118px; margin-top: 14px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--bs-line) 55%, transparent); }
+.film-cap .n { grid-row: span 3; font: 14px/31px var(--mono); color: var(--bs-accent); }
+.film-cap .t { font: 600 25px/1.25 var(--font); letter-spacing: -.015em; color: var(--bs-accent); }
+.film-cap .t:empty, .film-cap .u:empty { display: none; }
+.film-cap .r { margin-top: 4px; font-size: 19px; line-height: 1.38; color: var(--bs-muted); }
+.film-cap.end .t { color: var(--bs-ink); font-size: 30px; }
+.film-cap.end .r { color: var(--bs-ink); }
+.film-cap .u { font: 16px/1.4 var(--mono); letter-spacing: .03em; color: var(--bs-accent); margin-top: 10px; }
+.film-cap.swap > * { animation: cap-in .4s cubic-bezier(.2, .7, .1, 1) both; }
+@keyframes cap-in { from { opacity: 0; transform: translateY(10px); } }
+</style>
+<script>
+/* Follow the system theme unless ?theme=light or ?theme=dark picks one. */
+{ const t = new URLSearchParams(location.search).get('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.dataset.theme = t; }
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true"><defs id="shared"></defs></svg>
+<figure class="xf" aria-labelledby="xf-title">
+  <div class="xf-head"><span class="xf-crumbs"><span class="xf-fig"></span><span aria-hidden="true">·</span><span class="xf-path"></span></span><span id="xf-title"></span></div>
+  <div class="xf-bar">
+    <button class="btn" id="back" type="button" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M4.5 7h5M11 11l3 3"/></svg>Zoom out</button>
+    <button class="btn primary" id="apart" type="button" aria-pressed="false">Take apart</button>
+    <button class="btn" id="play" type="button">Play</button>
+  </div>
+  <div class="xf-stage" data-visual="frame"></div>
+  <figcaption></figcaption>
+  <div class="film-cap" aria-hidden="true"><span class="n"></span><span class="t"></span><span class="r"></span><span class="u"></span></div>
+  <p class="sr" aria-live="polite"></p>
+</figure>
+
+<script src="kit.js"></script>
+<script src="model.js"></script>
+<script>
+const figures = MODEL.figures, ROOT = Object.keys(figures)[0];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, film = new URLSearchParams(location.search).has('film');
+if (film) document.body.classList.add('film', ...(window.filmVoice ? ['voiced'] : []));
+const ZOOM = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M4.5 7h5M7 4.5v5M11 11l3 3"/></svg>';
+document.getElementById('shared').innerHTML = PATTERNS + (MODEL.defs || '');
+document.querySelector('.xf-fig').textContent = MODEL.fig || '';
+document.title = figures[ROOT].heading;
+
+const stageEl = document.querySelector('.xf-stage');
+class Scene {
+  constructor(model, figure) {
+    this.model = model; this.figure = figure; this.flow = !!model.flow;
+    const n = model.layers.length;
+    this.layers = model.layers.map((l, i) => {
+      const [dx, dy] = this.flow ? P(l.at[0], l.at[1], 0) : [0, 0];
+      return { ...l, n: String(this.flow ? i + 1 : n - i).padStart(2, '0'), ...drawLayer(l), dx, dy };
+    });
+    // A process numbers and lists its steps in order and draws them far to near; a stack lists its top layer first.
+    const depth = i => this.flow ? this.layers[i].at[0] + this.layers[i].at[1] : i, list = this.layers.map((l, i) => ({ l, i }));
+    if (!this.flow) list.reverse();
+    this.el = document.createElement('div');
+    this.el.className = this.flow ? 'scene flow' : 'scene';
+    this.el.innerHTML = `<svg class="xf-draw" role="img" aria-label="${model.alt}"><defs>${this.layers.map(l => l.defs).join('')}</defs>`
+      + `<g class="root">${this.flow ? `<g class="flows">${this.links()}</g>` : ''}${[...this.layers.keys()].sort((a, b) => depth(a) - depth(b)).map(i => `<g class="layer" data-i="${i}"><g class="lift">${this.layers[i].body}</g></g>`).join('')}</g>`
+      + `<g class="leaders">${this.layers.map(() => '<path class="leader"/><circle class="anchor" r="2.5"/>').join('')}</g></svg>`
+      + `<ol class="xf-list">${list.map(({ l, i }) => `<li data-i="${i}" data-visual="label">`
+        + `<button type="button" class="lb" aria-pressed="false"><span class="n">${l.n}</span><span class="t">${l.title}</span><span class="r">${l.readout}</span></button>`
+        + ((l.parts || []).length ? `<div class="p">${l.parts.map((p, k) => p.open
+          ? `<button type="button" class="zoom" data-open="${p.open}" data-part="${p.id}" aria-label="Zoom into ${p.name}"><b>${k + 1}</b><span>${p.name}</span>${ZOOM}</button>`
+          : `<span><b>${k + 1}</b>${p.name}</span>`).join('')}</div>` : '') + '</li>').join('')}</ol>`;
+    this.svg = this.el.querySelector('svg'); this.root = this.svg.querySelector('.root');
+    this.groups = this.layers.map((_, i) => this.svg.querySelector(`.layer[data-i="${i}"]`));
+    this.flows = [...this.svg.querySelectorAll('.flows [data-to]')];
+    this.leaders = [...this.svg.querySelectorAll('.leader')]; this.anchors = [...this.svg.querySelectorAll('.anchor')];
+    this.items = this.layers.map((_, i) => this.el.querySelector(`li[data-i="${i}"]`));
+    this.buttons = this.items.map(li => li.querySelector('.lb'));
+    this.spring = this.layers.map(() => ({ x: 0, v: 0, target: 0, pending: null }));
+    this.apart = false; this.focus = null; this.hover = null; this.raf = 0; this.timer = 0; this.s = 1; this.e = [0, 0];
+    // A process is always laid out; its view glides to the lit step instead.
+    if (this.flow) { this.apart = true; this.spring.forEach(s => { s.x = s.target = 1; }); this.cam = { x: null, v: [0, 0, 0, 0], target: null }; }
+    this.bind();
+  }
+
+  /* A process's arrows: along the floor from where the line between two steps' footprints leaves one to where it meets the next. */
+  links() {
+    const spot = l => [l.at[0] + l.box.px0, l.at[1] + l.box.py0, l.at[0] + l.box.px1, l.at[1] + l.box.py1];
+    const S = ([x, y]) => P(x, y, 0).map(f).join(' ');
+    return this.layers.slice(1).map((next, k) => {
+      const A = spot(this.layers[k]), B = spot(next), a = [(A[0] + A[2]) / 2, (A[1] + A[3]) / 2], d = [(B[0] + B[2]) / 2 - a[0], (B[1] + B[3]) / 2 - a[1]];
+      const axes = [0, 1].filter(j => d[j]), len = Math.hypot(...d);
+      if (!axes.length) return '';
+      const t0 = Math.min(...axes.map(j => ((d[j] > 0 ? A[j + 2] : A[j]) - a[j]) / d[j])) + 6 / len;
+      const t1 = Math.max(...axes.map(j => ((d[j] > 0 ? B[j] : B[j + 2]) - a[j]) / d[j])) - 6 / len;
+      if (!(t1 > t0)) return '';
+      const at = t => [a[0] + d[0] * t, a[1] + d[1] * t], u = [d[0] / len, d[1] / len], m = at((t0 + t1) / 2);
+      const tip = [m[0] + u[0] * 7, m[1] + u[1] * 7], l = [m[0] - u[0] * 4 - u[1] * 5, m[1] - u[1] * 4 + u[0] * 5], r = [m[0] - u[0] * 4 + u[1] * 5, m[1] - u[1] * 4 - u[0] * 5];
+      return `<path class="flowline" data-to="${k + 1}" d="M${S(at(t0))}L${S(at(t1))}"/><path class="chev" data-to="${k + 1}" d="M${S(tip)}L${S(l)}L${S(r)}Z"/>`;
+    }).join('');
+  }
+
+  bind() {
+    this.groups.forEach((g, i) => g.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && this.apart && !this.figure.busy) { this.hover = i; this.paint(); } }));
+    this.svg.addEventListener('pointerleave', () => { this.hover = null; this.paint(); });
+    this.svg.addEventListener('click', e => {
+      const layer = e.target.closest('.layer'), open = e.target.closest('[data-open]');
+      if (!layer) { if (this.focus !== null) { this.stopPlay(); this.setFocus(null); } return; }
+      this.stopPlay();
+      if (!this.apart) return this.setApart(true);
+      const i = Number(layer.dataset.i);
+      if (open && i === this.shown()) return this.figure.zoomIn(this, open.dataset.open, open.dataset.part);
+      this.hover = null; this.setFocus(i);
+    });
+    this.buttons.forEach((b, i) => {
+      b.addEventListener('click', () => { this.stopPlay(); this.setFocus(this.focus === i ? null : i); });
+      b.addEventListener('keydown', e => {
+        const to = (this.flow ? { ArrowDown: i + 1, ArrowUp: i - 1 } : { ArrowUp: i + 1, ArrowDown: i - 1 })[e.key];
+        if (to === undefined || to < 0 || to >= this.layers.length) return;
+        e.preventDefault(); this.buttons[to].focus(); this.stopPlay(); this.setFocus(to);
+      });
+    });
+    this.el.querySelectorAll('.p .zoom').forEach(b => b.addEventListener('click', () => { this.stopPlay(); this.figure.zoomIn(this, b.dataset.open, b.dataset.part); }));
+  }
+
+  shown() { return this.hover ?? this.focus; }
+  /* How far apart the thing is, 0 whole to 1 apart. The bottom layer never moves, so it is left out. */
+  t() { const s = this.spring.slice(1); return s.length ? s.reduce((a, x) => a + x.x, 0) / s.length : this.spring[0].x; }
+
+  layout(width) {
+    this.wide = !film && !this.flow && width >= 600; this.px = width;
+    this.el.classList.toggle('wide', this.wide);
+    this.gap = this.flow ? 0 : film ? this.model.gap[1] * .7 : this.model.gap[this.wide ? 0 : 1];
+    const ls = this.layers, b = ls.map(l => l.box);
+    this.minX = Math.min(...b.map((x, i) => x.minX + ls[i].dx)); this.maxX = Math.max(...b.map((x, i) => x.maxX + ls[i].dx));
+    this.LX = Math.max(...b.map((x, i) => x.ax + ls[i].dx)) + 53;
+    const left = this.minX - 16, right = this.wide ? this.LX + 262 : this.maxX + 16;
+    this.top = Math.min(...b.map((x, i) => x.minY + ls[i].dy - ls[i].zA - i * this.gap)) - 46;
+    this.wholeTop = Math.min(...b.map((x, i) => x.minY + ls[i].dy - ls[i].zA));
+    this.wholeBottom = Math.max(...b.map((x, i) => x.maxY + ls[i].dy - ls[i].zA));
+    this.bottom = this.wholeBottom + 14;
+    this.whole = [(this.minX + this.maxX) / 2, (this.wholeTop + this.wholeBottom) / 2];
+    this.vb = [left, this.top, right - left, this.bottom - this.top];
+    if (film) { // Widen or heighten the box to the stage's shape, so the drawing fills the frame's stage.
+      const shape = width / stageEl.clientHeight, vb = this.vb;
+      if (vb[2] / vb[3] < shape) { const w = vb[3] * shape; vb[0] -= (w - vb[2]) / 2; vb[2] = w; } else { const h = vb[2] / shape; vb[1] -= (h - vb[3]) / 2; vb[3] = h; }
+    }
+    this.zoom = this.wide || film ? Math.min(1.5, .8 * this.vb[2] / (this.maxX - this.minX), .62 * this.vb[3] / (this.wholeBottom - this.wholeTop)) : 1;
+    const column = Math.min(262, (right - this.LX) * width / this.vb[2]);
+    this.items.forEach(li => { li.style.width = this.wide ? `${f(column)}px` : ''; });
+    if (this.flow) { this.view = this.vb.slice(); this.cam.target = this.frameOf(); this.cam.x = this.cam.target.slice(); this.cam.v = [0, 0, 0, 0]; }
+    this.measure(); this.draw();
+  }
+  /* Where a process's view rests: on the lit step and its pins with a little room, or on the whole process. A page comes at
+     most 2.2 times closer; a film comes as close as the step allows, so words drawn in the step stay readable on a phone.
+     It keeps the whole view's shape, so the drawing never changes size on the page. */
+  frameOf() {
+    const W = this.view, i = this.focus;
+    if (i === null) return W.slice();
+    const l = this.layers[i], b = l.box, shape = W[2] / W[3], most = film ? Infinity : 2.2;
+    const pins = (l.parts || []).filter(p => p.at).map(p => P(...p.at)[1] - 38); // a pin's ring tops out 37.5 above its dot
+    const x0 = b.minX + l.dx - 14, x1 = b.maxX + l.dx + 14, y0 = Math.min(b.minY, ...pins) + l.dy - 14, y1 = b.maxY + l.dy + 14;
+    let w = Math.max(x1 - x0, W[2] / most), h = Math.max(y1 - y0, W[3] / most);
+    if (w / h < shape) w = h * shape; else h = w / shape;
+    if (w > W[2]) { w = W[2]; h = w / shape; }
+    if (h > W[3]) { h = W[3]; w = h * shape; }
+    return [Math.min(Math.max((x0 + x1 - w) / 2, W[0]), W[0] + W[2] - w), Math.min(Math.max((y0 + y1 - h) / 2, W[1]), W[1] + W[3] - h), w, h];
+  }
+  measure() { this.heights = this.items.map(li => li.offsetHeight); }
+  /* Each label sits level with its leader. One that would run into the label below pushes it down, and the floor of the box pushes back up.
+     Takes and returns label heights in drawing units; labels draw 22 px above their top. */
+  place(ys, k) {
+    const vb = this.vb, h = this.heights, top = ys.map(y => (y - vb[1]) * k), order = [...top.keys()].sort((a, b) => top[a] - top[b]);
+    let edge = -Infinity;
+    for (const i of order) { top[i] = Math.max(top[i], edge); edge = top[i] + h[i] + 12; }
+    edge = vb[3] * k + 22;
+    for (const i of order.reverse()) { top[i] = Math.min(top[i], edge - h[i]); edge = top[i] - 12; }
+    return top.map(y => y / k + vb[1]);
+  }
+
+  draw() {
+    if (this.flow) { // each step at its place; the view is the camera's
+      const vb = this.vb = this.cam.x.slice();
+      this.svg.setAttribute('viewBox', vb.map(f).join(' '));
+      this.s = 1; this.e = [0, 0];
+      this.groups.forEach((g, i) => g.setAttribute('transform', `translate(${f(this.layers[i].dx)} ${f(this.layers[i].dy - this.layers[i].zA)})`));
+      this.el.classList.add('apart');
+      return;
+    }
+    const t = this.t(), show = this.apart ? Math.min(1, Math.max(0, (t - .7) / .3)) : 0, vb = this.vb;
+    /* Wide: the box keeps its height and the whole thing is drawn larger in the middle of it.
+       Phone: the box grows as the thing comes apart, so the whole thing leaves no empty space. */
+    if (!this.wide && !film) { vb[1] = this.wholeTop - 30 + (this.top - this.wholeTop + 30) * t; vb[3] = this.bottom - vb[1]; }
+    this.svg.setAttribute('viewBox', vb.map(f).join(' '));
+    const s = 1 + (this.zoom - 1) * (1 - t), mid = [vb[0] + vb[2] / 2, vb[1] + vb[3] / 2];
+    const e = [0, 1].map(j => (1 - t) * (mid[j] - this.whole[j]) - (s - 1) * this.whole[j]);
+    this.s = s; this.e = e;
+    const T = ([x, y]) => [s * x + e[0], s * y + e[1]], k = this.px / vb[2];
+    this.root.setAttribute('transform', `matrix(${f(s)} 0 0 ${f(s)} ${f(e[0])} ${f(e[1])})`);
+    const at = this.layers.map((l, i) => {
+      const z = l.zA + this.spring[i].x * i * this.gap;
+      this.groups[i].setAttribute('transform', `translate(0 ${f(-z)})`);
+      return T([l.box.ax, l.box.ay - z - (this.shown() === i ? 8 : 0)]);
+    });
+    const ly = this.wide ? this.place(at.map(a => a[1]), k) : at.map(a => a[1]), end = this.LX - 10;
+    at.forEach(([ax, ay], i) => {
+      this.leaders[i].setAttribute('d', `M${f(ax + 6)} ${f(ay)}` + (Math.abs(ly[i] - ay) < .5 ? '' : `H${f(end - 30)}L${f(end - 14)} ${f(ly[i])}`) + `H${f(end)}`);
+      this.anchors[i].setAttribute('cx', f(ax)); this.anchors[i].setAttribute('cy', f(ay));
+      this.leaders[i].style.opacity = this.anchors[i].style.opacity = show;
+      if (this.wide) Object.assign(this.items[i].style, { left: `${f((this.LX - vb[0]) * k)}px`, top: `${f((ly[i] - vb[1]) * k)}px`, opacity: show });
+      else Object.assign(this.items[i].style, { left: '', top: '', opacity: '' });
+    });
+    this.el.classList.toggle('apart', t > .5);
+  }
+
+  /* The whole thing's box in stage pixels, as drawn right now. Zooms start and end on it. */
+  wholeRect(stage) {
+    const r = this.svg.getBoundingClientRect(), k = r.width / this.vb[2];
+    const X = x => (this.s * x + this.e[0] - this.vb[0]) * k + r.left - stage.left, Y = y => (this.s * y + this.e[1] - this.vb[1]) * k + r.top - stage.top;
+    const x0 = X(this.minX), x1 = X(this.maxX), y0 = Y(this.wholeTop), y1 = Y(this.wholeBottom);
+    return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, w: x1 - x0, h: y1 - y0 };
+  }
+
+  /* Springs: whatever time passed since the last frame is stepped in 4 ms slices, so a late frame never loses motion. */
+  frame(now) {
+    const dt = Math.min(.25, (now - this.last) / 1000), n = Math.max(4, Math.ceil(dt / .004)); this.last = now;
+    let moving = false;
+    for (const s of this.spring) {
+      if (s.pending && now >= s.pending.at) { s.target = s.pending.value; s.pending = null; }
+      if (reduce) { s.x = s.target; s.v = 0; }
+      else for (let j = 0; j < n; j++) { const h = dt / n, a = -150 * (s.x - s.target) - 21 * s.v; s.v += a * h; s.x += s.v * h; }
+      if (s.pending || Math.abs(s.x - s.target) > 1e-3 || Math.abs(s.v) > 1e-3) moving = true; else { s.x = s.target; s.v = 0; }
+    }
+    const c = this.cam; // a process's view glides on a critically damped spring
+    if (c?.target) for (let j = 0; j < 4; j++) {
+      if (reduce) { c.x[j] = c.target[j]; c.v[j] = 0; continue; }
+      for (let k = 0; k < n; k++) { const h = dt / n, a = -60 * (c.x[j] - c.target[j]) - 15.5 * c.v[j]; c.v[j] += a * h; c.x[j] += c.v[j] * h; }
+      if (Math.abs(c.x[j] - c.target[j]) > .05 || Math.abs(c.v[j]) > .05) moving = true; else { c.x[j] = c.target[j]; c.v[j] = 0; }
+    }
+    this.draw();
+    this.raf = moving ? requestAnimationFrame(n => this.frame(n)) : 0;
+  }
+  kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(n => this.frame(n)); } }
+  /* Resolves once the thing is all but whole again. */
+  settle() { return new Promise(done => { const check = () => (this.raf && this.t() > .03 ? requestAnimationFrame(check) : done()); check(); }); }
+  /* Jumps to apart or whole with no motion, for stills and checks. */
+  snap(on) {
+    if (this.flow) on = true;
+    this.spring.forEach(s => { s.x = s.target = on ? 1 : 0; s.v = 0; s.pending = null; }); this.apart = on;
+    if (this.cam?.target) { this.cam.target = this.frameOf(); this.cam.x = this.cam.target.slice(); this.cam.v = [0, 0, 0, 0]; }
+    this.paint();
+  }
+
+  setApart(on, stagger = 70) {
+    if (on === this.apart || this.flow) return;
+    this.apart = on;
+    const order = on ? [...this.layers.keys()].reverse() : [...this.layers.keys()], now = performance.now();
+    order.forEach((i, k) => { this.spring[i].pending = { value: on ? 1 : 0, at: now + k * stagger }; });
+    if (!on) { this.focus = null; this.hover = null; this.paint(); }
+    this.kick(); this.figure.sync();
+  }
+  paint() {
+    const shown = this.shown();
+    if (shown === null) delete this.el.dataset.focus; else this.el.dataset.focus = this.layers[shown].key;
+    this.groups.forEach((g, i) => g.classList.toggle('on', i === shown));
+    this.leaders.forEach((g, i) => g.classList.toggle('on', i === shown));
+    this.anchors.forEach((g, i) => g.classList.toggle('on', i === shown));
+    this.items.forEach((li, i) => li.classList.toggle('on', i === shown));
+    this.buttons.forEach((b, i) => b.setAttribute('aria-pressed', i === shown));
+    this.flows.forEach(p => p.classList.toggle('on', Number(p.dataset.to) === shown));
+    if (this.cam?.target) { this.cam.target = this.frameOf(); this.kick(); }
+    this.measure(); this.draw();
+    if (this === this.figure.top) caption();
+  }
+  setFocus(i) { this.focus = i; if (i !== null) this.setApart(true); this.paint(); }
+  togglePlay() {
+    if (this.timer) return this.stopPlay();
+    const order = this.flow ? [...this.layers.keys()] : [...this.layers.keys()].reverse();
+    const step = k => { if (k === order.length) return this.stopPlay(); this.setFocus(order[k]); this.timer = setTimeout(() => step(k + 1), 2200); };
+    if (this.apart) { this.timer = -1; step(0); } else { this.setApart(true); this.timer = setTimeout(() => step(0), 900); }
+    this.figure.sync();
+  }
+  stopPlay() { if (!this.timer) return; clearTimeout(this.timer); this.timer = 0; this.figure.sync(); }
+  destroy() { cancelAnimationFrame(this.raf); clearTimeout(this.timer); this.el.remove(); }
+}
+
+const backBtn = document.getElementById('back'), apartBtn = document.getElementById('apart'), playBtn = document.getElementById('play');
+const pathEl = document.querySelector('.xf-path'), titleEl = document.getElementById('xf-title'), captionEl = document.querySelector('.xf figcaption'), live = document.querySelector('.xf .sr');
+const EASE = 'cubic-bezier(.2, .7, .1, 1)', DUR = film ? 640 : 760;
+const fit = new ResizeObserver(() => { const s = figure.top; if (s && !film) stageEl.style.height = `${s.el.offsetHeight}px`; });
+const cap = document.querySelector('.film-cap');
+let capText = '';
+/* The film's caption: the lit layer, else the figure's caption, else the end card [title, line, link]. */
+function caption(end) {
+  const s = figure.top; if (!film || !s) return;
+  const i = s.shown(), l = i === null ? null : s.layers[i];
+  const [n, t, r, u] = end ? ['', ...end] : l ? [l.n, l.title, l.readout, ''] : ['', '', s.model.caption, ''];
+  if (capText === n + t + r + u) return;
+  capText = n + t + r + u;
+  for (const [k, v] of [['n', n], ['t', t], ['r', r], ['u', u || '']]) cap.querySelector(`.${k}`).textContent = v;
+  cap.classList.toggle('end', !!end); cap.classList.remove('swap'); void cap.offsetWidth; cap.classList.add('swap');
+}
+
+const figure = {
+  stack: [], busy: false, el: document.querySelector('.xf'),
+  get top() { return this.stack[this.stack.length - 1]; },
+  sync() {
+    const top = this.top; if (!top) return;
+    pathEl.innerHTML = this.stack.map((s, i) => i < this.stack.length - 1 ? `<button type="button" data-level="${i}">${s.model.crumb}</button>` : `<span aria-current="true">${s.model.crumb}</span>`).join('<span aria-hidden="true">›</span>');
+    titleEl.textContent = top.model.heading; captionEl.textContent = top.model.caption;
+    backBtn.hidden = this.stack.length < 2;
+    apartBtn.hidden = top.flow; apartBtn.textContent = top.apart ? 'Put together' : 'Take apart'; apartBtn.setAttribute('aria-pressed', top.apart);
+    playBtn.textContent = top.timer ? 'Pause' : 'Play';
+    caption();
+  },
+  add(key) {
+    const scene = new Scene(figures[key], this);
+    scene.key = key;
+    stageEl.append(scene.el); fit.observe(scene.el); scene.layout(stageEl.clientWidth);
+    return scene;
+  },
+  /* The part's patch in the parent scene and the child's whole box, both in stage pixels. */
+  ends(parent, part, child) {
+    const st = stageEl.getBoundingClientRect(), g = parent.svg.querySelector(`.hit[data-part="${part}"]`), r = (g.querySelector('.spot') || g).getBoundingClientRect();
+    const from = { cx: r.left + r.width / 2 - st.left, cy: r.top + r.height / 2 - st.top, w: r.width, h: r.height }, to = child.wholeRect(st);
+    return { from, to, k: to.w / Math.max(from.w, 1) };
+  },
+  async zoomIn(parent, key, part) {
+    if (this.busy || !figures[key] || parent !== this.top) return;
+    this.busy = true;
+    const keyboard = parent.el.contains(document.activeElement);
+    const owner = parent.layers.findIndex(l => (l.parts || []).some(p => p.id === part));
+    parent.focus = owner; parent.hover = null; parent.paint();
+    const child = this.add(key);
+    child.origin = part;
+    const { from, to, k } = this.ends(parent, part, child);
+    this.stack.push(child); this.sync();
+    live.textContent = `Zoomed into ${child.model.crumb.toLowerCase()}`;
+    if (!film) { stageEl.classList.add('swap'); stageEl.style.height = `${child.el.offsetHeight}px`; }
+    if (!reduce) {
+      parent.el.style.transformOrigin = `${from.cx}px ${from.cy}px`;
+      child.el.style.transformOrigin = `${to.cx}px ${to.cy}px`;
+      const zoom = parent.el.animate([{ transform: 'none' }, { transform: `translate(${to.cx - from.cx}px, ${to.cy - from.cy}px) scale(${k})` }], { duration: DUR, easing: EASE, fill: 'forwards' });
+      parent.el.animate([{ opacity: 1 }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .7 }, { opacity: 0 }], { duration: DUR, fill: 'forwards' });
+      child.el.animate([{ transform: `translate(${from.cx - to.cx}px, ${from.cy - to.cy}px) scale(${1 / k})` }, { transform: 'none' }], { duration: DUR, easing: EASE });
+      child.el.animate([{ opacity: 0 }, { opacity: 0, offset: .25 }, { opacity: 1, offset: .65 }, { opacity: 1 }], { duration: DUR });
+      await zoom.finished;
+    }
+    parent.el.hidden = true; parent.el.getAnimations().forEach(a => a.cancel());
+    stageEl.classList.remove('swap'); this.busy = false;
+    if (keyboard) backBtn.focus();
+    setTimeout(() => child.setApart(true), reduce ? 0 : 140);
+  },
+  async zoomOut() {
+    if (this.busy || this.stack.length < 2) return;
+    this.busy = true;
+    const child = this.top, parent = this.stack[this.stack.length - 2], keyboard = this.el.contains(document.activeElement);
+    child.stopPlay();
+    if (child.flow && child.focus !== null) { child.focus = child.hover = null; child.paint(); await child.settle(); } // the whole process first
+    if (child.apart) { child.setApart(false, 20); await child.settle(); }
+    parent.el.hidden = false; parent.hover = null; parent.paint();
+    const { from, to, k } = this.ends(parent, child.origin, child);
+    this.stack.pop(); this.sync();
+    live.textContent = `Zoomed out to ${parent.model.crumb.toLowerCase()}`;
+    if (!film) { stageEl.classList.add('swap'); stageEl.style.height = `${parent.el.offsetHeight}px`; }
+    if (!reduce) {
+      parent.el.style.transformOrigin = `${from.cx}px ${from.cy}px`;
+      child.el.style.transformOrigin = `${to.cx}px ${to.cy}px`;
+      const zoom = parent.el.animate([{ transform: `translate(${to.cx - from.cx}px, ${to.cy - from.cy}px) scale(${k})` }, { transform: 'none' }], { duration: DUR, easing: EASE });
+      parent.el.animate([{ opacity: 0 }, { opacity: 0, offset: .3 }, { opacity: 1, offset: .7 }, { opacity: 1 }], { duration: DUR });
+      child.el.animate([{ transform: 'none' }, { transform: `translate(${from.cx - to.cx}px, ${from.cy - to.cy}px) scale(${1 / k})` }], { duration: DUR, easing: EASE, fill: 'forwards' });
+      child.el.animate([{ opacity: 1 }, { opacity: 1, offset: .25 }, { opacity: 0, offset: .65 }, { opacity: 0 }], { duration: DUR, fill: 'forwards' });
+      await zoom.finished;
+    }
+    fit.unobserve(child.el); child.destroy();
+    parent.hover = null; parent.paint();
+    stageEl.classList.remove('swap'); this.busy = false;
+    if (keyboard) (parent.el.querySelector(`.zoom[data-part="${child.origin}"]`) || apartBtn).focus();
+  },
+  back() {
+    if (this.busy) return;
+    if (this.stack.length > 1) return this.zoomOut();
+    const s = this.top; s.stopPlay();
+    if (s.focus !== null) s.setFocus(null); else if (s.apart) s.setApart(false);
+  },
+  /* Shows a path of figures at once, apart, for stills and checks: 'board/processor' opens the logic board, then its processor. */
+  openNow(path) {
+    while (this.stack.length > 1) { const s = this.stack.pop(); fit.unobserve(s.el); s.destroy(); }
+    const root = this.top; root.el.hidden = false; root.focus = root.hover = null; root.snap(true);
+    for (const key of path.split('/').filter(Boolean)) {
+      const parent = this.top, owner = parent.layers.findIndex(l => (l.parts || []).some(p => p.open === key));
+      if (owner < 0) break;
+      parent.focus = owner; parent.paint();
+      const child = this.add(key);
+      child.origin = parent.layers[owner].parts.find(p => p.open === key).id;
+      parent.el.hidden = true; this.stack.push(child); child.snap(true);
+    }
+    this.sync();
+  },
+  async zoomTo(level) { while (this.stack.length > level + 1 && !this.busy) await this.zoomOut(); },
+};
+
+backBtn.addEventListener('click', () => figure.zoomOut());
+pathEl.addEventListener('click', e => { const crumb = e.target.closest('[data-level]'); if (crumb) figure.zoomTo(Number(crumb.dataset.level)); });
+apartBtn.addEventListener('click', () => { const s = figure.top; s.stopPlay(); s.setApart(!s.apart); });
+playBtn.addEventListener('click', () => figure.top.togglePlay());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') figure.back(); });
+
+let width = 0, height = 0;
+new ResizeObserver(() => {
+  if (stageEl.clientWidth === width && (!film || stageEl.clientHeight === height)) return;
+  width = stageEl.clientWidth; height = stageEl.clientHeight; figure.stack.forEach(s => s.layout(width));
+}).observe(stageEl);
+
+/* Each figure that a part opens, as its path from the top: { board: 'board', processor: 'board/processor' }. */
+function paths() {
+  const found = { [ROOT]: '' }, queue = [ROOT];
+  while (queue.length) {
+    const key = queue.shift();
+    for (const l of figures[key].layers) for (const p of l.parts || []) if (p.open && figures[p.open] && !(p.open in found)) { found[p.open] = found[key] ? `${found[key]}/${p.open}` : p.open; queue.push(p.open); }
+  }
+  return found;
+}
+
+/* ?apart, ?focus=<layer>, ?open=<path> and ?theme=dark set a state at once, for stills. */
+const q = new URLSearchParams(location.search);
+figure.stack.push(figure.add(ROOT)); figure.sync();
+if (q.has('open')) figure.openNow(q.get('open'));
+else if (q.has('apart') || q.has('focus')) { figure.top.snap(true); figure.sync(); }
+if (q.has('focus')) { const s = figure.top, i = s.layers.findIndex(l => l.key === q.get('focus')); if (i >= 0) { s.focus = i; s.paint(); } }
+document.fonts.ready.then(() => figure.top.paint());
+
+/* For check-visual: every figure apart, with nothing lit and with each layer lit, and the checks a generic page check can't make. */
+window.visual = {
+  states() {
+    return Object.entries(paths()).flatMap(([key, path]) => [{ id: path || ROOT, sheet: true }, ...figures[key].layers.map(l => ({ id: `${path || ROOT}#${l.key}` }))]);
+  },
+  async go(id) {
+    const [path, lit] = id.split('#');
+    figure.openNow(path === ROOT ? '' : path);
+    const s = figure.top, i = s.layers.findIndex(l => l.key === lit);
+    s.focus = i < 0 ? null : i; s.paint();
+    await new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)));
+  },
+  check() {
+    const s = figure.top, out = [], stage = stageEl.getBoundingClientRect();
+    const inside = r => r.top >= stage.top - 1 && r.bottom <= stage.bottom + 1 && r.left >= stage.left - 1 && r.right <= stage.right + 1;
+    s.el.querySelectorAll('.layer.on .pin').forEach((p, k) => { if (!inside(p.getBoundingClientRect())) out.push(`pin ${k + 1} is cut off`); });
+    if (s.wide && s.apart) s.items.forEach((li, k) => { if (+li.style.opacity < .5) out.push(`label "${s.layers[k].title}" is hidden`); });
+    for (const l of s.layers) for (const p of l.parts || []) if (p.open && !s.svg.querySelector(`.hit[data-part="${p.id}"]`)) out.push(`"${p.name}" opens ${p.open}, but no hit() in the drawing has id ${p.id}`);
+    return out;
+  },
+};
+
+/* ?film: a tour for post-video. It takes the thing apart, lights the top layers, dives down MODEL.tour (or the first chain of
+   parts that open), comes home, puts the thing together and holds the end card. window.filmStart() starts it; window.filmDone
+   is set at the end. Each step is a beat: intro, <figure>#<layer>, into:<figure>, home, together, end. A beat calls
+   window.filmBeat(id) when it starts and holds at least as long as window.filmVoice[id] seconds, so a voice line never gets cut. */
+if (film) {
+  const wait = ms => new Promise(done => setTimeout(done, ms));
+  const owner = (s, id) => s.layers.findIndex(l => (l.parts || []).some(p => p.id === id));
+  const into = async id => {
+    const s = figure.top, part = s.layers.flatMap(l => l.parts || []).find(p => p.id === id);
+    await figure.zoomIn(s, part.open, id);
+  };
+  const home = () => figure.zoomTo(0);
+  const seen = {};
+  const beat = (id, ms) => {
+    seen[id] = (seen[id] || 0) + 1; if (seen[id] > 1) id += `~${seen[id]}`; // a beat shown again gets its own id: home, home~2
+    window.filmBeat?.(id); return wait(Math.max(ms, (window.filmVoice?.[id] ?? -1) * 1000 + 350));
+  };
+  const light = (s, i, ms) => { s.setFocus(i); return beat(`${s.key}#${s.layers[i].key}`, ms); };
+  /* With no tour, dive through the first part that opens, from the top layer down, three levels at most. */
+  const auto = () => {
+    const dive = [], seen = new Set([ROOT]);
+    let key = ROOT;
+    while (dive.length < 3) {
+      const p = [...figures[key].layers].reverse().flatMap(l => l.parts || []).find(p => p.open && figures[p.open] && !seen.has(p.open));
+      if (!p) break;
+      dive.push(p.id); seen.add(p.open); key = p.open;
+    }
+    return dive.length ? [{ dive, light: [figures[key].layers.at(-1).key] }] : [];
+  };
+  window.filmStart = () => {
+    (async () => {
+      const tour = MODEL.tour || auto(), root = figure.top;
+      await beat('intro', 500);
+      root.setApart(true); await wait(1000);
+      // One stop: dive down its parts, light its layers, come home. A process lit its step already on its walk.
+      const go = async (stop, first) => {
+        for (const [k, id] of stop.dive.entries()) {
+          const s = figure.top, i = owner(s, id);
+          if (s !== root || !root.flow) {
+            if (first && k === 0) for (let j = s.layers.length - 1; j > i; j--) await light(s, j, 480);
+            await light(s, i, first && k === 0 ? 700 : k === 0 ? 450 : 650);
+          }
+          await into(id); await beat(`into:${figure.top.key}`, 1000);
+        }
+        for (const key of stop.light || []) { const s = figure.top; await light(s, s.layers.findIndex(l => l.key === key), 900); }
+        await home(); await beat('home', 300);
+      };
+      // A process walks its steps in order and takes each stop when it reaches the step the stop starts from.
+      if (root.flow) for (const i of root.layers.keys()) { await light(root, i, 900); for (const stop of tour.filter(st => owner(root, st.dive[0]) === i)) await go(stop, false); }
+      else for (const [d, stop] of tour.entries()) await go(stop, d === 0);
+      if (root.flow) root.setFocus(null); else root.setApart(false);
+      await beat('together', 900);
+      if (MODEL.end) { caption(MODEL.end); await beat('end', 2400); } else await wait(1200);
+      window.filmDone = Date.now();
+    })();
+    return Date.now();
+  };
+}
+</script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { VoiceOrb } from '@brand-studio/ui';
 import { AgentPromptButton } from '@/components/agent-prompt';
 import { BrandBoard } from '@/components/brand-board';
 import { CopyButton } from '@/components/copy-button';
+import { ExplodedPhone } from '@/components/exploded-phone';
 import { IntroFilm } from '@/components/intro-film';
 import { JsonLd } from '@/components/json-ld';
 import { catalog } from '@/lib/catalog';
@@ -30,6 +31,14 @@ export default function Home() {
     </section>
     <BrandBoard />
     <IntroFilm />
+    <section className="exploded" aria-labelledby="exploded-title">
+      <div className="exploded__intro">
+        <h2 id="exploded-title">Take a phone apart.</h2>
+        <p>This exploded view goes four levels deep: the logic board opens to the processor, and the processor to its silicon. Pick a layer, then a part, to zoom in.</p>
+        <p>Its colours and type come from the brand picked in the header.</p>
+      </div>
+      <ExplodedPhone />
+    </section>
     <section className="asset-workflows" aria-labelledby="asset-workflows-title">
       <div className="asset-workflows__intro">
         <h2 id="asset-workflows-title">Create your brand assets.</h2>
