@@ -14,6 +14,7 @@ import { Nuvelo } from './nuvelo';
 import nuvelo from './nuvelo.brand.json';
 import { route } from './paths';
 import { Turnbook } from './cube';
+import { BoardLesson } from './board';
 import turnbook from './turnbook.brand.json';
 
 function App() {
@@ -31,6 +32,10 @@ function App() {
   if (page === '/cube') return <BrandTheme palette={turnbook.tokens} mode="light">
     <a className="skip-link" href="#main">Skip to content</a>
     <Turnbook />
+  </BrandTheme>;
+  if (page === '/chess' || page === '/xiangqi') return <BrandTheme palette={turnbook.tokens} mode="light">
+    <a className="skip-link" href="#main">Skip to content</a>
+    <BoardLesson key={page} kind={page === '/chess' ? 'chess' : 'xiangqi'} />
   </BrandTheme>;
   if (page === '/sneaker') return <BrandTheme palette={nuvelo.tokens} mode="light">
     <a className="skip-link" href="#main">Skip to content</a>

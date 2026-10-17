@@ -1,0 +1,34 @@
+/* Turnbook board lessons: the cube page's layout (cube.css) plus what a board needs. */
+@font-face { font-family: "Turnbook Xiangqi"; src: url("./fonts/xiangqi-wenkai-tc.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+.tb-canvas--board { cursor: pointer; }
+.tb-canvas--board[data-busy] { cursor: progress; }
+.tb-canvas--board .tb-part { translate: -50% calc(-100% - 8px); }
+
+.tb-next kbd { width: auto; padding: 0 .6rem; white-space: nowrap; }
+.tb-hintline { margin: .7rem 0 0; color: var(--bs-muted); font-size: .925rem; }
+.tb-note[data-tone="good"] { background: color-mix(in srgb, var(--bs-accent) 12%, transparent); }
+.tb-note[data-tone="bad"] { background: color-mix(in srgb, var(--bs-ink) 7%, transparent); }
+.tb-note[data-tone="info"] { background: var(--bs-surface); }
+
+.tb-moves { display: flex; flex-wrap: wrap; gap: .35rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.tb-moves .tb-cap { min-width: 3.2rem; }
+
+.tb-stages--compact button { padding: .15rem 0; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.tb-stages--compact button:hover { text-decoration: underline; text-underline-offset: .2em; }
+.tb-stages--compact li:not([data-state]) button { font-weight: 500; }
+
+.tb-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .25rem; font-weight: 600; }
+
+/* Promotion: four choices over the board. */
+.tb-promo { position: absolute; z-index: 3; top: 50%; left: 50%; display: grid; grid-template-columns: repeat(2, minmax(6.5rem, 1fr)); gap: .4rem; translate: -50% -50%; padding: .9rem; border: 1px solid var(--bs-line); border-radius: calc(var(--bs-radius) * 1.5); background: var(--bs-elevated); box-shadow: 0 12px 40px color-mix(in srgb, var(--bs-ink) 18%, transparent); }
+.tb-promo p { grid-column: 1 / -1; margin: 0 0 .2rem; font-weight: 650; }
+.tb-promo button { min-height: 44px; border: 1px solid var(--bs-line); border-radius: var(--bs-radius); background: var(--bs-surface); color: var(--bs-ink); font: 600 .95rem var(--bs-font); text-transform: capitalize; cursor: pointer; }
+.tb-promo button:first-of-type { border-color: var(--bs-accent); background: var(--bs-accent); color: var(--bs-on-accent); }
+.tb-promo .tb-promo__cancel { grid-column: 1 / -1; border-color: transparent; background: none; color: var(--bs-muted); }
+
+.tb-key thead th { color: var(--bs-muted); font-size: .8rem; font-weight: 600; }
+.tb-key tbody th { width: auto; font-weight: 600; }
+.tb-key td:last-child { display: table-cell; padding-left: .5rem; }
+.tb-glyph { font: 700 1.3rem/1 "Turnbook Xiangqi", serif; }
+.tb-glyph[data-side="red"] { color: #b8262e; }
