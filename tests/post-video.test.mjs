@@ -139,3 +139,29 @@ test('a line far above the others in pitch warns that it can sound like another 
   assert.deepEqual(result.warnings.map(w => w.split(' ')[0]), ['c'], JSON.stringify(result.warnings));
   assert.match(result.warnings[0], /^c sits 1[45]\.\d semitones above the other lines, so it can sound like another speaker/);
 });
+
+test('a clip with a click is declicked once and kept as it is on the next run', { skip: !ffmpeg && 'ffmpeg is not installed' }, () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'voice-over-')), out = path.join(dir, 'voice'), clip = path.join(out, 'line.mp3');
+  const text = 'One line with a click in the middle.';
+  mkdirSync(out);
+  // A 220 Hz tone with one sample pushed up, like the click Fish Audio leaves where it joins two generated chunks.
+  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'aevalsrc=exprs=0.3*sin(2*PI*220*t)+0.65*eq(n\\,33075):s=44100:d=1.5', '-b:a', '192k', clip]);
+  const jump = () => {
+    const raw = spawnSync('ffmpeg', ['-v', 'error', '-i', clip, '-ac', '1', '-f', 'f32le', '-'], { maxBuffer: 1 << 26 }).stdout;
+    const x = new Float32Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.length));
+    return x.reduce((max, v, i) => (i ? Math.max(max, Math.abs(v - x[i - 1])) : max), 0);
+  };
+  assert.ok(jump() > 0.4, `the click is in the clip: ${jump()}`);
+  const key = createHash('sha256').update(JSON.stringify([text, null, 's2.1-pro', 1])).digest('hex').slice(0, 16);
+  writeFileSync(path.join(out, 'voice.json'), JSON.stringify({ lines: [{ id: 'line', key }] }));
+  writeFileSync(path.join(dir, 'script.json'), JSON.stringify({ lines: [{ id: 'line', text }] }));
+  const run = () => spawnSync(process.execPath, [VOICE, path.join(dir, 'script.json'), '--out', out], { encoding: 'utf8', env: { ...process.env, FISH_API_KEY: 'test' } });
+  const first = run();
+  assert.equal(first.status, 0, first.stderr);
+  assert.equal(JSON.parse(first.stdout.trim()).generated, 0);
+  assert.ok(jump() < 0.15, `the click is gone: ${jump()}`);
+  assert.equal(JSON.parse(readFileSync(path.join(out, 'voice.json'), 'utf8')).lines[0].declicked, true);
+  const cleaned = readFileSync(clip);
+  assert.equal(run().status, 0);
+  assert.ok(readFileSync(clip).equals(cleaned), 'a declicked clip is not processed again');
+});

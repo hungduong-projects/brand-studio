@@ -9,8 +9,9 @@
 // optional caption is what the captions show when the spoken text is spelled for the ear ("brand studio dot J S dot org").
 // --voice overrides the script's voice; with neither, Fish Audio picks its default voice.
 // Reads FISH_API_KEY from the environment and never prints it. A line whose text, voice, model and speed match the last run is
-// kept, so changing one line generates one line. Writes DIR/<id>.mp3 and DIR/voice.json, { model, voice, speed, lines: [{ id,
-// text, caption, file, seconds, key }] }, and prints one JSON line { voice, lines, generated, seconds, wpm, drift, bytes, model, warnings }.
+// kept, so changing one line generates one line. Each clip runs once through ffmpeg's adeclick, which removes the click Fish
+// Audio can leave where it joins two generated chunks. Writes DIR/<id>.mp3 and DIR/voice.json, { model, voice, speed, lines: [{ id,
+// text, caption, file, seconds, key, declicked }] }, and prints one JSON line { voice, lines, generated, seconds, wpm, drift, bytes, model, warnings }.
 // A line spoken faster than 260 words a minute warns: the clip has likely dropped words. `drift` is the spread of the lines'
 // median pitch in semitones; a line more than 5 semitones from the median line warns, because some voices change register from
 // one request to the next and that line sounds like another speaker. Fish Audio bills the text's UTF-8 bytes;
@@ -19,7 +20,7 @@
 // account's plan and API credit, { plan: { type, total, balance }, api: { credit } }, before a long run.
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
@@ -71,16 +72,27 @@ async function speak(text) {
   }
 }
 
+/* Some Fish Audio clips carry a click where the service joined two generated chunks; ffmpeg's adeclick removes such impulses
+   and leaves clean speech alone. */
+function declick(file) {
+  const temp = `${file}.declick.mp3`;
+  const run = spawnSync('ffmpeg', ['-y', '-v', 'error', '-i', file, '-af', 'adeclick=w=20:o=75:t=2:b=2', '-b:a', '192k', temp], { encoding: 'utf8' });
+  if (run.status !== 0) { console.error(`ffmpeg could not declick ${path.basename(file)}: ${run.stderr.trim()}`); process.exit(1); }
+  renameSync(temp, file);
+}
+
 const lines = [];
 let generated = 0, bytes = 0;
 for (const line of script.lines) {
   const target = path.join(out, `${line.id.replace(/[:#~]/g, '_')}.mp3`);
   const hash = createHash('sha256').update(JSON.stringify([line.text, voice, model, speed])).digest('hex').slice(0, 16);
-  if (before[line.id]?.key !== hash || !existsSync(target)) {
+  const fresh = before[line.id]?.key !== hash || !existsSync(target);
+  if (fresh) {
     try { writeFileSync(target, await speak(line.text)); } catch (error) { console.error(`${line.id}: ${error.message}`); process.exit(1); }
     generated++; bytes += Buffer.byteLength(line.text);
   }
-  lines.push({ id: line.id, text: line.text, caption: line.caption, file: path.basename(target), seconds: +seconds(target).toFixed(3), key: hash });
+  if (fresh || !before[line.id]?.declicked) declick(target);
+  lines.push({ id: line.id, text: line.text, caption: line.caption, file: path.basename(target), seconds: +seconds(target).toFixed(3), key: hash, declicked: true });
 }
 writeFileSync(manifest, JSON.stringify({ model, voice, speed, lines }, null, 2));
 const words = text => text.replace(/\[[^\]]*\]/g, ' ').split(/\s+/).filter(Boolean).length, total = lines.reduce((a, l) => a + l.seconds, 0);
