@@ -5,6 +5,7 @@ import { Animated, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { docs, ticket as findTicket } from '../data';
 import { useReducedMotion } from '../motion';
+import { Sheet } from '../sheet';
 import { os, useTheme } from '../theme';
 import { Button, SourceNumber, T } from '../ui';
 
@@ -34,15 +35,15 @@ export default function SourceSheet() {
   const close = () => router.back();
   const closeLabel = os === 'android' ? 'Close' : 'Done';
 
-  if (!tk || !source) return <View style={{ padding: 24, gap: 16 }}>
+  if (!tk || !source) return <Sheet label="Source not found"><View style={{ padding: 24, gap: 16 }}>
     <T variant="headline" weight="strong" accessibilityRole="header">Source not found</T>
     <Button kind="secondary" label={closeLabel} onPress={close} />
-  </View>;
+  </View></Sheet>;
 
   const doc = docs[source.doc];
   const claim = tk.reply.find(p => typeof p !== 'string' && p.cite === index + 1);
 
-  return <ScrollView style={{ backgroundColor: t.color.elevated }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 20 : 10, paddingBottom: insets.bottom + 24 }}>
+  return <Sheet label={doc.mono ? `Order ${doc.title}` : doc.title}><ScrollView style={{ backgroundColor: t.color.elevated }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 20 : 10, paddingBottom: insets.bottom + 24 }}>
     {/* iOS draws the sheet's grabber natively; Material's bottom sheet has a drag handle the app draws. */}
     {Platform.OS !== 'ios' ? <View style={{ alignSelf: 'center', width: 32, height: 4, borderRadius: 2, backgroundColor: t.color.line, marginBottom: 10 }} /> : null}
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -68,5 +69,5 @@ export default function SourceSheet() {
       <T variant="footnote" tone="muted" weight="medium">Cited in the reply to {tk.customer}</T>
       <T variant="body" style={{ marginTop: 6 }}>“{claim.text}”</T>
     </View> : null}
-  </ScrollView>;
+  </ScrollView></Sheet>;
 }

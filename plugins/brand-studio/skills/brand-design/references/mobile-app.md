@@ -50,7 +50,7 @@ Record each platform difference in the app's README or `brand/verification.md`.
 
 Run what you can prove on this machine, then say what you could not.
 
-1. Typecheck the app (`npx tsc --noEmit`) and export the web build (`npx expo export --platform web`; set `EXPO_UNSTABLE_WEB_MODAL=1` so form sheets render as sheets).
+1. Typecheck the app (`npx tsc --noEmit`) and export the web build (`npx expo export --platform web`). Expo Router 58 shows a form sheet as a plain page on web, so give the sheet route `presentation: 'transparentModal'` on web and draw the sheet in a `.web.tsx` component, as the Deskhand example's `src/sheet.web.tsx` does.
 2. Walk the whole flow with Playwright at 390x844 with `isMobile` and `hasTouch`: every step of the job, error and retry, empty state, back from a pushed screen and from a sheet.
 3. On every screen check: targets at least 44px (48px with Android rules), an accessible name on every control, reading order of the main screen, no sideways scroll, text contrast against what is painted behind it, and no clipped text.
 4. Repeat in dark mode with reduced motion, and check nothing is mid-animation.
