@@ -28,5 +28,10 @@
     "playwright-core": "1.64.0",
     "pptxgenjs": "4.0.1",
     "typescript": "7.0.2"
+  },
+  "overrides": {
+    "pptxgenjs": {
+      "image-size": "2.0.4"
+    }
   }
 }
