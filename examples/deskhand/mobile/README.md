@@ -1,6 +1,6 @@
 # Deskhand mobile
 
-An Expo app (SDK 57) for Deskhand, the fictional AI support inbox from the Brand Studio showcase. It applies the website's brand contract to one mobile job: approve a drafted reply whose claims cite their sources.
+An Expo app (SDK 58) for Deskhand, the fictional AI support inbox from the Brand Studio showcase. It applies the website's brand contract to one mobile job: approve a drafted reply whose claims cite their sources.
 
 Inbox, then a ticket, then the draft reply with highlighted citations. Tap a citation to open its source in a sheet. Approve and send, or retry after a failed send. Chargebacks go to a person, and the inbox ends empty. Sent and Settings are the other two tabs.
 

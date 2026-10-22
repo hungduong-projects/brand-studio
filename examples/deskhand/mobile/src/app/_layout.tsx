@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Platform } from 'react-native';
 import { SafeAreaInsetsContext, SafeAreaProvider } from 'react-native-safe-area-context';
 import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
 import { Geist_500Medium } from '@expo-google-fonts/geist/500Medium';
@@ -13,7 +14,7 @@ import { StoreProvider } from '../store';
 import { os, useTheme } from '../theme';
 
 /** Deep links to a ticket still get a back button to the tabs. */
-export const unstable_settings = { initialRouteName: '(tabs)' };
+export const unstable_settings = { anchor: '(tabs)' };
 
 export default function RootLayout() {
   const [loaded] = useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, GeistMono_400Regular, GeistMono_500Medium });
@@ -38,10 +39,11 @@ export default function RootLayout() {
       }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Inbox' }} />
         <Stack.Screen name="ticket/[id]" />
+        {/* On web the ticket stays under a transparent route, and src/sheet.web.tsx draws the sheet. */}
         <Stack.Screen name="source" options={{
-          presentation: 'formSheet', headerShown: false,
+          presentation: Platform.OS === 'web' ? 'transparentModal' : 'formSheet', headerShown: false,
           sheetAllowedDetents: [0.62, 1], sheetGrabberVisible: true, sheetCornerRadius: 16,
-          contentStyle: { backgroundColor: t.color.elevated },
+          contentStyle: { backgroundColor: Platform.OS === 'web' ? 'transparent' : t.color.elevated },
         }} />
       </Stack>
     </ThemeProvider>
