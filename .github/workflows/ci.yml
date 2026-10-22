@@ -23,6 +23,11 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      # Fails on any npm advisory with a patched release; .github/audit-allowlist.txt names the ones without.
+      - name: npm audit
+        run: node .github/scripts/audit-gate.mjs .
+      - name: npm audit (deskhand mobile)
+        run: node .github/scripts/audit-gate.mjs examples/deskhand/mobile
       - run: npm run build
       - run: npm run build:docs
       - run: npm run typecheck
