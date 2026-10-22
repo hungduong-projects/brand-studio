@@ -12,7 +12,7 @@ const brandKeys = [...(await readFile('apps/docs/lib/brands.ts', 'utf8')).matchA
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.mp4': 'video/mp4', '.json': 'application/json', '.txt': 'text/plain' };
 const server = createServer(async (request, response) => {
   let file = path.join(root, decodeURIComponent(new URL(request.url, 'http://x').pathname));
-  if (!file.startsWith(root)) { response.writeHead(403).end(); return; }
+  if (file !== root && !file.startsWith(root + path.sep)) { response.writeHead(403).end(); return; }
   if (file.endsWith('/')) file = path.join(file, 'index.html');
   try { response.writeHead(200, { 'Content-Type': types[path.extname(file)] ?? 'application/octet-stream' }).end(await readFile(file)); }
   catch { response.writeHead(404).end(); }

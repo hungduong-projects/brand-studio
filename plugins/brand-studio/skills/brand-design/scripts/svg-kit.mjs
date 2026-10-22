@@ -6,7 +6,7 @@ import { crc32, deflateSync } from 'node:zlib';
 
 const TAG = /<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<![A-Za-z][^>]*>|<(\/?)([A-Za-z][\w:.-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g;
 const ATTR = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-const BANNED = new Set(['script', 'foreignObject', 'image', 'style', 'text', 'iframe']);
+const BANNED = new Set(['script', 'foreignobject', 'image', 'style', 'text', 'iframe']);
 const DRAWN = new Set(['path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon']);
 const INHERITED = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'fill-opacity'];
 const PRESENTATION = [...INHERITED, 'stroke-opacity', 'stroke-miterlimit', 'stroke-dasharray', 'stroke-dashoffset', 'opacity', 'color', 'clip-rule', 'paint-order', 'shape-rendering', 'visibility'];
@@ -60,15 +60,19 @@ export function shapes(svg) {
 /** Problems that make an SVG unsafe or non-portable: scripts, embedded media, live text, CSS, handlers and external links. */
 export function unsafe(svg) {
   const problems = new Set();
+  for (const m of String(svg).matchAll(TAG)) {
+    if (m[2] && m[3].replace(ATTR, '').trim()) problems.add('attributes must have quoted values');
+  }
   for (const { name, attrs, close } of readTags(svg)) {
     if (close) continue;
-    if (BANNED.has(name)) problems.add(`<${name}> is not allowed`);
+    if (BANNED.has(name.toLowerCase())) problems.add(`<${name}> is not allowed`);
     if (name.includes(':')) problems.add(`<${name}> is not allowed; export plain SVG`);
     for (const [key, value] of Object.entries(attrs)) {
+      const attr = key.toLowerCase();
       if (/^on/i.test(key)) problems.add(`event attribute ${key} is not allowed`);
       if (key.includes(':') && !/^xml(ns)?:/.test(key)) problems.add(`namespaced attribute ${key} is not allowed; export plain SVG`);
-      if ((key === 'href' || key === 'xlink:href') && !value.startsWith('#')) problems.add(`external ${key} is not allowed`);
-      if (key === 'style' || key === 'class') problems.add(`${key} attribute is not allowed; use presentation attributes`);
+      if ((attr === 'href' || attr === 'xlink:href') && !value.startsWith('#')) problems.add(`external ${key} is not allowed`);
+      if (attr === 'style' || attr === 'class') problems.add(`${key} attribute is not allowed; use presentation attributes`);
     }
   }
   return [...problems];

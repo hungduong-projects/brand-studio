@@ -464,7 +464,8 @@ async function main() {
     const page = await browser.newPage({ viewport: { width: format.width, height: format.height }, deviceScaleFactor: format.scale });
     const problems = [];
     page.on('pageerror', error => problems.push(error.message));
-    await page.setContent(`<!doctype html><html lang="${campaign.lang ?? 'en'}"><head><meta charset="utf-8"><style>${css}${format.pdf ? `@page{size:${format.pdf.width} ${format.pdf.height};margin:0}` : ''}</style></head><body></body></html>`);
+    await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css}${format.pdf ? `@page{size:${format.pdf.width} ${format.pdf.height};margin:0}` : ''}</style></head><body></body></html>`);
+    await page.evaluate(lang => { document.documentElement.lang = lang; }, campaign.lang ?? 'en');
     await page.evaluate(loadFonts, faces);
     await page.evaluate(compose, { family, compact: Boolean(format.compact), layers, format, sizes, tokens: brand.tokens, message: campaign.message, name: brand.name, mark, art, dataFont: campaign.dataFont });
     await page.evaluate(() => Promise.all([...document.images].map(img => img.decode().catch(() => {}))));
