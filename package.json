@@ -22,10 +22,10 @@
     "build:docs": "npm run build -w @brand-studio/ui && npm run build -w @brand-studio/showcase && npm run build -w @brand-studio/docs && node scripts/copy-examples.mjs"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
+    "@axe-core/playwright": "^4.14.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "playwright-core": "1.64.0",
+    "playwright-core": "1.64.1",
     "pptxgenjs": "4.0.1",
     "typescript": "7.0.2"
   },
