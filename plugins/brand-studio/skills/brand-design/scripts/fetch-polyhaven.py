@@ -54,7 +54,10 @@ def get(asset_id, res, out: Path):
         folder = out / asset_id
         save(entry["url"], folder / Path(entry["url"]).name)
         for rel, item in entry.get("include", {}).items():
-            save(item["url"], folder / rel)
+            target = (folder / rel).resolve()
+            if Path(rel).is_absolute() or not target.is_relative_to(folder.resolve()):
+                raise ValueError(f"include path must stay inside the asset folder: {rel}")
+            save(item["url"], target)
     elif "hdri" in files:
         entry = files["hdri"][res]["hdr"]
         save(entry["url"], out / f"{asset_id}_{res}.hdr")

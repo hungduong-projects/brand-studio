@@ -6,10 +6,11 @@ import path from 'node:path';
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.ttf': 'font/ttf', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json' };
 
 export async function serve(dist) {
+  dist = path.resolve(dist);
   if (!existsSync(path.join(dist, 'index.html'))) throw new Error('dist/ is missing. Run npm run export:web first.');
   const server = createServer((req, res) => {
     let file = path.join(dist, decodeURIComponent(new URL(req.url, 'http://x').pathname));
-    if (!file.startsWith(dist) || !existsSync(file) || statSync(file).isDirectory()) file = path.join(dist, 'index.html');
+    if ((file !== dist && !file.startsWith(dist + path.sep)) || !existsSync(file) || statSync(file).isDirectory()) file = path.join(dist, 'index.html');
     res.writeHead(200, { 'content-type': types[path.extname(file)] ?? 'application/octet-stream' });
     res.end(readFileSync(file));
   }).listen(0, '127.0.0.1');
