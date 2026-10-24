@@ -1,0 +1,33 @@
+---
+title: Scatter Text
+description: "Letters knocked out of place that people can drag about, and that spring back on cue."
+---
+
+<Preview name="scatter-text/default" />
+
+## Installation
+
+<Install name="ScatterText" />
+
+## Usage
+
+```tsx
+import { ScatterText } from '@brand-studio/ui';
+```
+
+```tsx
+<h1><ScatterText text="Page not found" tidy={tidy} /></h1>
+<Button tone="secondary" onClick={() => setTidy(true)}>Put it back</Button>
+```
+
+The letters scatter after the page loads and spring back when `tidy` turns on. `spread` scales how far they fall; the default keeps them clear of the line below. Words wrap as whole words.
+
+## Accessibility
+
+- Screen readers hear the plain text once; the loose letters are hidden from them.
+- The server renders the text in order, so it reads correctly before scripts run.
+- Under reduced motion the letters stay in place.
+
+## API Reference
+
+<Props name="ScatterText" />

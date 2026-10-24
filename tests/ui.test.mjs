@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure, Markdown, Chart, FlowDiagram, visualBlocks } from '../packages/ui/dist/index.js';
+import { Alert, ApprovalCard, ChapterRail, TopicMap, BrandTheme, Checkbox, DataTable, Dialog, EmptyState, Header, Sidebar, Skeleton, StoryCover, StoryHeader, Spinner, StatCard, Textarea, FlipText, HorizontalStory, ScrollTextReveal, StreamingText, StorySequence, Switch, TaskRows, TextField, AgentThinking, ThinkingTrace, ToolChips, Button, SiteBar, ProductBar, HighlightsGallery, ProductViewer, CardCarousel, KeyFigures, ModelCompare, FooterDirectory, ChatThread, ChatMessage, ChatComposer, PromptBar, Attachment, SuggestionChips, MessageActions, CodeBlock, SourceCards, SelectionActions, RecommendationCard, VoiceOrb, DictationButton, LiveTranscript, InfiniteCanvas, Lightbox, RingGallery, ShaderBackground, KineticText, DistortionImage, VelocityMarquee, StaggerGrid, ScrollFormation, MagneticButton, CustomCursor, TiltCard, SpotlightCard, ScrambleText, ProximityText, VideoText, CircularText, DotGrid, ParticleField, DotGlobe, ImageTransition, BeforeAfter, ExpandingPanels, SwipeDeck, ScrollVideo, PageTransition, PinnedZoom, CurtainReveal, ScrollPath, SocialPost, PostThread, StoryViewer, ExplainerFigure, Markdown, Chart, FlowDiagram, LoadingGate, ProgressBar, RouteProgress, NotFound, GlitchText, ScatterText, NotFoundTerminal, NotFoundBreakout, visualBlocks } from '../packages/ui/dist/index.js';
 
 test('loading action is disabled and exposed as busy', () => {
   const html = render(h(Button, { loading: true }, 'Save'));
@@ -99,6 +99,57 @@ test('alert, skeleton and spinner speak in words with the right urgency', () => 
   assert.equal((skeleton.match(/bs-skeleton__line"/g) ?? []).length, 2);
   assert.match(render(h(Spinner, { label: 'Saving', hideLabel: true })), /<span class="bs-sr-only">Saving<\/span>/);
   assert.match(render(h(EmptyState, { title: 'No orders yet' })), /<h3[^>]*>No orders yet<\/h3>/);
+});
+test('loading gate shows content, waits without a flash, and fails with a retry', () => {
+  assert.match(render(h(LoadingGate, { loading: false }, h('p', null, 'Three orders'))), /data-state="ready".*<p>Three orders<\/p>/);
+  const waiting = render(h(LoadingGate, { loading: true, label: 'Loading orders' }, h('p', null, 'Three orders')));
+  assert.match(waiting, /data-state="waiting"/);
+  assert.match(waiting, /<div role="status" class="bs-gate__status"><\/div>/, 'the status line exists, empty, before the spinner is due');
+  assert.match(waiting, /class="bs-gate__body" aria-busy="true"><\/div>/, 'no content and no spinner on the first paint');
+  const failed = render(h(LoadingGate, { loading: false, error: 'Orders did not load', onRetry: () => {} }));
+  assert.match(failed, /role="alert".*Orders did not load.*Check your connection, then try again\..*<button type="button"[^>]*>Try again<\/button>/);
+});
+test('progress bar counts in words near the end and names each step', () => {
+  const half = render(h(ProgressBar, { value: 50, label: 'Building the report', steps: ['Collect', 'Match', 'Check', 'Write'], step: 1, onCancel: () => {} }));
+  const id = half.match(/<p class="bs-progress__label" id="([^"]+)"/)[1];
+  assert.match(half, new RegExp(`role="progressbar" aria-labelledby="${id}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"`));
+  assert.match(half, /<span>Step 2 of 4<\/span><span>50%<\/span>/);
+  assert.match(half, /<li data-state="done">.*Collect<span class="bs-sr-only"> \(done\)<\/span><\/li><li data-state="active">/);
+  assert.match(half, />Cancel<\/button>/);
+  const end = render(h(ProgressBar, { value: 99.6, label: 'Building the report' }));
+  assert.match(end, /aria-valuenow="99" aria-valuetext="Finishing up"/);
+  const done = render(h(ProgressBar, { value: 100, label: 'Building the report', onCancel: () => {} }));
+  assert.match(done, /data-done="true"/);
+  assert.ok(!done.includes('Cancel'), 'a finished job offers no Cancel');
+});
+test('route progress starts hidden with a status line ready', () => {
+  assert.equal(render(h(RouteProgress, { active: true })), '<div class="bs-route  " data-phase="idle" aria-hidden="true"><span class="bs-route__fill" style="--bs-route-p:0"></span></div><span class="bs-sr-only" role="status"></span>');
+});
+test('not found offers the closest page only for a near miss', () => {
+  const pages = ['/', '/shop', '/shop/ethiopia-guji', '/shop/huila-washed'];
+  const typo = render(h(NotFound, { path: '/shop/ethiopia-gujii', pages, search: '/search' }));
+  assert.match(typo, /<h1 class="bs-notfound__title">Page not found<\/h1>/);
+  assert.match(typo, /Did you mean <a href="\/shop\/ethiopia-guji">\/shop\/ethiopia-guji<\/a>\?/);
+  assert.match(typo, /<form class="bs-notfound__search" role="search" action="\/search" method="get">/);
+  assert.match(typo, /<input[^>]*name="q" value="shop ethiopia gujii"/);
+  assert.ok(!render(h(NotFound, { path: '/abc', pages: ['/xyz'] })).includes('Did you mean'), 'an unrelated page is never suggested');
+  const links = render(h(NotFound, { path: '/old', links: [{ href: '/shop', title: 'Shop', description: 'Every coffee' }], as: 'h2' }));
+  assert.match(links, /<h2 class="bs-notfound__title">/);
+  assert.match(links, /<a href="\/shop"><span class="bs-notfound__link-title">Shop<\/span><span class="bs-notfound__link-text">Every coffee<\/span><\/a>/);
+});
+test('404 effects keep their words readable to everyone', () => {
+  assert.equal(render(h(GlitchText, { text: '404' })), '<span class="bs-glitch ">404<span class="bs-glitch__slice" aria-hidden="true">404</span><span class="bs-glitch__slice" aria-hidden="true">404</span></span>');
+  const scatter = render(h(ScatterText, { text: 'Page not found' }));
+  assert.match(scatter, /^<span class="bs-scatter "><span class="bs-sr-only">Page not found<\/span><span aria-hidden="true">/);
+  assert.equal((scatter.match(/bs-scatter__letter/g) ?? []).length, 12);
+  assert.ok(!scatter.includes('--bs-scatter-x'), 'the server renders the letters in place');
+  const terminal = render(h(NotFoundTerminal, { path: '/docs/api/webhoks', links: [{ href: '/docs', title: 'every guide' }], pages: ['/docs/api/webhooks'] }));
+  assert.match(terminal, /<h1 class="bs-terminal__line bs-terminal__title">error: page not found<\/h1>/);
+  assert.match(terminal, /closest match: <a href="\/docs\/api\/webhooks">/);
+  assert.match(terminal, /<label for="[^"]+" class="bs-sr-only">Type a page name<\/label>/);
+  const game = render(h(NotFoundBreakout));
+  assert.match(game, /<canvas class="bs-breakout__canvas" tabindex="0" role="application" aria-label="Brick game\./);
+  assert.match(game, /role="status">Click, tap or press Space to play\.<\/p>/);
 });
 test('data table names its scroll frame by the caption and covers empty and loading states', () => {
   const columns = [{ key: 'name', header: 'Name', sortValue: (row) => row.name }, { key: 'bags', header: 'Bags' }];

@@ -1,0 +1,32 @@
+---
+title: Glitch Text
+description: "Text that tears into offset accent slices every few seconds, like a lost signal."
+---
+
+<Preview name="glitch-text/default" />
+
+## Installation
+
+<Install name="GlitchText" />
+
+## Usage
+
+```tsx
+import { GlitchText } from '@brand-studio/ui';
+```
+
+```tsx
+<NotFound art={<GlitchText text="404" />} />
+```
+
+It takes the font and size of its parent, so set those on the element around it. Keep it to a number or a word or two.
+
+## Accessibility
+
+- Screen readers hear the text once; the two torn copies are hidden from them.
+- The tear lasts a fraction of a second every three seconds and never flashes the whole text.
+- Under reduced motion the slices hold still as one fixed tear.
+
+## API Reference
+
+<Props name="GlitchText" />

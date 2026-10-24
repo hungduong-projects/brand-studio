@@ -1,0 +1,39 @@
+---
+title: Progress Bar
+description: "A bar for a job of known length that never moves backwards, with optional steps and Cancel."
+---
+
+<Preview name="progress-bar/default" />
+
+## Installation
+
+<Install name="ProgressBar" />
+
+## Usage
+
+```tsx
+import { ProgressBar } from '@brand-studio/ui';
+```
+
+```tsx
+<ProgressBar
+  value={percent}
+  label="Building the March sales report"
+  status="Matching 398 payments to their orders…"
+  steps={['Collect orders', 'Match payments', 'Check totals', 'Write the report']}
+  step={1}
+  onCancel={cancelJob}
+/>
+```
+
+Use it for a wait of more than about ten seconds whose length you can measure. The bar holds its highest value, so a lower `value` never moves it backwards; pass `0` to start a new job. At 99% it says `finishingLabel` instead of a number, and at 100% it says `doneLabel`. Put the next step, such as opening the result, in `action`.
+
+## Accessibility
+
+- The bar is a `progressbar` named by `label`, with its value in percent. Near the end, screen readers hear the finishing words instead of 99.
+- `status` is a polite live region, so each new step is announced once without moving focus.
+- Finished steps carry "(done)" for screen readers; the tick marks are hidden from them.
+
+## API Reference
+
+<Props name="ProgressBar" />
