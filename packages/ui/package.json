@@ -28,8 +28,8 @@
     "**/*.css"
   ],
   "peerDependencies": {
-    "react": "^18.3.0 || ^19.0.0",
-    "react-dom": "^18.3.0 || ^19.0.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node build.mjs",
