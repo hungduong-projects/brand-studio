@@ -2,3 +2,4 @@
 # The audit gate fails again as soon as npm can fix an entry in range.
 GHSA-vfj7-8cjw-p6xm braces <=3.0.3 (examples/deskhand/mobile, through metro and micromatch): no patched release.
 GHSA-86w9-cpqp-85rv node-forge <=1.4.0 (examples/deskhand/mobile, through @expo/code-signing-certificates): no patched release.
+GHSA-mrhx-c7xc-m3w5 zod <4.6.6 (examples/deskhand/mobile, through expo's @expo/cli, which needs zod ^3.25.76 up to 58.1.15): no patched 3.x release.
