@@ -39,9 +39,9 @@
 .bs-notfound__description { margin: 0; max-width: 46ch; color: var(--bs-muted); text-wrap: pretty; }
 .bs-notfound__guess { margin: 0; padding: .9rem 1rem; border: 1px solid var(--bs-accent); border-radius: var(--bs-radius); background: var(--bs-accent-soft); }
 .bs-notfound__guess a { color: var(--bs-ink); font: 600 .95em ui-monospace, SFMono-Regular, Menlo, monospace; text-underline-offset: .2em; overflow-wrap: anywhere; }
-.bs-notfound__search { display: flex; gap: .5rem; }
-.bs-notfound__search input { flex: 1; min-width: 0; min-height: 48px; padding: 0 1rem; border: 1px solid var(--bs-muted); border-radius: var(--bs-radius); background: var(--bs-elevated); color: var(--bs-ink); font: inherit; }
-.bs-notfound__links { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+.bs-notfound__search { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bs-notfound__search input { flex: 1 1 14rem; min-width: 0; min-height: 48px; padding: 0 1rem; border: 1px solid var(--bs-muted); border-radius: var(--bs-radius); background: var(--bs-elevated); color: var(--bs-ink); font: inherit; }
+.bs-notfound__links { display: grid; gap: .5rem; margin: .5rem 0 0; padding: 0; list-style: none; }
 .bs-notfound__links a { display: grid; gap: .2rem; height: 100%; padding: .9rem 1rem; border: 1px solid var(--bs-line); border-radius: var(--bs-radius); background: var(--bs-elevated); text-decoration: none; }
 .bs-notfound__links a:hover { border-color: var(--bs-accent); }
 .bs-notfound__link-title { font-weight: 600; }
@@ -78,7 +78,8 @@
 }
 
 /* Scatter text */
-.bs-scatter { user-select: none; }
+/* Extra word spacing keeps the words apart while their letters lean into the gaps. */
+.bs-scatter { user-select: none; word-spacing: .15em; }
 .bs-scatter__word { display: inline-block; white-space: nowrap; }
 .bs-scatter__letter { display: inline-block; cursor: grab; touch-action: none; transform: translate(var(--bs-scatter-x, 0), var(--bs-scatter-y, 0)) rotate(var(--bs-scatter-r, 0)); transition: transform 700ms var(--bs-ease-spring); }
 .bs-scatter__letter[data-dragging] { cursor: grabbing; color: var(--bs-accent-text); transition: none; }

@@ -125,6 +125,14 @@ export function RouteProgress({ active, label = 'Loading page', delay = 250, con
 
 export interface NotFoundLink { href: string; title: string; description?: string }
 
+/** Drops slashes from the end, and from the start too when `both` is set. A loop, because a trailing-slash regex runs in quadratic time on a long run of slashes. */
+function trimSlashes(value: string, both = false) {
+  let start = 0, end = value.length;
+  while (both && start < end && value[start] === '/') start++;
+  while (end > start && value[end - 1] === '/') end--;
+  return value.slice(start, end);
+}
+
 function editDistance(a: string, b: string) {
   const row = Array.from({ length: b.length + 1 }, (_, index) => index);
   for (let i = 1; i <= a.length; i++) {
@@ -141,7 +149,7 @@ function editDistance(a: string, b: string) {
 
 /** The known page closest to `path`, scored segment by segment so one typo in a long address counts as one edit. Nothing when no page is close. */
 function closestPage(path: string, pages: string[]) {
-  const clean = (value: string) => value.toLowerCase().replace(/\/+$/, '') || '/';
+  const clean = (value: string) => trimSlashes(value.toLowerCase()) || '/';
   const target = clean(path), parts = target.split('/');
   const limit = Math.max(1, Math.min(3, Math.floor(target.length / 4)));
   let best: string | undefined, bestScore = Infinity;
@@ -205,8 +213,8 @@ export function ScatterText({ text, tidy = false, spread = 1, as: Tag = 'span', 
   useEffect(() => {
     if (tidy || reducedMotion()) { setOffsets(null); return; }
     const random = (size: number) => (Math.random() * 2 - 1) * size;
-    // Small enough that no letter lands on the line below.
-    const frame = requestAnimationFrame(() => setOffsets(Array.from({ length: count }, () => ({ x: random(.45 * spread), y: random(.22 * spread), r: random(28 * spread) }))));
+    // Small enough that the words stay readable and no letter lands on the line below.
+    const frame = requestAnimationFrame(() => setOffsets(Array.from({ length: count }, () => ({ x: random(.22 * spread), y: random(.2 * spread), r: random(20 * spread) }))));
     return () => cancelAnimationFrame(frame);
   }, [count, tidy, spread]);
   const drag = (event: PointerEvent<HTMLSpanElement>, index: number) => {
@@ -250,8 +258,8 @@ export function NotFoundTerminal({ path, links = [], pages = [], name = 'site', 
   const guess = where ? closestPage(where, known) : undefined;
   const [history, setHistory] = useState<TerminalLine[]>([]);
   const answer = (command: string): TerminalLine => {
-    const key = command.toLowerCase().replace(/^\/+|\/+$/g, '');
-    const last = (href: string) => href.toLowerCase().replace(/\/+$/, '').split('/').pop() ?? '';
+    const key = trimSlashes(command.toLowerCase(), true);
+    const last = (href: string) => trimSlashes(href.toLowerCase()).split('/').pop() ?? '';
     const word = key.split('/').pop() ?? '';
     // Short words allow one typo and longer ones two, so "ab" never lands on "api".
     const hit = known.find(href => last(href) === word || href.toLowerCase() === `/${key}`)

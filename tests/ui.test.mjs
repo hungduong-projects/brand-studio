@@ -133,6 +133,10 @@ test('not found offers the closest page only for a near miss', () => {
   assert.match(typo, /<form class="bs-notfound__search" role="search" action="\/search" method="get">/);
   assert.match(typo, /<input[^>]*name="q" value="shop ethiopia gujii"/);
   assert.ok(!render(h(NotFound, { path: '/abc', pages: ['/xyz'] })).includes('Did you mean'), 'an unrelated page is never suggested');
+  const started = performance.now();
+  render(h(NotFound, { path: `/${'/'.repeat(100000)}x`, pages }));
+  render(h(NotFoundTerminal, { path: `/${'/'.repeat(100000)}x`, pages }));
+  assert.ok(performance.now() - started < 1000, 'a long run of slashes in the address stays fast');
   const links = render(h(NotFound, { path: '/old', links: [{ href: '/shop', title: 'Shop', description: 'Every coffee' }], as: 'h2' }));
   assert.match(links, /<h2 class="bs-notfound__title">/);
   assert.match(links, /<a href="\/shop"><span class="bs-notfound__link-title">Shop<\/span><span class="bs-notfound__link-text">Every coffee<\/span><\/a>/);
