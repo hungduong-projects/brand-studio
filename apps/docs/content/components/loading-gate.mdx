@@ -1,0 +1,45 @@
+---
+title: Loading Gate
+description: "Holds a region while it loads: nothing for a quick answer, a spinner after a moment, a note when it runs long, an error with a retry."
+---
+
+<Preview name="loading-gate/default" />
+
+## Installation
+
+<Install name="LoadingGate" />
+
+## Usage
+
+```tsx
+import { LoadingGate } from '@brand-studio/ui';
+```
+
+```tsx
+<LoadingGate
+  loading={isLoading}
+  error={failed ? 'Orders did not load' : undefined}
+  label="Loading orders"
+  onTimeout={abortRequest}
+  onRetry={reload}
+  onCancel={abortRequest}
+>
+  <OrderList orders={orders} />
+</LoadingGate>
+```
+
+The gate follows the usual timing for waits. An answer within `delay` (400 ms) shows no indicator at all, because a flash is worse than a short pause. Once the spinner appears it stays for at least `minDuration` (600 ms). After `slowAfter` (8 s) a note says the wait is longer than usual and offers Cancel when you pass `onCancel`. After `timeout` (20 s) it calls `onTimeout`, so your app can stop the request and pass `error`. The demo shortens the last two so you can see each stage.
+
+Pass a `Skeleton` as `fallback` when the content has a known shape. The skeleton then replaces the spinner, and the slow note still appears above it.
+
+For a pressed button, use `useDelayedLoading(saving)` to decide when to show `Button`'s `loading` state. It returns true from `delay` after the wait starts, then for at least `minDuration`.
+
+## Accessibility
+
+- A status line announces `label` when the spinner appears, then the slow note. It sits outside the busy region, so screen readers do not hold the announcements back.
+- The content region carries `aria-busy` while it waits. The error uses `Alert` in its critical tone, so screen readers hear it at once.
+- When Retry or Cancel disappears with its state, focus moves to the region instead of dropping to the page.
+
+## API Reference
+
+<Props name="LoadingGate" />

@@ -1,0 +1,37 @@
+---
+title: Not Found Terminal
+description: "A page-not-found screen drawn as a terminal that answers a typed page name with a link."
+---
+
+<Preview name="not-found-terminal/default" />
+
+## Installation
+
+<Install name="NotFoundTerminal" />
+
+## Usage
+
+```tsx
+import { NotFoundTerminal } from '@brand-studio/ui';
+```
+
+```tsx
+<NotFoundTerminal
+  name="roastery docs"
+  links={[{ href: '/docs', title: 'every guide' }, { href: '/changelog', title: 'what moved and when' }]}
+  pages={sitemapPaths}
+  search="/search"
+/>
+```
+
+It prints the missing address, the closest of `links` and `pages` when the address looks like a typo, and `links` as places to try. A typed page name gets a link to the matching page. With no match, it links to `search` with the typed words.
+
+## Accessibility
+
+- The heading names the error in words, and every place to go is a real link.
+- New answers are added to a log region, so screen readers hear each one once.
+- The prompt has a label for screen readers; the dollar sign is decoration.
+
+## API Reference
+
+<Props name="NotFoundTerminal" />

@@ -12,7 +12,7 @@ It combines a design workflow, an optional accessible React UI package and publi
 
 | Product | Location | Current status |
 |---|---|---|
-| Brand Studio UI | [packages/ui](packages/ui/README.md) | 105 typed React components for apps, AI agents, effects, story pages and product pages |
+| Brand Studio UI | [packages/ui](packages/ui/README.md) | 113 typed React components for apps, AI agents, effects, story pages and product pages |
 | Brand Studio plugin | [plugins/brand-studio](plugins/brand-studio/README.md) | Brand Studio skills (brand-design, take-apart, check-visual, post-video, aesthetic-websites) with Codex and Claude manifests |
 | Showcase | [apps/showcase](apps/showcase/) | Interactive component library and completed brand studies |
 | Docs | [apps/docs](apps/docs/) | Public component docs: live previews in any demo brand, props and copyable code |

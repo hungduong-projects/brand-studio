@@ -1,0 +1,44 @@
+---
+title: Not Found
+description: "A page-not-found page in plain words, with the closest real page, a search box and places to go next."
+---
+
+<Preview name="not-found/default" />
+
+## Installation
+
+<Install name="NotFound" />
+
+## Usage
+
+```tsx
+import { NotFound } from '@brand-studio/ui';
+```
+
+```tsx
+<NotFound
+  pages={sitemapPaths}
+  links={[{ href: '/shop', title: 'Shop', description: 'Every coffee we roast this month.' }]}
+  search="/search"
+/>
+```
+
+Without `path`, it reads the address from the browser after it loads. When the address is a typo or two away from one of `pages`, it offers that page first. It compares the address part by part, so one wrong letter in a long address counts as one edit. The search box sends `q` to `search`, filled in with the words from the address. Keep `links` to three or four places people most often want.
+
+For a page that moved or was removed, say so in `title` and `description`, and put the new page in `action`:
+
+```tsx
+<NotFound title="This page has moved" description="The brew guides now live in one place." action={<ActionLink href="/brew-guides">Go to brew guides</ActionLink>} />
+```
+
+`art` takes a picture or an effect such as `GlitchText` above the heading. Pass `as` to pick the heading level when the page already has an `h1`.
+
+## Accessibility
+
+- The default words say what happened and what to do, with no error code and no blame.
+- The search form is a search landmark with a label for screen readers.
+- Serve the page with a 404 status, so search engines drop the address.
+
+## API Reference
+
+<Props name="NotFound" />

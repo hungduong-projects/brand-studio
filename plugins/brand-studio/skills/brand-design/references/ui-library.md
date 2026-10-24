@@ -32,6 +32,8 @@ Start from the job the person is doing on this screen, not from a component you 
 | Move between the areas of a whole site, with menus for the big ones | `SiteBar` | The site has a handful of pages and no menus: use `Header` |
 | Move between one product's pages and reach its main action | `ProductBar`, stacked under a `SiteBar` | The page is an app screen or a chaptered story: use `Header` or `StoryHeader` |
 | Reach the links on a phone, or in your own bar | `MobileNavigation` | You use `Header`: it already includes one |
+| See that the next page is on its way | `RouteProgress` | The page changes in under a quarter of a second: it shows nothing, so leave it out |
+| Recover from an address that leads nowhere | `NotFound` | The page exists but is empty: use `EmptyState` |
 | Switch views of the same thing | `Tabs` | The views are separate pages: use links |
 
 ### Know what happened
@@ -44,6 +46,8 @@ Start from the job the person is doing on this screen, not from a component you 
 | Confirm a decision, or finish a short task, before returning | `Dialog` | The content is long or needs the page behind it |
 | Wait for content of a known shape | `Skeleton` | The shape is unknown or the wait is an action: use `Spinner` |
 | Wait for an action of unknown length | `Spinner`, or `Button` with `loading` for the pressed button | Content is loading into a known layout: use `Skeleton` |
+| Load a region that may answer slowly, without a flash for quick answers | `LoadingGate`, with a `Skeleton` as `fallback` when the shape is known | The wait is a pressed button: use `Button` with `loading` |
+| Follow a job of known length, step by step | `ProgressBar` | The length is unknown: use `Spinner` or `LoadingGate` |
 | Understand an empty list or page, and fill it | `EmptyState` | The emptiness is an error: use `Alert` |
 | Learn what an unlabelled control does | `Tooltip` | The text is needed to use the control: show it as a visible label |
 
@@ -113,6 +117,10 @@ Use these for a brand moment, not for routine controls. Allow at most one per vi
 | Give one product card physical presence | `TiltCard` | Cards sit in a dense grid people scan quickly |
 | Let a row of plans or options glow as the pointer passes | `SpotlightCard` | The cards hold a form or many controls |
 | Draw attention to a short label, lot code or status line | `ScrambleText` | The text is longer than a line or must be read at once |
+| Mark a lost or broken moment, such as a page-not-found number | `GlitchText` | The text is body copy or the brand is calm |
+| Give a page-not-found heading some play that people can tidy | `ScatterText` | The heading must be read at a glance |
+| Give a developer brand a page-not-found screen with a working page finder | `NotFoundTerminal` | Visitors are not technical: use `NotFound` |
+| Give a playful brand a page-not-found screen with a game | `NotFoundBreakout` | The brand is serious, or the page must get people moving at once |
 | Make a display headline answer the pointer | `ProximityText` | The brand font has no variable weight axis |
 | Fill a hero word with the product in motion | `VideoText` | The words are long or the video has no clear texture at that size |
 | Mark a scroll cue, badge or seal with a turning ring of words | `CircularText` | The words carry information the person must read |

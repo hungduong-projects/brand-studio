@@ -1,0 +1,32 @@
+---
+title: Not Found Breakout
+description: "A small brick game for a page-not-found screen, with bricks that spell 404."
+---
+
+<Preview name="not-found-breakout/default" />
+
+## Installation
+
+<Install name="NotFoundBreakout" />
+
+## Usage
+
+```tsx
+import { NotFoundBreakout } from '@brand-studio/ui';
+```
+
+```tsx
+<NotFound title="This page is not here" art={<NotFoundBreakout />} />
+```
+
+Space, a click or a tap launches the ball. The paddle follows the pointer or the left and right arrow keys. The bricks take the brand's ink and the paddle and ball its accent, and both change with the theme.
+
+## Accessibility
+
+- The game never starts by itself and pauses when the tab is hidden.
+- The canvas takes keyboard focus, and a status line below it says how many bricks are left and what to press.
+- Keep the way out of the page above the game, so nobody has to play to leave.
+
+## API Reference
+
+<Props name="NotFoundBreakout" />

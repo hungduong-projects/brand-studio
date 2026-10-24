@@ -1,0 +1,33 @@
+---
+title: Route Progress
+description: "A thin bar across the top while the next page loads. Quick page changes show nothing."
+---
+
+<Preview name="route-progress/default" />
+
+## Installation
+
+<Install name="RouteProgress" />
+
+## Usage
+
+```tsx
+import { RouteProgress } from '@brand-studio/ui';
+```
+
+```tsx
+<RouteProgress active={navigation.state === 'loading'} />
+```
+
+Set `active` while your router fetches the next page. The bar waits `delay` (250 ms), so quick page changes show nothing. It then creeps toward 85% without claiming to finish, fills when `active` turns off, and fades. The page underneath stays readable the whole time.
+
+It is fixed to the top of the window. Pass `contained` to pin it to the top of the nearest positioned box instead, such as an app's main pane.
+
+## Accessibility
+
+- The bar is hidden from screen readers. A separate status line says `label` while the bar shows.
+- Your router still owns moving focus and setting the page title when the new page arrives.
+
+## API Reference
+
+<Props name="RouteProgress" />
