@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    name: verify
+  checks:
+    name: checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -35,6 +35,58 @@ jobs:
       - run: sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm test
       - run: npm run check:brand
-      - run: npm run e2e
-      - run: npm run a11y
       - run: npm pack --workspace @brand-studio/ui --dry-run --ignore-scripts
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run e2e
+
+  a11y:
+    name: a11y (${{ matrix.mode }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [light, dark]
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:docs
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run a11y
+        env:
+          A11Y_MODE: ${{ matrix.mode }}
+
+  # Branch protection requires a check named `verify`, so this job reports the result of the jobs above.
+  verify:
+    name: verify
+    needs: [checks, e2e, a11y]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Every job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do [ "$result" = success ] || exit 1; done
