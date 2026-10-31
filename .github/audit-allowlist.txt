@@ -1,5 +1,7 @@
 # Advisories with no patched release. One ID per line, then why it stays.
 # The audit gate fails again as soon as npm can fix an entry in range.
 GHSA-vfj7-8cjw-p6xm braces <=3.0.3 (examples/deskhand/mobile, through metro and micromatch): no patched release.
-GHSA-86w9-cpqp-85rv node-forge <=1.4.0 (examples/deskhand/mobile, through @expo/code-signing-certificates): no patched release.
 GHSA-mrhx-c7xc-m3w5 zod <4.6.6 (examples/deskhand/mobile, through expo's @expo/cli, which needs zod ^3.25.76 up to 58.1.15): no patched 3.x release.
+GHSA-gcqx-w48m-w2h4 deepmerge <=4.3.1 (examples/deskhand/mobile, through @expo/config): no patched release.
+GHSA-3g3m-2fjr-6pw4 glob <=14.0.1 (examples/deskhand/mobile, through expo's @expo/cli and @expo/config, which need glob ^13.0.0): the fix is only in 14.0.2, no patched 13.x release.
+GHSA-g3hv-75wg-m249 minimatch <11.0.1 (examples/deskhand/mobile, through glob 13 and @expo/fingerprint, which need minimatch ^10.2.2): the fix is only in 11.0.1, no patched 10.x release.

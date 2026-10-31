@@ -20,10 +20,12 @@ const server = createServer(async (request, response) => {
 await new Promise(resolve => server.once('listening', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 
+// A11Y_MODE=light or dark scans one mode, so CI can run the two modes as parallel jobs.
+const modes = process.env.A11Y_MODE ? [process.env.A11Y_MODE] : ['light', 'dark'];
 const slugs = (await readdir(path.join(root, 'docs/components'))).sort();
 const browser = await chromium.launch();
 const failures = [];
-for (const brand of brandKeys) for (const mode of ['light', 'dark']) {
+for (const brand of brandKeys) for (const mode of modes) {
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   await context.addInitScript(saved => localStorage.setItem('bs-docs-demo', saved), JSON.stringify({ brand, mode }));
   const queue = [...slugs];
@@ -41,5 +43,5 @@ for (const brand of brandKeys) for (const mode of ['light', 'dark']) {
 }
 await browser.close();
 server.close();
-console.log(`scanned ${slugs.length} demos in ${brandKeys.length} brands, light and dark`);
+console.log(`scanned ${slugs.length} demos in ${brandKeys.length} brands, ${modes.join(' and ')}`);
 if (failures.length) { console.log(failures.join('\n')); process.exit(1); }
